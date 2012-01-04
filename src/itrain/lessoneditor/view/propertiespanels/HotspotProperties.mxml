@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%"
+		 click="onMouseClick(event)"
+		 xmlns:view="itrain.common.view.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.enum.EnumAction;
+			import itrain.common.model.enum.EnumClass;
+			import itrain.common.model.enum.EnumCursor;
+			import itrain.common.model.vo.HotspotVO;
+			import itrain.common.utils.ActionUtils;
+			import itrain.common.utils.CursorUtils;
+			import itrain.common.utils.Embeded;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.IList;
+			import mx.core.mx_internal;
+			import mx.utils.ObjectUtil;
+
+			[Bindable]
+			public var hotspotVO:HotspotVO;
+
+			[Bindable]
+			private var _actionDataProvider:ArrayCollection=new ArrayCollection(EnumAction.values);
+			[Bindable]
+			private var _cursorDataProvider:ArrayCollection=new ArrayCollection(EnumCursor.values);
+
+			private function getSelectedItem(value:EnumClass, dataProvider:IList):Object {
+				if (value) {
+					for each (var o:Object in dataProvider.toArray()) {
+						if (o.data.equals(value))
+							return o
+					}
+				}
+				return null;
+			}
+
+			private function pointActionLabelFunction(item:EnumAction):String {
+				return ActionUtils.getActionLabel(item);
+			}
+
+			private function pointCursorLabelFunction(item:EnumCursor):String {
+				return CursorUtils.getCursorLabel(item);
+			}
+
+			private function onMouseClick(e:MouseEvent):void {
+				e.stopImmediatePropagation();
+			}
+
+			private function onButtonBarActionsChange():void {
+				hotspotVO.action=bbActions.selectedItem.data;
+			}
+
+			private function onButtonBarCursorsChange():void {
+				hotspotVO.cursor=bbCursors.selectedItem.data;
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+			  height="100%"
+			  gap="10">
+		<s:VGroup width="100%">
+			<s:Label text="Action:"
+					 styleName="propertiesLabel"/>
+			<s:ButtonBar id="bbActions"
+						 skinClass="itrain.lessoneditor.view.skins.CustomLargeButtonSparkSkin"
+						 click="{event.stopImmediatePropagation()}"
+						 change="onButtonBarActionsChange()"
+						 requireSelection="true"
+						 selectedItem="{getSelectedItem(hotspotVO.action, bbActions.dataProvider)}"
+						 width="30">
+				<s:layout>
+					<s:HorizontalLayout gap="2"/>
+				</s:layout>
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:Object label="Left Mouse Button"
+								   data="{EnumAction.LEFT_MOUSE}"
+								   icon="{Embeded.LEFT_MOUSE_BUTTON}"/>
+						<fx:Object label="Mouse Wheel"
+								   data="{EnumAction.MOUSE_WHEEL}"
+								   icon="{Embeded.SCROLL_MOUSE}"/>
+						<fx:Object label="Right Mouse Button"
+								   data="{EnumAction.RIGHT_MOUSE}"
+								   icon="{Embeded.RIGHT_MOUSE_BUTTON}"/>
+						<fx:Object label="Double click"
+								   data="{EnumAction.DOUBLE_CLICK}"
+								   icon="{Embeded.DOUBLE_MOUSE_BUTTON}"/>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:ButtonBar>
+		</s:VGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<s:VGroup width="100%">
+			<s:Label text="Cursor:"
+					 styleName="propertiesLabel"/>
+			<!--s:DropDownList id="ddCursor"
+							width="150"
+							change="{hotspotVO.cursor = ddCursor.selectedItem}"
+							dataProvider="{_cursorDataProvider}"
+							selectedItem="{getSelectedItem(hotspotVO.cursor, _cursorDataProvider)}"
+							labelFunction="pointCursorLabelFunction"/-->
+			<s:ButtonBar id="bbCursors"
+						 skinClass="itrain.lessoneditor.view.skins.CustomLargeButtonSparkSkin"
+						 click="{event.stopImmediatePropagation()}"
+						 change="onButtonBarCursorsChange()"
+						 requireSelection="true"
+						 selectedItem="{getSelectedItem(hotspotVO.cursor, bbCursors.dataProvider)}"
+						 width="30">
+				<s:layout>
+					<s:HorizontalLayout gap="2"/>
+				</s:layout>
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:Object label="Pointer"
+								   data="{EnumCursor.POINTER}"
+								   icon="{Embeded.POINTER_CURSOR}"/>
+						<fx:Object label="Hand cursor"
+								   data="{EnumCursor.HAND}"
+								   icon="{Embeded.HAND_CURSOR}"/>
+						<fx:Object label="Text cursor"
+								   data="{EnumCursor.TEXT}"
+								   icon="{Embeded.TEXT_CURSOR}"/>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:ButtonBar>
+		</s:VGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<mx:Grid>
+			<mx:GridRow verticalAlign="middle">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Score:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right">
+					<s:NumericStepper id="nstpScore"
+									  value="{hotspotVO.score}"
+									  maximum="100"
+									  minimum="-100"
+									  change="{hotspotVO.score = nstpScore.value}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+	</s:VGroup>
+</s:Group>

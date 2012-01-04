@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%"
+		 clipAndEnableScrolling="true">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var captures:ArrayCollection = new ArrayCollection();
+		]]>
+	</fx:Script>
+	<s:HGroup id="movableContainer"
+			  height="100%">
+		<s:DataGrid width="{this.width}"
+					height="100%"
+					dataProvider="{captures}"
+					requestedRowCount="10">
+			<s:columns>
+				<mx:ArrayList>
+					<s:GridColumn headerText="Lesson Name"/>
+					<s:GridColumn headerText="Capture Id"/>
+					<s:GridColumn headerText="Timestamp"/>
+				</mx:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:Group width="{this.width}"
+				 height="100%"
+				 clipAndEnableScrolling="true">
+			<s:List width="100%"
+					height="100%"/>
+			<s:Button label="  Hide"
+					  verticalCenter="0"
+					  left="-10"/>
+		</s:Group>
+	</s:HGroup>
+</s:Group>

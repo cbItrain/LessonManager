@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:view="itrain.lessonplayer.view.*"
+		  xmlns:swiz="http://swiz.swizframework.org"
+		  xmlns:local="*"
+		  creationComplete="onCreationComplete()"
+		  width="100%"
+		  height="100%"
+		  implements="itrain.common.model.ILessonPlayerModule"
+		  removedFromStage="onRemoveFromStage(event)"
+		  addedToStage="onAddedToStage()">
+	<fx:Declarations>
+		<swiz:Swiz id="playerModuleSwiz"
+				   domain="{ApplicationDomain.currentDomain}">
+			<!-- BeanProviders simply contain the non-display objects that Swiz should process. -->
+			<swiz:beanProviders>
+				<local:PlayerBeans/>
+			</swiz:beanProviders>
+			<swiz:config>
+				<!-- The eventPackages value tells Swiz the path to your Event classes,
+				and viewPackages is an optional value that speeds up the processing of display classes. -->
+				<swiz:SwizConfig eventPackages="{['itrain.common.events.*', 'itrain.lessonplayer.events.*']}"
+								 viewPackages="itrain.lessonplayer.view.*"/>
+			</swiz:config>
+
+		</swiz:Swiz>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.control.LessonLoader;
+			import itrain.common.events.ImageRepositoryEvent;
+			import itrain.common.events.LessonLoaderEvent;
+			import itrain.common.events.LessonModuleEvent;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.ILessonPlayerModule;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.model.RightClickAwareApplication;
+			import itrain.common.model.vo.LessonVO;
+			import itrain.common.utils.DataUtils;
+			import itrain.lessonplayer.control.PlayerController;
+			import itrain.lessonplayer.events.PlayerEvent;
+			import itrain.lessonplayer.events.ValidationEvent;
+			import itrain.lessonplayer.model.ExternalInterfaceBean;
+			import itrain.lessonplayer.model.PlayerModel;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
+			import mx.core.EventPriority;
+			import mx.events.ResizeEvent;
+			
+			import spark.components.Application;
+
+			[Inject]
+			public var controller:PlayerController;
+			[Inject]
+			[Bindable]
+			public var model:PlayerModel;
+			[Inject]
+			public var externalBean:ExternalInterfaceBean;
+
+			private function onCreationComplete():void {
+				ChangeWatcher.watch(model, "currentlySelected", onCurrentlySelectedChange);
+
+				var ev:LessonModuleEvent=new LessonModuleEvent(LessonModuleEvent.MODULE_CREATION_COMPLETE, true);
+				dispatchEvent(ev);
+
+				notifyExternalBean(ExternalInterfaceBean.PLAYER_READY);
+			}
+
+			private function notifyExternalBean(message:String):void {
+				callLater(function():void {
+					switch (message) {
+						case ExternalInterfaceBean.PLAYER_READY:
+							externalBean.dispatchEvent(ExternalInterfaceBean.PLAYER_READY);
+							break;
+						case ExternalInterfaceBean.SLIDE_CHANGES:
+							externalBean.dispatchEvent(ExternalInterfaceBean.SLIDE_CHANGES, model.imageWidth, model.imageHeight + demoControlBar.height);
+							break;
+						case ExternalInterfaceBean.LESSON_COMPLETE:
+							externalBean.dispatchEvent(ExternalInterfaceBean.LESSON_COMPLETE, model.lessonId);
+							break;
+					}
+				});
+			}
+
+			[PostConstruct]
+			public function onPostConstruct():void {
+				onAddedToStage();
+			}
+
+			public function onAddedToStage():void {
+				registerRightClick();
+			}
+
+			private function registerRightClick():void {
+				if (model && model.interactive) {
+					(parentApplication as RightClickAwareApplication).listenForRightClick();
+				}
+			}
+
+			private function unregisterRightClick():void {
+				if (model && model.interactive) {
+					(parentApplication as RightClickAwareApplication).unListenForRightClick();
+				}
+			}
+
+			public function rightClick(target:Object):void {
+				var pe:PlayerEvent=new PlayerEvent(PlayerEvent.RIGHT_CLICK, true);
+				pe.data=target;
+				dispatchEvent(pe);
+			}
+
+			[Mediate(event="ModelEvent.LESSON_READY")]
+			public function onLessonReady():void {
+				demoControlBar.lessonReady();
+				if (!model.interactive) {
+					positionControls(model.lesson.controlsPosition == "top");
+				}
+			}
+
+			private function onCurrentlySelectedChange(o:Object=null):void {
+				if (model.interactive && model.currentlySelected) {
+					positionControls(model.currentlySelected.instructionTopPos);
+				}
+			}
+
+			private function positionControls(top:Boolean):void {
+				if ((container.getElementIndex(demoControlBar) == 0 && !top) || (container.getElementIndex(demoControlBar) == 1 && top)) {
+					var showInstruction:Boolean = false;
+					if (model.interactive && demoControlBar.isInstructionVisible()) {
+						demoControlBar.hideInstruction(true);
+						showInstruction = true;
+					}
+					container.swapElementsAt(0, 1);
+					if (showInstruction)
+						callLater(function():void {
+							demoControlBar.showInstruction();
+						});
+				}
+			}
+
+			[Mediate(event="ModelEvent.SLIDE_IMAGE_READY")]
+			public function onImageLoaded(e:ModelEvent=null):void {
+				demoControlBar.visible=model.showToolBar;
+				if (model.interactive && model.currentlySelected.instructionTopPos) {
+					positionControls(model.currentlySelected.instructionTopPos);
+				}
+				notifyExternalBean(ExternalInterfaceBean.SLIDE_CHANGES);
+			}
+			
+			
+			[Mediate(event="ValidationEvent.LESSON_COMPLETE")]
+			public function onLessonComplete():void {
+				notifyExternalBean(ExternalInterfaceBean.LESSON_COMPLETE);
+			}
+
+			public function loadLesson(interactive:Boolean, sendParameters:Object=null):void {
+				model.clean();
+				model.interactive=interactive;
+				var lle:LessonLoaderEvent=new LessonLoaderEvent(LessonLoaderEvent.LOAD_LESSON, true);
+				lle.sendParameters=sendParameters;
+				this.dispatchEvent(lle);
+
+				notifyExternalBean(ExternalInterfaceBean.SLIDE_CHANGES);
+			}
+
+
+			public function playLesson(lesson:LessonVO, interactive:Boolean=false, developerMode:Boolean=false, startIndex:int = 0):void {
+				model.clean();
+				model.interactive=interactive;
+				unregisterRightClick();
+				registerRightClick();
+				controller.developerMode=developerMode;
+
+				var le:LessonLoaderEvent=new LessonLoaderEvent(LessonLoaderEvent.SET_LESSON, true);
+				le.lesson=lesson;
+				le.sendParameters = startIndex;
+				dispatchEvent(le);
+			}
+
+			public function beforeUnload():void {
+				model.clean();
+				unregisterRightClick();
+				var ev:LessonModuleEvent=new LessonModuleEvent(LessonModuleEvent.PREPARE_TO_UNLOAD, true);
+				dispatchEvent(ev);
+			}
+
+			public function set developerMode(value:Boolean):void {
+				controller.developerMode=value;
+			}
+
+			public function get developerMode():Boolean {
+				return controller.developerMode;
+			}
+
+			private function onRemoveFromStage(e:Event):void {
+				playerModuleSwiz.tearDown();
+			}
+			
+			public function resetLesson():void {
+				model.clean();
+				dispatchEvent(new ValidationEvent(ValidationEvent.LESSON_RESET, true));
+				if (model.currentSlideIndex == 0)
+					playerWindow.interactiveLayer.restart();
+				else
+					controller.selectSlideAt(0);
+			}
+			
+			public function next():Boolean {
+				controller.nextSlide();
+				return nextEnabled();
+			}
+			
+			public function previous():Boolean {
+				controller.previousSlide();
+				return previousEnabled();
+			}
+			
+			public function previousEnabled():Boolean {
+				if (model.lessonPointers.length > 0)
+					return model.currentSlideIndex > model.lessonPointers[0];
+				else
+					return false;
+			}
+			
+			public function nextEnabled():Boolean {
+				if (model.lessonPointers.length > 0)
+					return model.currentSlideIndex < model.lessonPointers[model.lessonPointers.length-1];
+				else
+					return false;
+			}
+			
+			public function getSlideSelectionLabel():String {
+				return demoControlBar.progressText;
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup id="container"
+			  gap="0"
+			  horizontalAlign="center"
+			  verticalAlign="middle"
+			  width="100%"
+			  height="100%"
+			  clipAndEnableScrolling="true">
+		<view:PlayerWindow id="playerWindow"
+						   depth="1"
+						   realWidth="{Math.min((this.parentDocument is Application ? parentApplication.width : this.width), model.imageWidth)}"
+						   realHeight="{(this.parentDocument is Application ? parentApplication.height : this.height) - demoControlBar.height}"/>
+		<view:DemoControlBar id="demoControlBar"
+							 width="{Math.min((this.parentDocument is Application ? parentApplication.width : this.width), model.imageWidth)}"
+							 height="{(model.showToolBar || model.interactive) ? 35 : 0}"
+							 visible="false"
+							 depth="2"/>
+	</s:VGroup>
+</s:Module>

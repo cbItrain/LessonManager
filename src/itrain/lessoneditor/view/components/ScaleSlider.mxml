@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 filters="{[Common.dropShadow]}"
+		 height="33"
+		 mouseOver="onMouseOver()"
+		 mouseOut="onMouseOut()"
+		 preinitialize="onPreInitialize()"
+		 creationComplete="onCreationComplete()"
+		 clipAndEnableScrolling="true">
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.setTimeout;
+			
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.model.EditPanelModel;
+			import itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin;
+
+			[Bindable]
+			public var targetHeight:Number=33.0;
+
+			[Bindable]
+			public var model:EditPanelModel;
+
+			private var _timer:Timer=new Timer(Common.IDLE_WINDOW_SHOW_INTERVAL, 1);
+			private var _showed:Boolean=false;
+			private var _mouseOver:Boolean=false;
+
+			public function get showed():Boolean {
+				return _showed;
+			}
+
+			public function focusOnSlider():void {
+				sldScale.setFocus();
+			}
+
+			private function onPreInitialize():void {
+				_showed=true;
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerComplete);
+			}
+
+			private function onCreationComplete():void {
+				setTimeout(startTimer, 2000);
+
+				parentApplication.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				parentApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+				parentApplication.addEventListener(MouseEvent.MOUSE_WHEEL, onApplicationMouseWheel, true);
+			}
+
+			private function sliderLabelFunction(value:Number):String {
+				return value + "%";
+			}
+
+			private function onFullChange():void {
+				model.selectedScale=-1.0;
+			}
+
+			private function onActualChange():void {
+				model.selectedScale=100.0;
+			}
+
+			private function onScaleChange():void {
+				model.selectedScale=sldScale.value;
+				if (_showed) {
+					startTimer();
+				} else {
+					show();
+				}
+			}
+
+			private function onTimerComplete(e:TimerEvent):void {
+				hide();
+			}
+
+			private function stopTimer():void {
+				if (_timer.running)
+					_timer.stop();
+			}
+
+			private function startTimer():void {
+				stopTimer();
+				_timer.start();
+			}
+
+			private function onMouseOver():void {
+				_mouseOver=true;
+				stopTimer();
+			}
+
+			private function onMouseOut():void {
+				_mouseOver=false;
+				startTimer();
+			}
+
+			private function hide():void {
+				if (_showed) {
+					if (resizeEffect.isPlaying)
+						resizeEffect.stop();
+					resizeEffect.play([this], true);
+				}
+			}
+
+			public function show():void {
+				if (!(_showed || resizeEffect.isPlaying)) {
+					if (resizeEffect.isPlaying)
+						resizeEffect.stop();
+					resizeEffect.play([this]);
+					startTimer();
+				}
+			}
+
+			private function onEffectEnd():void {
+				_showed=this.height == targetHeight;
+			}
+
+			private function onKeyUp(e:KeyboardEvent):void {
+				if (e.ctrlKey) {
+					if (e.keyCode == Keyboard.NUMBER_0 || e.keyCode == Keyboard.NUMPAD_0)
+						onFullChange();
+					else if (e.keyCode == Keyboard.NUMBER_1 || e.keyCode == Keyboard.NUMPAD_1) {
+						onActualChange();
+					}
+				}
+			}
+
+			private function onKeyDown(e:KeyboardEvent):void {
+				if (e.ctrlKey) {
+					if (e.keyCode == Keyboard.NUMPAD_ADD) {
+						if (sldScale.value + 1 <= sldScale.maximum) {
+							sldScale.value++;
+							onScaleChange();
+						}
+					} else if (e.keyCode == Keyboard.MINUS) {
+						if (sldScale.value - 1 >= sldScale.minimum) {
+							sldScale.value--;
+							onScaleChange();
+						}
+					}
+				}
+			}
+			
+			private function onApplicationMouseWheel(e:MouseEvent):void {
+				if (e.ctrlKey) {
+					if (e.delta > 0 && sldScale.value < sldScale.maximum) {
+						sldScale.value++;
+						e.stopImmediatePropagation();
+						onScaleChange();
+					} else if (e.delta < 0 && sldScale.value > sldScale.minimum) {
+						sldScale.value--;
+						e.stopImmediatePropagation();
+						onScaleChange()
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Resize id="resizeEffect"
+				  heightFrom="0.0"
+				  heightTo="{targetHeight}"
+				  duration="300"
+				  effectEnd="onEffectEnd()"/>
+	</fx:Declarations>
+	<s:Rect width="100%"
+			height="100%"
+			alpha=".7"
+			topLeftRadiusX="10"
+			topLeftRadiusY="10"
+			topRightRadiusX="10"
+			topRightRadiusY="10">
+		<s:fill>
+			<s:LinearGradient>
+				<s:entries>
+					<s:GradientEntry alpha=".9"
+									 color="#E7E7E7"/>
+					<s:GradientEntry alpha="1.0"
+									 color="#E7E7E7"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="2"
+								color="#BBBBBB"/>
+		</s:stroke>
+	</s:Rect>
+	<s:HGroup verticalAlign="middle"
+			  paddingBottom="5"
+			  paddingTop="5"
+			  paddingLeft="10"
+			  paddingRight="10">
+		<s:Label text="Zoom:"/>
+		<s:HSlider id="sldScale"
+				   width="200"
+				   minimum="10.0"
+				   maximum="200.0"
+				   focusEnabled="false"
+				   value="{model.selectedScale != -1.0 ? model.selectedScale : 100.0}"
+				   stepSize="1.0"
+				   dataTipFormatFunction="sliderLabelFunction"
+				   change="onScaleChange()"/>
+		<s:Line width="0"
+				height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<s:ToggleButton id="btnFull"
+						width="30"
+						cornerRadius="5"
+						selected="{model.selectedScale == -1.0}"
+						icon="{Embeded.FULL_WINDOW_SIZE_ICON}"
+						change="onFullChange()"
+						skinClass="itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin"
+						toolTip="Fit all available space"/>
+		<s:ToggleButton id="btnActual"
+						width="30"
+						selected="{model.selectedScale == 100.0}"
+						cornerRadius="5"
+						icon="{Embeded.ACTUAL_SIZE_ICON}"
+						change="onActualChange()"
+						skinClass="itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin"
+						toolTip="Actual Size (100%)"/>
+	</s:HGroup>
+</s:Group>

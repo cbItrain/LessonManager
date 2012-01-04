@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<swiz:BeanProvider xmlns:swiz="http://swiz.swizframework.org"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:model="itrain.lessonplayer.model.*" 
+				   xmlns:control="itrain.lessonplayer.control.*" 
+				   xmlns:controlCommon="itrain.common.control.*" 
+				   xmlns:modelCommon="itrain.common.model.*">
+	<controlCommon:LessonLoader id="lessonLoader"/>
+	<controlCommon:LessonConverter id="lessonConverter"/>
+	<control:PlayerController id="controller"/>
+	<model:PlayerModel id="model"/>
+	<model:ExternalInterfaceBean id="externalBean"/>
+	<controlCommon:ImageLoadingPolicy id="imagePolicy"/>
+</swiz:BeanProvider>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cv:HidableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:pp="itrain.lessoneditor.view.propertiespanels.*"
+					 xmlns:cv="itrain.common.view.*"
+					 width="275"
+					 height="100%"
+					 filters="{[Common.dropShadow]}"
+					 initialize="onInitialize()">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.model.vo.HighlightVO;
+			import itrain.common.utils.Common;
+			import itrain.lessoneditor.view.skins.CustomButtonSparkSkin;
+
+			import spark.filters.DropShadowFilter;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.common.model.vo.TextFieldVO;
+			import itrain.common.model.vo.HotspotVO;
+			import itrain.common.model.vo.SlideObjectVO;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.model.SlidePropertiesModel;
+
+			[Inject]
+			public var model:SlidePropertiesModel;
+
+			[Inject]
+			[Bindable]
+			public var editorModel:EditorModel;
+
+			[Bindable]
+			private var _selectedObject:SlideObjectVO;
+
+			private function onInitialize():void {
+				collapseRight=true;
+			}
+
+			[Mediate(event="EditorEvent.PREPARE_OBJECT")]
+			[Mediate(event="EditorEvent.OBJECT_SELECTION_CHANGE")]
+			public function onSlideObjectSelectionChange(e:EditorEvent):void {
+				_selectedObject=e.model as SlideObjectVO;
+				if (_selectedObject) {
+					if (_selectedObject is CaptionVO)
+						vstContents.selectedIndex=1;
+					else if (_selectedObject is HotspotVO)
+						vstContents.selectedIndex=2;
+					else if (_selectedObject is TextFieldVO)
+						vstContents.selectedIndex=3;
+					else if (_selectedObject is HighlightVO)
+						vstContents.selectedIndex=4;
+					else
+						vstContents.selectedIndex=0;
+				} else {
+					vstContents.selectedIndex=0;
+				}
+			}
+
+			[Mediate(event="ModelEvent.SLIDE_SELECTION_CHANGE")]
+			public function onSlideSelectionChange():void {
+				vstContents.selectedIndex=0;
+				_selectedObject=null;
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_REMOVED")]
+			public function onRemoveObject(ev:EditorEvent):void {
+				if (model.currentlySelected == ev.additionalData) {
+					vstContents.selectedIndex=0;
+					_selectedObject=null;
+				}
+			}
+
+			private function onButtonClick(event:Event):void {
+				event.stopImmediatePropagation();
+				playHideShow();
+			}
+
+			private function onClick(me:MouseEvent):void {
+				me.stopImmediatePropagation();
+			}
+
+			private function onTitleButtonClick():void {
+				var vo:SlideObjectVO;
+				switch (vstContents.selectedIndex) {
+					case 1:
+						vo=new CaptionVO();
+						break;
+					case 2:
+						vo=new HotspotVO();
+						break;
+					case 3:
+						vo=new TextFieldVO();
+						break;
+					case 4:
+						vo=new HighlightVO();
+						break;
+				}
+				if (vo) {
+					var event:EditorEvent=new EditorEvent(EditorEvent.ADD_OBJECT, true);
+					event.model=vo;
+					event.additionalData=model.currentlySelected;
+					dispatchEvent(event);
+				}
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_ADDED")]
+			public function onAddObject(ev:EditorEvent):void {
+				if (ev.additionalData == model.currentlySelected)
+					onSlideObjectSelectionChange(ev);
+			}
+
+			private function onEffectEnd():void {
+				this.percentHeight=100;
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 bottom="10"
+			 top="0"
+			 click="onClick(event)">
+		<s:Button cornerRadius="10"
+				  icon="{this.x == parentDocument.width ? Embeded.RIGHT_ARROW : Embeded.LEFT_ARROW}"
+				  click="onButtonClick(event)"
+				  width="40"
+				  height="27"
+				  left="-30"
+				  bottom="40"/>
+		<s:Rect width="100%"
+				height="100%"
+				bottomLeftRadiusX="10"
+				bottomLeftRadiusY="10"
+				topLeftRadiusX="10"
+				topLeftRadiusY="10">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:entries>
+						<s:GradientEntry alpha=".9"
+										 color="#F0F1F4"/>
+						<s:GradientEntry alpha="1.0"
+										 color="#F0F1F4"/>
+					</s:entries>
+				</s:LinearGradient>
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke weight="2"
+									color="#BBBBBB"/>
+			</s:stroke>
+		</s:Rect>
+		<s:Scroller width="100%"
+					top="0"
+					bottom="3"
+					verticalScrollPolicy="auto"
+					horizontalScrollPolicy="off">
+			<s:Group width="100%"
+					 height="100%"
+					 clipAndEnableScrolling="true">
+				<s:VGroup width="100%"
+						  height="100%"
+						  paddingBottom="20"
+						  paddingTop="20"
+						  paddingLeft="20"
+						  paddingRight="10"
+						  enabled="{editorModel.dataManipulationEnabled}">
+					<s:Label width="100%"
+							 styleName="slidePropertiesTitleButton"
+							 text="{vstContents.selectedChild.label}"/>
+					<s:Spacer height="10"/>
+					<mx:ViewStack id="vstContents"
+								  width="100%"
+								  creationPolicy="all"
+								  resizeToContent="true"
+								  selectedIndex="0">
+						<s:NavigatorContent label="Slide"
+											width="100%"
+											height="100%">
+							<pp:SlideProperties width="100%"
+												height="100%"/>
+						</s:NavigatorContent>
+						<s:NavigatorContent label="Caption"
+											width="100%"
+											height="100%">
+							<pp:CaptionProperties width="100%"
+												  height="100%"
+												  captionVO="{_selectedObject as CaptionVO}"/>
+						</s:NavigatorContent>
+						<s:NavigatorContent label="Hotspot"
+											width="100%"
+											height="100%">
+							<pp:HotspotProperties width="100%"
+												  height="100%"
+												  hotspotVO="{_selectedObject as HotspotVO}"/>
+						</s:NavigatorContent>
+						<s:NavigatorContent label="Text Field"
+											width="100%"
+											height="100%">
+							<pp:TextFieldProperties width="100%"
+													height="100%"
+													slideObject="{_selectedObject as TextFieldVO}"/>
+						</s:NavigatorContent>
+						<s:NavigatorContent label="Highlight"
+											width="100%"
+											height="100%">
+							<pp:HighlightProperties width="100%"
+													height="100%"
+													highlightVO="{_selectedObject as HighlightVO}"/>
+						</s:NavigatorContent>
+					</mx:ViewStack>
+					<s:Spacer height="100%"/>
+					<s:Group width="100%"
+							 clipAndEnableScrolling="true">
+						<pp:LayoutProperties id="dimensions"
+											 width="100%"
+											 visible="{vstContents.selectedIndex &gt; 0 &amp;&amp; vstContents.selectedIndex &lt; 5}"
+											 slideObject="{_selectedObject}"/>
+						<pp:GlobalSettings id="global"
+										   width="100%"
+										   visible="{vstContents.selectedIndex == 0}"/>
+					</s:Group>
+				</s:VGroup>
+			</s:Group>
+		</s:Scroller>
+	</s:Group>
+</cv:HidableContainer>

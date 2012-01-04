@@ -1,0 +1,1371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <header>
+    <slides>240</slides>
+    <locale>United Kingdom</locale>
+  </header>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_1.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_1.jpeg">
+    <event action="MANUAL" />
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_2.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_2.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="790.0" y="34.0">
+      <display arg="0" value="Maximize" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_3.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_3.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="322.0" y="149.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_4.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_4.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="422.0" y="160.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_5.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_5.jpeg">
+    <event action="MOUSE_DRAG" x="421.0" y="190.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_6.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_6.jpeg">
+    <event action="MOUSE_DRAG" x="421.0" y="194.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_7.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_7.jpeg">
+    <event action="MOUSE_DRAG" x="421.0" y="200.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_8.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_8.jpeg">
+    <event action="MOUSE_DRAG" x="422.0" y="209.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_9.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_9.jpeg">
+    <event action="MOUSE_DRAG" x="423.0" y="215.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_10.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_10.jpeg">
+    <event action="MOUSE_DRAG" x="423.0" y="223.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_11.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_11.jpeg">
+    <event action="MOUSE_DRAG" x="423.0" y="228.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_12.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_12.jpeg">
+    <event action="MOUSE_DRAG" x="423.0" y="230.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_13.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_13.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="375.0" y="221.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_14.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_14.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="404.0" y="217.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_15.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_15.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="422.0" y="220.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_16.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_16.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="395.0" y="312.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_17.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_17.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="818.0" y="153.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_18.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_18.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="17-" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_19.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_19.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_20.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_20.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Dec-2010" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_21.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_21.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_22.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_22.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_23.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_23.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_24.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_24.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_25.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_25.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_26.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_26.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_27.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_27.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_28.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_28.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_29.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_29.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_30.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_30.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_31.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_31.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_32.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_32.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_33.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_33.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_34.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_34.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_35.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_35.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_36.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_36.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_37.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_37.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_38.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_38.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_39.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_39.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_40.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_40.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_41.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_41.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_42.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_42.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_43.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_43.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="17-" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_44.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_44.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_45.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_45.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="DE" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_46.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_46.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_47.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_47.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="ec-2010" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_48.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_48.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="764.0" y="206.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_49.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_49.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="786.0" y="203.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_50.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_50.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_51.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_51.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Joe " />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_52.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_52.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_53.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_53.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_54.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_54.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_55.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_55.jpeg">
+    <event action="KEY_PRESSED" code="83" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Blogss" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_56.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_56.jpeg">
+    <event action="MOUSE_DRAG" x="753.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_57.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_57.jpeg">
+    <event action="MOUSE_DRAG" x="758.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_58.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_58.jpeg">
+    <event action="MOUSE_DRAG" x="771.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_59.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_59.jpeg">
+    <event action="MOUSE_DRAG" x="774.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_60.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_60.jpeg">
+    <event action="MOUSE_DRAG" x="800.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_61.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_61.jpeg">
+    <event action="MOUSE_DRAG" x="801.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_62.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_62.jpeg">
+    <event action="MOUSE_DRAG" x="808.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_63.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_63.jpeg">
+    <event action="MOUSE_DRAG" x="829.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_64.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_64.jpeg">
+    <event action="MOUSE_DRAG" x="827.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_65.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_65.jpeg">
+    <event action="MOUSE_DRAG" x="827.0" y="727.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_66.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_66.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="675.0" y="204.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_67.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_67.jpeg">
+    <event action="KEY_PRESSED" code="97" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="0116 3051111" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_68.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_68.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="690.0" y="248.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_69.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_69.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="765.0" y="250.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_70.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_70.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="mistry" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_71.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_71.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_72.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_72.jpeg">
+    <event action="KEY_PRESSED" code="75" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="@leics.gov.uk" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_73.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_73.jpeg">
+    <event action="MOUSE_DRAG" x="780.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_74.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_74.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="780.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_75.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_75.jpeg">
+    <event action="MOUSE_DRAG" x="780.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_76.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_76.jpeg">
+    <event action="MOUSE_DRAG" x="776.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_77.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_77.jpeg">
+    <event action="MOUSE_DRAG" x="759.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_78.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_78.jpeg">
+    <event action="MOUSE_DRAG" x="734.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_79.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_79.jpeg">
+    <event action="MOUSE_DRAG" x="701.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_80.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_80.jpeg">
+    <event action="MOUSE_DRAG" x="685.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_81.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_81.jpeg">
+    <event action="MOUSE_DRAG" x="685.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_82.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_82.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="108.0" y="320.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_83.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_83.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="251.0" y="318.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_84.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_84.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="209.0" y="367.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_85.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_85.jpeg">
+    <event action="KEY_PRESSED" code="127" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_86.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_86.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="250.0" y="323.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_87.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_87.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="226.0" y="369.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_88.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_88.jpeg">
+    <event action="MOUSE_DRAG" x="722.0" y="731.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_89.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_89.jpeg">
+    <event action="MOUSE_DRAG" x="726.0" y="731.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_90.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_90.jpeg">
+    <event action="MOUSE_DRAG" x="730.0" y="731.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_91.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_91.jpeg">
+    <event action="MOUSE_DRAG" x="764.0" y="731.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_92.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_92.jpeg">
+    <event action="MOUSE_DRAG" x="767.0" y="731.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_93.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_93.jpeg">
+    <event action="MOUSE_DRAG" x="770.0" y="731.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_94.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_94.jpeg">
+    <event action="MOUSE_DRAG" x="773.0" y="730.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_95.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_95.jpeg">
+    <event action="MOUSE_DRAG" x="778.0" y="730.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_96.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_96.jpeg">
+    <event action="MOUSE_DRAG" x="786.0" y="730.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_97.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_97.jpeg">
+    <event action="MOUSE_DRAG" x="628.0" y="318.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_98.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_98.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="628.0" y="318.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_99.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_99.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="100" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_100.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_100.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="790.0" y="322.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_101.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_101.jpeg">
+    <event action="MOUSE_DRAG" x="747.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_102.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_102.jpeg">
+    <event action="MOUSE_DRAG" x="743.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_103.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_103.jpeg">
+    <event action="MOUSE_DRAG" x="740.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_104.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_104.jpeg">
+    <event action="MOUSE_DRAG" x="728.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_105.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_105.jpeg">
+    <event action="MOUSE_DRAG" x="707.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_106.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_106.jpeg">
+    <event action="MOUSE_DRAG" x="706.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_107.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_107.jpeg">
+    <event action="MOUSE_DRAG" x="674.0" y="727.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_108.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_108.jpeg">
+    <event action="MOUSE_DRAG" x="674.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_109.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_109.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="147.0" y="339.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_110.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_110.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="248.0" y="336.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_111.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_111.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="198.0" y="365.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_112.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_112.jpeg">
+    <event action="MOUSE_DRAG" x="643.0" y="730.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_113.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_113.jpeg">
+    <event action="MOUSE_DRAG" x="648.0" y="730.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_114.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_114.jpeg">
+    <event action="MOUSE_DRAG" x="657.0" y="730.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_115.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_115.jpeg">
+    <event action="MOUSE_DRAG" x="675.0" y="733.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_116.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_116.jpeg">
+    <event action="MOUSE_DRAG" x="694.0" y="733.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_117.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_117.jpeg">
+    <event action="MOUSE_DRAG" x="712.0" y="733.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_118.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_118.jpeg">
+    <event action="MOUSE_DRAG" x="723.0" y="733.0">
+      <display arg="0" value="Page left" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_119.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_119.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="555.0" y="335.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_120.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_120.jpeg">
+    <event action="KEY_PRESSED" code="101" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="75" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_121.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_121.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="697.0" y="340.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_122.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_122.jpeg">
+    <event action="MOUSE_DRAG" x="792.0" y="726.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_123.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_123.jpeg">
+    <event action="MOUSE_DRAG" x="786.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_124.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_124.jpeg">
+    <event action="MOUSE_DRAG" x="772.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_125.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_125.jpeg">
+    <event action="MOUSE_DRAG" x="742.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_126.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_126.jpeg">
+    <event action="MOUSE_DRAG" x="738.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_127.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_127.jpeg">
+    <event action="MOUSE_DRAG" x="721.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_128.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_128.jpeg">
+    <event action="MOUSE_DRAG" x="697.0" y="726.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_129.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_129.jpeg">
+    <event action="MOUSE_DRAG" x="697.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_130.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_130.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="145.0" y="361.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_131.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_131.jpeg">
+    <event action="MOUSE_DRAG" x="773.0" y="726.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_132.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_132.jpeg">
+    <event action="MOUSE_DRAG" x="777.0" y="726.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_133.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_133.jpeg">
+    <event action="MOUSE_DRAG" x="875.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_134.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_134.jpeg">
+    <event action="MOUSE_DRAG" x="854.0" y="728.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_135.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_135.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="699.0" y="340.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_136.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_136.jpeg">
+    <event action="MOUSE_DRAG" x="771.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_137.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_137.jpeg">
+    <event action="MOUSE_DRAG" x="767.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_138.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_138.jpeg">
+    <event action="MOUSE_DRAG" x="733.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_139.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_139.jpeg">
+    <event action="MOUSE_DRAG" x="676.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_140.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_140.jpeg">
+    <event action="MOUSE_DRAG" x="632.0" y="727.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_141.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_141.jpeg">
+    <event action="MOUSE_DRAG" x="632.0" y="727.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_142.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_142.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="334.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_143.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_143.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="338.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_144.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_144.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="344.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_145.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_145.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="358.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_146.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_146.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="363.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_147.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_147.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="369.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_148.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_148.jpeg">
+    <event action="MOUSE_DRAG" x="661.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_149.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_149.jpeg">
+    <event action="MOUSE_DRAG" x="665.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_150.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_150.jpeg">
+    <event action="MOUSE_DRAG" x="687.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_151.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_151.jpeg">
+    <event action="MOUSE_DRAG" x="706.0" y="729.0">
+      <display arg="0" value="Page left" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_152.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_152.jpeg">
+    <event action="MOUSE_DRAG" x="704.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_153.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_153.jpeg">
+    <event action="MOUSE_DRAG" x="1017.0" y="402.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_154.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_154.jpeg">
+    <event action="MOUSE_DRAG" x="1017.0" y="397.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_155.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_155.jpeg">
+    <event action="MOUSE_DRAG" x="1023.0" y="291.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_156.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_156.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="849.0" y="351.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_157.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_157.jpeg">
+    <event action="MOUSE_DRAG" x="1012.0" y="356.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_158.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_158.jpeg">
+    <event action="MOUSE_DRAG" x="1012.0" y="360.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_159.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_159.jpeg">
+    <event action="MOUSE_DRAG" x="1012.0" y="377.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_160.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_160.jpeg">
+    <event action="MOUSE_DRAG" x="1014.0" y="387.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_161.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_161.jpeg">
+    <event action="MOUSE_DRAG" x="748.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_162.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_162.jpeg">
+    <event action="MOUSE_DRAG" x="744.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_163.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_163.jpeg">
+    <event action="MOUSE_DRAG" x="723.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_164.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_164.jpeg">
+    <event action="MOUSE_DRAG" x="697.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_165.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_165.jpeg">
+    <event action="MOUSE_DRAG" x="681.0" y="729.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_166.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_166.jpeg">
+    <event action="MOUSE_DRAG" x="681.0" y="729.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_167.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_167.jpeg">
+    <event action="MOUSE_DRAG" x="1015.0" y="336.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_168.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_168.jpeg">
+    <event action="MOUSE_DRAG" x="1015.0" y="340.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_169.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_169.jpeg">
+    <event action="MOUSE_DRAG" x="1015.0" y="364.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_170.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_170.jpeg">
+    <event action="MOUSE_DRAG" x="1014.0" y="394.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_171.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_171.jpeg">
+    <event action="MOUSE_DRAG" x="1011.0" y="419.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_172.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_172.jpeg">
+    <event action="MOUSE_DRAG" x="1009.0" y="452.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_173.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_173.jpeg">
+    <event action="MOUSE_DRAG" x="1009.0" y="455.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_174.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_174.jpeg">
+    <event action="MOUSE_DRAG" x="1009.0" y="453.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_175.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_175.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="124.0" y="396.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_176.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_176.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="13-" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_177.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_177.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_178.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_178.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Dec-2" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_179.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_179.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_180.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_180.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="10" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_181.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_181.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="378.0" y="397.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_182.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_182.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="460.0" y="400.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_183.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_183.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="100" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_184.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_184.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_185.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_185.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_186.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_186.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_187.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_187.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="100" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_188.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_188.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="121.0" y="420.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_189.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_189.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="127.0" y="415.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_190.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_190.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="15-" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_191.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_191.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_192.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_192.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Dec-10" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_193.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_193.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="444.0" y="416.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_194.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_194.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="321.0" y="419.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_195.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_195.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="7" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_196.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_196.jpeg">
+    <event action="KEY_PRESSED" code="8" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Backspace" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_197.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_197.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="60" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_198.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_198.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="135.0" y="430.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_199.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_199.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="16-" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_200.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_200.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_201.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_201.jpeg">
+    <event action="KEY_PRESSED" code="96" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Dec-10" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_202.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_202.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="308.0" y="434.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_203.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_203.jpeg">
+    <event action="KEY_PRESSED" code="101" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="15" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_204.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_204.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="287.0" y="450.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_205.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_205.jpeg">
+    <event action="MOUSE_DRAG" x="705.0" y="728.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_206.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_206.jpeg">
+    <event action="MOUSE_DRAG" x="701.0" y="728.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_207.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_207.jpeg">
+    <event action="MOUSE_DRAG" x="693.0" y="730.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_208.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_208.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="44.0" y="453.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_209.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_209.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_210.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_210.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="To " />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_211.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_211.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_212.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_212.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Be " />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_213.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_213.jpeg">
+    <event action="KEY_PRESSED" code="16" alt="false" shift="true" ctrl="false">
+      <display arg="0" value="Shift" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_214.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_214.jpeg">
+    <event action="KEY_PRESSED" code="68" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="Banked" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_215.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_215.jpeg">
+    <event action="MOUSE_DRAG" x="1014.0" y="467.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_216.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_216.jpeg">
+    <event action="MOUSE_DRAG" x="1014.0" y="463.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_217.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_217.jpeg">
+    <event action="MOUSE_DRAG" x="1015.0" y="491.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_218.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_218.jpeg">
+    <event action="MOUSE_DRAG" x="1015.0" y="491.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_219.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_219.jpeg">
+    <event action="MOUSE_DRAG" x="1018.0" y="463.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_220.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_220.jpeg">
+    <event action="MOUSE_DRAG" x="1018.0" y="459.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_221.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_221.jpeg">
+    <event action="MOUSE_DRAG" x="1018.0" y="435.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_222.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_222.jpeg">
+    <event action="MOUSE_DRAG" x="1014.0" y="407.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_223.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_223.jpeg">
+    <event action="MOUSE_DRAG" x="992.0" y="382.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_224.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_224.jpeg">
+    <event action="MOUSE_DRAG" x="978.0" y="317.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_225.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_225.jpeg">
+    <event action="MOUSE_DRAG" x="974.0" y="296.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_226.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_226.jpeg">
+    <event action="MOUSE_DRAG" x="968.0" y="272.0">
+      <display arg="0" value="Position" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_227.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_227.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="120.0" y="58.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_228.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_228.jpeg">
+    <event action="MOUSE_DRAG" x="113.0" y="52.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_229.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_229.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="113.0" y="52.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_230.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_230.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="152.0" y="338.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_231.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_231.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="116.0" y="51.0">
+      <display arg="0" value="IRS example spreadsheet_Development_v1.7.9.xls" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_232.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_232.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="514.0" y="418.0">
+      <display arg="0" value="OK" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_233.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_233.jpeg">
+    <event action="KEY_PRESSED" code="144" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_234.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_234.jpeg">
+    <event action="KEY_PRESSED" code="144" alt="false" shift="false" ctrl="false">
+      <display arg="0" value="" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_235.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_235.jpeg">
+    <event action="MOUSE_DRAG" x="527.0" y="418.0">
+      <display arg="0" value="OK" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_236.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_236.jpeg">
+    <event action="MOUSE_DRAG" x="526.0" y="418.0">
+      <display arg="0" value="OK" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_237.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_237.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="526.0" y="418.0">
+      <display arg="0" value="OK" />
+      <display arg="1" value="Button" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_238.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_238.jpeg">
+    <event action="MOUSE_DRAG" x="826.0" y="671.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_239.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_239.jpeg">
+    <event action="LEFT_BUTTON_CLICK" x="826.0" y="671.0">
+      <display arg="0" value="" />
+      <display arg="1" value="Object" />
+    </event>
+  </slide>
+  <slide path="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/files/frame_125_3548_240.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3548/thumbs/frame_125_3548_240.jpeg">
+    <event action="MANUAL" />
+  </slide>
+</root>
+

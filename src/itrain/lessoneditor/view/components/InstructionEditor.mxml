@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%"
+         height="100%"
+         visible="false"
+         clipAndEnableScrolling="true"
+         filters="{[Common.dropShadow]}"
+         xmlns:components="itrain.co.uk.components.*">
+    <fx:Declarations>
+        <s:Move id="showHideEfect"
+                yFrom="{model.currentlySelected.instructionTopPos ? - height - 20 : parentDocument.height}"
+                yTo="{model.currentlySelected.instructionTopPos ? 0 : parentDocument.height - height}"
+                effectEnd="onShowHideEffectEnd()"
+                effectStart="{this.visible = true}"/>
+        <s:Move id="positionChangeEffect"
+                yFrom="{y}"
+                target="{this}"
+                easer="{new Bounce()}"
+                duration="1500"/>
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import com.adobe.linguistics.spelling.SpellUI;
+
+            import flashx.textLayout.conversion.ConversionType;
+            import flashx.textLayout.conversion.TextConverter;
+            import flashx.textLayout.elements.TextFlow;
+
+            import itrain.common.utils.Common;
+            import itrain.lessoneditor.events.EditorEvent;
+            import itrain.lessoneditor.model.EditPanelModel;
+            import itrain.lessoneditor.model.EditorModel;
+
+            import mx.binding.utils.ChangeWatcher;
+            import mx.events.FlexEvent;
+            import mx.events.ResizeEvent;
+
+            import spark.effects.easing.Bounce;
+            import spark.effects.easing.Elastic;
+
+            [Inject]
+            [Bindable]
+            public var model:EditPanelModel;
+
+            [Inject]
+            public var editorModel:EditorModel;
+
+            [Bindable]
+            private var _visible:Boolean=false;
+            private var _positionWatcher:ChangeWatcher;
+            private var _spellCheckEnabled:Boolean=false;
+
+            private function enableSpelling():void {
+                try {
+                    if (!_spellCheckEnabled) {
+                        SpellUI.enableSpelling(txtInstruction, "en_US");
+                        _spellCheckEnabled=true;
+                        var ee:EditorEvent=new EditorEvent(EditorEvent.SPELL_CHECK_COMPLETED, true);
+                        dispatchEvent(ee);
+                    }
+                } catch (e:Error) {
+                    trace(e);
+                }
+            }
+
+            private function disableSpelling():void {
+                try {
+                    if (_spellCheckEnabled) {
+                        SpellUI.disableSpelling(txtInstruction);
+                        _spellCheckEnabled=false;
+                    }
+                } catch (e:Error) {
+                    trace(e);
+                }
+            }
+
+            [Mediate(event="EditorEvent.SPELL_CHECK_CHANGES")]
+            public function onSpellCheckChanges(ee:EditorEvent):void {
+                if (ee.additionalData) {
+					if (_visible)
+						enableSpelling();
+				} else {
+					disableSpelling();
+				}
+            }
+
+            private function onShowHideEffectEnd():void {
+                this.visible=_visible;
+                if (_visible && editorModel.enableSpell) {
+                    enableSpelling();
+                }
+            }
+
+            [Mediate(event="EditorEvent.EDIT_SLIDE_INSTRUCTION")]
+            public function onEditSlideInstruction():void {
+                show();
+            }
+
+            [Mediate(event="EditorEvent.HIDE_SLIDE_INSTRUCTION")]
+            public function onHideSlideInstruction():void {
+                hide();
+            }
+
+            public function show():void {
+                if (!_visible) {
+                    _visible=true;
+                    if (showHideEfect.isPlaying)
+                        showHideEfect.stop();
+                    showHideEfect.play([this]);
+
+                    callLater(addEventListeners);
+
+                    dispatchEvent(new EditorEvent(EditorEvent.SLIDE_INSTRUCTION_SHOWN, true));
+                }
+            }
+
+            private function addEventListeners():void {
+                this.addEventListener(MouseEvent.CLICK, onThisMouseClick);
+                parentApplication.addEventListener(MouseEvent.CLICK, onApplicationClick);
+                parentApplication.addEventListener(ResizeEvent.RESIZE, onApplicationResize);
+
+                if (_positionWatcher)
+                    _positionWatcher.unwatch();
+                if (model.currentlySelected)
+                    _positionWatcher=ChangeWatcher.watch(model, ["currentlySelected", "instructionTopPos"], onPositionChange);
+            }
+
+            private function removeEventListeners():void {
+                this.removeEventListener(MouseEvent.CLICK, onThisMouseClick);
+                parentApplication.removeEventListener(MouseEvent.CLICK, onApplicationClick);
+                parentApplication.removeEventListener(ResizeEvent.RESIZE, onApplicationResize);
+
+                if (_positionWatcher)
+                    _positionWatcher.unwatch();
+            }
+
+            private function onApplicationResize(e:ResizeEvent):void {
+                hide();
+            }
+
+            private function onPositionChange(o:Object):void {
+                if (model.currentlySelected) {
+                    if (positionChangeEffect.isPlaying)
+                        positionChangeEffect.stop();
+                    if (model.currentlySelected.instructionTopPos) {
+                        positionChangeEffect.yTo=0;
+                    } else {
+                        positionChangeEffect.yTo=parentDocument.height - height;
+                    }
+                    positionChangeEffect.play()
+                }
+            }
+
+            private function onApplicationClick(e:MouseEvent):void {
+                hide();
+            }
+
+            private function onThisMouseClick(e:MouseEvent):void {
+                e.stopImmediatePropagation();
+            }
+
+            public function hide():void {
+                if (_visible) {
+                    disableSpelling();
+                    _visible=false;
+                    if (showHideEfect.isPlaying)
+                        showHideEfect.stop();
+                    showHideEfect.play([this], true);
+                    removeEventListeners();
+                    dispatchEvent(new EditorEvent(EditorEvent.SLIDE_INSTRUCTION_HIDDEN, true));
+                }
+            }
+
+            private function onTxtInstructionInitialize():void {
+                headerContainer.addElementAt(txtInstruction.toolBar, 0);
+                txtInstruction.toolBar.height=50;
+            }
+
+            private function getTextFlow(text:String):TextFlow {
+                var oldText:String=TextConverter.export(txtInstruction.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+                if (oldText == text)
+                    return txtInstruction.textFlow;
+                else
+                    return TextConverter.importToFlow(text, TextConverter.TEXT_FIELD_HTML_FORMAT)
+            }
+
+            public function get isShown():Boolean {
+                return _visible;
+            }
+
+            public function get isTopPositioned():Boolean {
+                return model.currentlySelected.instructionTopPos;
+            }
+        ]]>
+    </fx:Script>
+    <s:Rect id="navigationBackground"
+            width="100%"
+            height="100%"
+            radiusX="10"
+            radiusY="10">
+        <s:fill>
+            <s:LinearGradient rotation="90">
+                <s:GradientEntry color="#FFB15F"/>
+                <s:GradientEntry color="#FD8300"/>
+            </s:LinearGradient>
+        </s:fill>
+        <s:stroke>
+            <s:SolidColorStroke color="#555555"
+                                id="borderStroke"
+                                weight="1"/>
+        </s:stroke>
+    </s:Rect>
+    <s:VGroup id="container"
+              width="100%"
+              height="100%"
+              paddingBottom="10"
+              paddingLeft="10"
+              paddingRight="10"
+              paddingTop="10"
+              clipAndEnableScrolling="true"
+              gap="0">
+        <s:HGroup id="headerContainer"
+                  width="100%"
+                  height="40"
+                  verticalAlign="middle"
+                  paddingRight="20"
+                  clipAndEnableScrolling="true">
+            <s:Label text="Try-It Instruction"
+                     color="#ffffff"
+                     width="100%"
+                     maxDisplayedLines="1"
+                     fontWeight="bold"
+                     fontSize="18"/>
+        </s:HGroup>
+        <s:Group width="100%"
+                 height="100%">
+            <s:Rect width="100%"
+                    height="100%">
+                <s:fill>
+                    <s:SolidColor color="0xFFFFFF"/>
+                </s:fill>
+                <s:stroke>
+                    <s:SolidColorStroke color="0"
+                                        weight="1"/>
+                </s:stroke>
+            </s:Rect>
+            <components:InPlaceTextEditor id="txtInstruction"
+                                          width="100%"
+                                          height="100%"
+                                          paddingBottom="5"
+                                          paddingLeft="5"
+                                          paddingRight="5"
+                                          paddingTop="5"
+                                          initialize="onTxtInstructionInitialize()"
+                                          textFlow="{getTextFlow(model.currentlySelected.interText)}"
+                                          textChanges="{model.currentlySelected.interText = TextConverter.export(txtInstruction.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String}"/>
+        </s:Group>
+        <!--mx:RichTextEditor id="txtInstruction"
+                           width="100%"
+                           borderSkin="{null}"
+                           dropShadowVisible="false"
+                           initialize="onTxtInstructionInitialize()"
+                           headerHeight="0"
+                           htmlText="{model.currentlySelected.interText}"
+                           change="{model.currentlySelected.interText = txtInstruction.htmlText}"/-->
+    </s:VGroup>
+</s:Group>

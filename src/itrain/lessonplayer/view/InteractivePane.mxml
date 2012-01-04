@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SlideObserverGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+						 xmlns:s="library://ns.adobe.com/flex/spark"
+						 xmlns:mx="library://ns.adobe.com/flex/mx"
+						 xmlns:view="itrain.lessonplayer.view.*"
+						 xmlns:components="itrain.lessonplayer.view.components.*">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.events.ModelChange;
+			
+			import itrain.common.events.CaptionEvent;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.enum.EnumAction;
+			import itrain.common.model.enum.EnumCursor;
+			import itrain.common.model.enum.EnumDisplay;
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.model.vo.HighlightVO;
+			import itrain.common.model.vo.HotspotVO;
+			import itrain.common.model.vo.SlideVO;
+			import itrain.common.model.vo.TextFieldVO;
+			import itrain.common.utils.Embeded;
+			import itrain.common.view.HidableContainer;
+			import itrain.common.view.stageobjects.IStageObject;
+			import itrain.common.view.stageobjects.StageCaption;
+			import itrain.common.view.stageobjects.StageHighlight;
+			import itrain.common.view.stageobjects.StageHotspot;
+			import itrain.common.view.stageobjects.StageTextArea;
+			import itrain.lessoneditor.utils.CaptionUtils;
+			import itrain.lessonplayer.control.PlayerController;
+			import itrain.lessonplayer.events.PlayerEvent;
+			import itrain.lessonplayer.events.ValidationEvent;
+			import itrain.lessonplayer.view.components.CaptionLayer;
+			import itrain.lessonplayer.view.components.CursorLayer;
+			import itrain.lessonplayer.view.components.GhostAction;
+			import itrain.lessonplayer.view.elements.Hotspot;
+			
+			import mx.controls.Label;
+			import mx.core.FlexGlobals;
+			import mx.core.IVisualElement;
+			import mx.effects.Effect;
+			import mx.events.EffectEvent;
+			import mx.utils.StringUtil;
+			
+			import org.swizframework.processors.DispatcherProcessor;
+			
+			import spark.effects.Move;
+			import spark.effects.easing.Linear;
+			import spark.primitives.BitmapImage;
+			;
+
+			[Bindable]
+			public var cursorLayer:CursorLayer;
+			
+			[Bindable]
+			public var captionLayer:CaptionLayer;
+
+			private static const HAND:String="HAND";
+			private static const TEXT:String="TEXT";
+			private static const POINTER:String="POINTER";
+
+			//private var cursor:BitmapImage;
+			//private var cursorMove:Move;
+			private var _objectDictionary:Dictionary=new Dictionary(); // key == object, value == VisualElement (ex. Caption)	
+			
+			private var currentSlideState:int=0;
+			private var pauseTimer:Timer=new Timer(1000);
+			private var waitForHumanInteraction:Boolean=false;
+			private var _currentImageURL:String="";
+
+			private var _ghostAction:GhostAction=new GhostAction();
+
+			private function addGhostAction():void {
+				_ghostAction.depth=10.0;
+				if (model.lesson.showActionIndicator)
+					this.addElement(_ghostAction);
+			}
+
+			private function addCaptions(captions:Array, when:EnumDisplay):void {
+				var caption:StageCaption;
+				var sCaptions:Array=[];
+				for each (var c:CaptionVO in captions) {
+					if (c.display.equals(when) || (c.display.equals(EnumDisplay.ALWAYS) && when.equals(EnumDisplay.BEFORE))) {
+						caption=new StageCaption(c, false, model.lesson.oldCaptionStyle);
+						sCaptions.push(caption);
+						_objectDictionary[c]=caption;
+						if (!(c.movable || c.showContinue)) {
+							caption.addEventListener(MouseEvent.CLICK, humanInteraction);
+						} else {
+							caption.addEventListener(CaptionEvent.CONTINUE, humanInteraction);
+						}
+						waitForHumanInteraction=true;
+					} else if (c.display.equals(EnumDisplay.ALWAYS)) {
+						waitForHumanInteraction=true;
+						sCaptions.push(_objectDictionary[c]);
+					}
+				}
+				captionLayer.addStageCaptions(sCaptions);
+			}
+
+			private function addHighlights(highlights:Array):void {
+				var highlight:StageHighlight;
+				for each (var h:HighlightVO in highlights) {
+					if ((model.interactive && h.tryItVisible) || (!model.interactive && h.watchItVisible)) {
+						highlight = new StageHighlight(h, false);
+						_objectDictionary[h]=highlight;
+						this.addElement(highlight);
+					}
+				}
+			}
+			
+			private function addHotspots(hotspots:Array):void {
+				var hotspot:StageHotspot;
+				for each (var h:HotspotVO in hotspots) {
+					hotspot=new StageHotspot(h, controller.developerMode);
+					_objectDictionary[h]=hotspot;
+					if (model.interactive) {
+						switch (h.action.ordinal) {
+							case EnumAction.LEFT_MOUSE.ordinal:
+								hotspot.addEventListener(MouseEvent.CLICK, humanInteraction);
+								break;
+							case EnumAction.DOUBLE_CLICK.ordinal:
+								hotspot.addEventListener(MouseEvent.DOUBLE_CLICK, humanInteraction);
+								break;
+							case EnumAction.MOUSE_WHEEL.ordinal:
+								hotspot.addEventListener(MouseEvent.MOUSE_WHEEL, humanInteraction);
+								break;
+						}
+					}
+					this.addElement(hotspot);
+				}
+			}
+
+			private function humanInteraction(e:Object):void {
+				if (currentSlideState == 2 || currentSlideState == 4) {
+					var currentTarget:Object=(e is MouseEvent) ? (e as Event).currentTarget : e;
+					if (model.interactive && currentTarget is StageHotspot) {
+						var hotspot:StageHotspot=currentTarget as StageHotspot;
+						var ve:ValidationEvent=new ValidationEvent(ValidationEvent.VALIDATION_EVENT, true);
+						ve.valid=checkTextFieldValidity();
+						if (ve.valid)
+							showLastCaptions();
+						dispatchEvent(ve);
+					} else {
+						waitForHumanInteraction=false;
+						var currentCaptions:Array = captionLayer.currentCaptions;
+						if (currentSlideState == 2) {
+							if (currentCaptions) {
+								for (var i:int=0; i < currentCaptions.length; i++) {
+									if (((currentCaptions[i] as StageCaption).model as CaptionVO).display.equals(EnumDisplay.ALWAYS))
+										continue;
+									captionLayer.removeCaption(currentCaptions[i]);
+								}
+								currentCaptions=[];
+							}
+							currentSlideState=3;
+							doActions();
+						} else {
+							if (currentCaptions) {
+								for (var j:int=0; j < currentCaptions.length; j++) {
+									this.removeElement(currentCaptions[j]);
+								}
+								currentCaptions=[];
+							}
+							currentSlideState=5;
+							doPause(model.currentlySelected.end * 1000);
+						}
+					}
+				}
+			}
+
+			private function addTextfields(textfields:Array):void {
+				var ptf:StageTextArea;
+				for each (var tf:TextFieldVO in textfields) {
+					ptf=new StageTextArea(tf, true);
+					ptf.showMarker=controller.developerMode;
+					ptf.mouseEnabled=ptf.mouseChildren=model.interactive;
+					this.addElement(ptf);
+					_objectDictionary[tf]=ptf;
+					if (model.interactive)
+						ptf.addEventListener(KeyboardEvent.KEY_DOWN, onTextFieldKeyDown);
+				}
+			}
+
+			private function checkTextFieldValidity(hotspotClicked:Boolean = true):Boolean {
+				for each (var tf:Object in model.currentlySelected.textfields) {
+					if ((_objectDictionary[tf].model.validateOnHotspot && hotspotClicked)
+						|| _objectDictionary[tf].model.validateOnEnter && !hotspotClicked) {
+						if (!_objectDictionary[tf].isCorrect()) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+
+			private function onTextFieldKeyDown(e:KeyboardEvent):void {
+				if (e.keyCode == Keyboard.ENTER) {
+					var ptf:StageTextArea=e.currentTarget as StageTextArea;
+					if (!ptf.textFieldVO.validateOnEnter || ptf.isCorrect()) {
+						ptf.setStyle("borderStyle", "none");
+						ptf.errorString="";
+						ptf.drawFocus(true);
+						var goToNextStep:Boolean=checkTextFieldValidity(false);
+						//goToNextStep=goToNextStep && model.currentlySelected.hotspots.length == 0;
+						if (goToNextStep) {
+							sendValidationMessage(true);
+							showLastCaptions();
+						}
+					} else {
+						ptf.setStyle("borderStyle", "solid");
+						ptf.errorString="Incorrect field value.";
+						if ((ptf.model as TextFieldVO).caseSensitive)
+							ptf.errorString+=" The field is case sensitive.";
+						ptf.drawFocus(true);
+						sendValidationMessage(false);
+					}
+				}
+			}
+
+			private function sendValidationMessage(valid:Boolean):void {
+				var ve:ValidationEvent=new ValidationEvent(ValidationEvent.VALIDATION_EVENT, true);
+				ve.valid=valid;
+				dispatchEvent(ve);
+			}
+
+			override protected function onSlideSelectionChange(o:Object=null):void {
+				super.onSlideSelectionChange(o);
+				if (model.currentlySelected)
+					if (model.currentlySelected.source != _currentImageURL)
+						stopAllAnimations();
+			}
+
+			[Mediate(event="ModelEvent.SLIDE_IMAGE_NOT_AVAILABLE")]
+			public function imageNotAvailable(e:ModelEvent):void {
+				stopAllAnimations();
+				_currentImageURL=e.url;
+				currentSlideState=5;
+				this.removeAllElements();
+				captionLayer.removeAllCaptions();
+				if (model.interactive && model.currentlySelected) {
+					var p:Number=model.currentlySelected.start * 1000;
+					doPause(p);
+				}
+			}
+
+			public function restart():void {
+				stopAllAnimations();
+				if (_currentImageURL)
+					imageReady();
+			}
+
+			[Mediate(event="ModelEvent.SLIDE_IMAGE_READY")]
+			public function imageReady(e:ModelEvent=null):void {
+				stopAllAnimations();
+				if (e)
+					_currentImageURL=e.url;
+				currentSlideState=1;
+				this.removeAllElements();
+				captionLayer.removeAllCaptions();
+				addHighlights(model.currentlySelected.highlights);
+				addTextfields(model.currentlySelected.textfields);
+				addHotspots(model.currentlySelected.hotspots);
+				if (!model.interactive) {
+					//cursor.source=Embeded.POINTER_CURSOR;
+					cursorLayer.setCursor(Embeded.POINTER_CURSOR);
+					// get cursor's position.
+					if (model.currentSlideIndex == 0) {
+						setCursorPos(model.imageWidth / 2, model.imageHeight / 2);
+					} else {
+						var hsArray:Array=SlideVO(model.lesson.slides[model.currentSlideIndex - 1]).hotspots;
+						if (hsArray.length > 0) {
+							var hs:Object=hsArray[hsArray.length - 1];
+							setCursorPos(hs.x + 0.5 * hs.width, hs.y + 0.5 * hs.height);
+						}
+					}
+				}
+				addGhostAction();
+				// initiate start pause for new slide.
+				var p:Number=model.currentlySelected.start * 1000;
+				doPause(p);
+			}
+
+			private function getHotspotCursor(model:HotspotVO):Class {
+				if (model && model.cursor) {
+					switch (model.cursor.ordinal) {
+						case EnumCursor.HAND.ordinal:
+							return Embeded.HAND_CURSOR;
+							break;
+						case EnumCursor.TEXT.ordinal:
+							return Embeded.TEXT_CURSOR;
+							break;
+						default:
+							POINTER: return Embeded.POINTER_CURSOR;
+					}
+				} else {
+					return Embeded.POINTER_CURSOR;
+				}
+			}
+
+			private function setCursorPos(x:Number, y:Number):void {
+//				cursor.x=x - 5;
+//				cursor.y=y;
+				cursorLayer.setCursorPosition(x - 5, y);
+			}
+
+			[Mediate(event="PlayerEvent.RIGHT_CLICK")]
+			public function onRightClick(e:PlayerEvent):void {
+				if (e && e.data && e.data is StageHotspot) {
+					var sh:StageHotspot=e.data as StageHotspot;
+					if ((sh.model as HotspotVO).action.equals(EnumAction.RIGHT_MOUSE))
+						humanInteraction(sh);
+				}
+			}
+
+			[Mediate(event="PlayerEvent.DEVELOPER_MODE_CHANGE")]
+			public function onDeveloperModeChange():void {
+				if (model.currentlySelected) {
+					var hotspot:StageHotspot;
+					for each (var h:HotspotVO in model.currentlySelected.hotspots) {
+						hotspot=_objectDictionary[h];
+						hotspot.updateVisibility(controller.developerMode);
+					}
+					var textfield:StageTextArea;
+					for each (var t:TextFieldVO in model.currentlySelected.textfields) {
+						textfield=_objectDictionary[t];
+						textfield.showMarker=controller.developerMode;
+					}
+				}
+			}
+
+			[Mediate(event="LessonLoaderEvent.LOAD_LESSON")]
+			public function onLoadLesson():void {
+				stopAllAnimations();
+				this.removeAllElements();
+				captionLayer.removeAllCaptions();
+			}
+
+
+			[Mediate(event="LessonModuleEvent.PREPARE_TO_UNLOAD")]
+			public function stopAllAnimations():void {
+				if (pauseTimer)
+					pauseTimer.stop();
+				pauseTimer=new Timer(1000);
+				waitForHumanInteraction=false;
+				this.removeEventListener(Event.ENTER_FRAME, updateCursor);
+				cursorLayer.setCursor(Embeded.POINTER_CURSOR);
+				if (cursorLayer.isCursorMoving()) {
+					cursorLayer.stopMoving();
+				}
+				if (!cursorLayer.visible)
+					cursorLayer.visible=true;
+				if (model && model.currentlySelected) {
+					var ptf:StageTextArea;
+					for each (var tf:TextFieldVO in model.currentlySelected.textfields) {
+						ptf=_objectDictionary[tf];
+						if (ptf)
+							ptf.stop();
+					}
+				}
+			}
+
+			private function doPause(t:Number):void {
+				if (pauseTimer)
+					pauseTimer.stop();
+				if (model.interactive) {
+					FlexGlobals.topLevelApplication.callLater(timerDone);
+				} else {
+					pauseTimer=new Timer(t, 1);
+					pauseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, timerDone);
+					pauseTimer.start();
+				}
+			}
+
+			private function timerDone(e:TimerEvent=null):void {
+				pauseTimer.stop();
+				pauseTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, timerDone);
+
+				switch (currentSlideState) {
+					case 1:
+						showFirstCaptions();
+						break;
+					case 5:
+						finishSlide();
+						break;
+				}
+			}
+
+			private function showFirstCaptions():void {
+				waitForHumanInteraction=false;
+				currentSlideState=2;
+				if (!model.interactive)
+					addCaptions(model.currentlySelected.captions, EnumDisplay.BEFORE);
+				if (!waitForHumanInteraction)
+					doActions();
+			}
+
+			private function showLastCaptions():void {
+				waitForHumanInteraction=false;
+				currentSlideState=4;
+				if (!model.interactive)
+					addCaptions(model.currentlySelected.captions, EnumDisplay.AFTER);
+				if (!waitForHumanInteraction) {
+					currentSlideState=5;
+					doPause(model.currentlySelected.end * 1000);
+				}
+			}
+
+			private function doActions():void {
+				if (model.interactive) {
+					if (currentSlideState == 3 || (model.currentlySelected.textfields.length == 0 && model.currentlySelected.hotspots.length == 0))
+						showLastCaptions();
+				} else
+					goToTextFields();
+			}
+
+			private function goToTextFields():void {
+				if (model.currentlySelected.textfields.length) {
+					var tfIndex:int=0;
+					var tf:TextFieldVO=model.currentlySelected.textfields[tfIndex];
+					var from:Point=cursorLayer.getCursorPosition();
+					var to:Point=new Point(tf.x + 0.5 * tf.width - 5, tf.y + 0.5 * tf.height);
+					var onMouseMoveComplete:Function=function():void {
+						var ptf:StageTextArea=_objectDictionary[tf];
+						var onTextChangeEnd:Function=function():void {
+							tfIndex++;
+							if (model) {
+								if (tfIndex < model.currentlySelected.textfields.length) {
+									tf=model.currentlySelected.textfields[tfIndex];
+									from=cursorLayer.getCursorPosition();
+									to=new Point(tf.x + 0.5 * tf.width, tf.y + 0.5 * tf.height);
+									cursorLayer.playMouseMoveAnimation(from, to, getSpeed(to), updateCursor, onMouseMoveComplete);
+								} else {
+									goToHotspots();
+								}
+							}
+						}
+						fireGhostAnimation(EnumAction.LEFT_MOUSE, to);
+						cursorLayer.simulateMouseClick(function():void {
+							ptf.changeTextWithAnimation(tf.targetText, onTextChangeEnd);
+						});
+					}
+					cursorLayer.playMouseMoveAnimation(from, to, getSpeed(to), updateCursor, onMouseMoveComplete);
+				} else {
+					goToHotspots();
+				}
+			}
+
+			private function goToHotspots():void {
+				if (model.currentlySelected.hotspots.length > 0) {
+					var hs:HotspotVO=model.currentlySelected.hotspots[0] as HotspotVO;
+					var from:Point=cursorLayer.getCursorPosition();
+					var to:Point=new Point(hs.x + 0.5 * hs.width, hs.y + 0.5 * hs.height);
+					cursorLayer.playMouseMoveAnimation(from, to, getSpeed(to), updateCursor, function():void {
+						fireGhostAnimation(hs.action, to);
+						if (hs.action.equals(EnumAction.LEFT_MOUSE)) {
+							cursorLayer.simulateMouseClick(clickSimulationEnds);
+						} else
+							showLastCaptions();
+					});
+				} else {
+					showLastCaptions();
+				}
+			}
+
+			private function getSpeed(point:Point):Number {
+				// speed up larger distance a bit, as the easing makes them feel slower than shorter distances.
+				var cursorPosition:Point=cursorLayer.getCursorPosition();
+				var dur:Number=model.lesson.mouseSpeed * Math.sqrt(Math.pow(cursorPosition.x - point.x, 2) + Math.pow(cursorPosition.y - point.y, 2));
+				if (dur > 400)
+					dur=400 + (dur - 400) / 2;
+				return dur;
+			}
+
+			private function fireGhostAnimation(action:EnumAction, point:Point):void {
+				if (model.lesson.showActionIndicator) {
+					_ghostAction.x=point.x - _ghostAction.width / 2;
+					_ghostAction.y=point.y - _ghostAction.height / 2;
+					_ghostAction.x=Math.max(_ghostAction.x, 0);
+					_ghostAction.y=Math.max(_ghostAction.y, 0);
+					_ghostAction.x=Math.min(_ghostAction.x, this.width - _ghostAction.width);
+					_ghostAction.y=Math.min(_ghostAction.y, this.height - _ghostAction.height);
+					_ghostAction.show();
+
+					var e:PlayerEvent=new PlayerEvent(PlayerEvent.ACTION_CHANGE, true);
+					e.data=action;
+					dispatchEvent(e);
+				}
+			}
+
+			private function clickSimulationEnds():void {
+				showLastCaptions();
+			}
+
+			private function updateCursor(e:Event):void {
+				var cursorPosition:Point=cursorLayer.getCursorPosition();
+				var point:Point=new Point(cursorPosition.x + 5, cursorPosition.y); //image offset
+				var element:IStageObject;
+				for (var i:int=0; i < this.numElements; i++) {
+					element=this.getElementAt(i) as IStageObject;
+					if (element && element.isOver(point)) {
+						if (element is StageTextArea)
+							//cursor.source=Embeded.TEXT_CURSOR;
+							cursorLayer.setCursor(Embeded.TEXT_CURSOR);
+						else if (element is StageCaption)
+							//cursor.source=Embeded.HAND_CURSOR;
+							cursorLayer.setCursor(Embeded.HAND_CURSOR);
+						else if (element is StageHotspot)
+							//cursor.source=hotspotCursorSource;
+							cursorLayer.setCursor(getHotspotCursor((element as StageHotspot).model as HotspotVO));
+						return;
+					} else
+						//cursor.source=Embeded.POINTER_CURSOR;
+						cursorLayer.setCursor(Embeded.POINTER_CURSOR);
+				}
+				// check if cursor is over hotspot/text input and change source accordingly.
+			}
+
+			private function finishSlide():void {
+				controller.currentSlideFinished();
+			}
+		]]>
+	</fx:Script>
+</view:SlideObserverGroup>

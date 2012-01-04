@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.CaptionEvent;
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.view.stageobjects.StageCaption;
+			import itrain.lessoneditor.utils.CaptionUtils;
+			
+			import mx.effects.Effect;
+			import mx.events.EffectEvent;
+			
+			private var _currentCaptions:Array;
+			private var _objectDictionary:Dictionary=new Dictionary(); // key == object, value == VisualElement (ex. Caption)
+			
+			public function addStageCaptions(captions:Array):void {
+				_currentCaptions = captions;
+				for each (var sc:StageCaption in captions) {
+					_objectDictionary[sc.model]=sc;
+					this.addElement(sc);
+				}
+			}
+			
+			public function removeCaption(sc:StageCaption):void {
+				if (sc)
+					this.removeElement(sc);
+			}
+			
+			public function removeAllCaptions():void {
+				this.removeAllElements();
+				_currentCaptions = [];
+			}
+			
+			public function get currentCaptions():Array {
+				return _currentCaptions;
+			}
+			
+			public function hideCaption(sc:StageCaption, hideDestination:Point=null):void {
+				if (sc && this.containsElement(sc)) {
+					if (hideDestination == null) {
+						hideDestination=new Point(this.width / 2, this.height);
+					}
+					var effect:Effect=CaptionUtils.getCaptionShowHideEffect(sc, true, hideDestination, onShowHideEnd);
+					effect.play();
+				}
+			}
+			
+			public function showCaption(c:CaptionVO, showFrom:Point=null):void {
+				if (c) {
+					var sc:StageCaption=_objectDictionary[c] as StageCaption;
+					if (sc && this.containsElement(sc)) {
+						if (showFrom == null) {
+							showFrom=new Point(this.width / 2, this.height);
+						}
+						var effect:Effect=CaptionUtils.getCaptionShowHideEffect(sc, false, showFrom, onShowHideEnd);
+						sc.visible=true;
+						effect.play();
+					}
+				}
+			}
+			
+			private function onShowHideEnd(ee:EffectEvent):void {
+				var sc:StageCaption=(ee.target as Effect).target as StageCaption;
+				if (sc && this.containsElement(sc)) {
+					if (sc.scaleX == 0.0 && sc.scaleY == 0.0) {
+						sc.dispatchEvent(new CaptionEvent(CaptionEvent.CAPTION_MINIMIZED, true));
+						sc.visible=false;
+					} else {
+						sc.dispatchEvent(new CaptionEvent(CaptionEvent.CAPTION_MAXIMIZED, true));
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+</s:Group>

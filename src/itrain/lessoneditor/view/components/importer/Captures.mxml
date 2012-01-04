@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%"
+		 clipAndEnableScrolling="true"
+		 preinitialize="onPreinitialize()"
+		 initialize="onInitialize()"
+		 implements="itrain.lessoneditor.model.ISlidePreviewer">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Embeded;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Move id="showPreviewEffect"
+				xFrom="0"
+				xTo="{-this.width}"
+				target="{movableContainer}"/>
+		<s:Move id="hidePreviewEffect"
+				xFrom="{-this.width}"
+				xTo="0"
+				target="{movableContainer}"/>
+		<s:DateTimeFormatter id="dateTimeFormatter"
+							 dateTimePattern="dd MMM yyyy, h:mm a"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.binding.utils.BindingUtils;
+			import itrain.lessoneditor.model.SlideCaptureVO;
+			import itrain.common.events.CaptureImporterEvent;
+			import itrain.common.events.CaptureLoaderEvent;
+			import itrain.lessoneditor.model.CaptureImportModel;
+			import itrain.lessoneditor.model.CaptureVO;
+			import itrain.lessoneditor.model.EnumSelection;
+			import itrain.lessoneditor.model.ISlidePreviewer;
+			import itrain.lessoneditor.view.renderers.CaptureSlideRenderer;
+
+			import mx.collections.ArrayCollection;
+
+			[Bindable]
+			[Inject]
+			public var model:CaptureImportModel;
+
+			[Dispatcher]
+			public var dispatcher:IEventDispatcher;
+
+			[Bindable]
+			public var runPreviewHandler:Function;
+
+			[Bindable]
+			public var hidePreviewHandler:Function;
+
+			private var _enablePreview:Boolean=false;
+
+			[Bindable]
+			private var _mockDataProvider:ArrayCollection; // for better list performance
+
+			[Bindable]
+			private var _newCaptureDescription:String="The button below launches the screen capture tool. It may take a few seconds to download. The finished capture will appear in the list below when you are done.";
+
+			[Bindable]
+			private var _newCaptureRequirements:String="The Screen Capture Tool requires Windows and (at least) Java JRE 6 Update 5.";
+
+			[Bindable]
+			public function get enablePreview():Boolean {
+				return _enablePreview;
+			}
+
+			public function set enablePreview(value:Boolean):void {
+				_enablePreview=value;
+			}
+
+			public function deselect():void {
+				dgCaptureList.selectedItem=null;
+				onCaptureListSelectionChange();
+			}
+
+			private function onPreinitialize():void {
+				generatePreviewMockDataProvider();
+			}
+			
+			public function capturesShown():void {
+				if (dgCaptureList.dataProvider) {
+					onRefereshClick();
+				} else {
+					BindingUtils.bindProperty(dgCaptureList, "dataProvider", model, "captures");
+				}
+			}
+
+			private function generatePreviewMockDataProvider(count:int=30):void {
+				_mockDataProvider=new ArrayCollection();
+				for (var i:int=0; i < count; i++) {
+					_mockDataProvider.addItem({});
+				}
+			}
+
+			public function showPreview():void {
+				if (movableContainer.x != -this.width) {
+					lstPreview.dataProvider=model.captureSlides;
+
+					if (hidePreviewEffect.isPlaying)
+						hidePreviewEffect.stop();
+					if (!showPreviewEffect.isPlaying)
+						showPreviewEffect.play();
+				}
+			}
+
+			public function hidePreview():void {
+				if (movableContainer.x != 0) {
+					if (showPreviewEffect.isPlaying)
+						showPreviewEffect.stop();
+					if (!hidePreviewEffect.isPlaying)
+						hidePreviewEffect.play();
+				}
+			}
+
+			[Mediate(event="CaptureImporterEvent.IMPORT_SELECTION_CHANGED")]
+			public function onImportSelectionChanged(cie:CaptureImporterEvent):void {
+				var scVO:SlideCaptureVO=cie.additionalData as SlideCaptureVO;
+				var selectedArray:Vector.<Object>=lstPreview.selectedItems;
+				if (selectedArray.indexOf(scVO) > -1) {
+					if (selectedArray.length > 1) {
+						for each (var s:SlideCaptureVO in selectedArray) {
+							s.selected=scVO.selected;
+						}
+					}
+				}
+			}
+
+			private function onCaptureListSelectionChange():void {
+				if (model) {
+					model.selectedCapture=dgCaptureList.selectedItem as CaptureVO;
+					enablePreview=dgCaptureList.selectedItem != null;
+
+					model.allSlidesSelected=EnumSelection.SELECTED;
+				}
+			}
+
+			private function onDataGridDoubleClick():void {
+				if (dgCaptureList.selectedItem) {
+					if (runPreviewHandler != null)
+						runPreviewHandler();
+					showPreview();
+				}
+			}
+
+			private function onNewCaptureClick():void {
+				dispatcher.dispatchEvent(new CaptureLoaderEvent(CaptureLoaderEvent.NEW_CAPTURE, true));
+			}
+
+			private function onRefereshClick():void {
+				deselect();
+				model.loadCaptures();
+			}
+
+			private function dateColumnLabelFunction(item:CaptureVO, column:GridColumn):String {
+				return dateTimeFormatter.format(item.timeStamp);
+			}
+
+			private function onListDoubleClick(e:Event = null):void {
+				if (hidePreviewHandler != null)
+					hidePreviewHandler();
+				hidePreview();
+			}
+
+			private function onAssociatedChange():void {
+				model.setOnlyAssociated(cbxAssociated.selected);
+			}
+			
+			private function onInitialize():void {
+				lstPreview.addEventListener(CaptureSlideRenderer.ITEM_DOUBLE_CLICKED, onListDoubleClick);
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup id="movableContainer"
+			  height="100%"
+			  gap="0">
+		<s:VGroup width="{this.width}"
+				  height="100%">
+			<s:Group width="100%">
+				<s:Rect width="100%"
+						height="100%"
+						radiusX="10"
+						radiusY="10">
+					<s:fill>
+						<s:LinearGradient rotation="90">
+							<s:entries>
+								<s:GradientEntry alpha=".9"
+												 color="#E7E7E7"/>
+								<s:GradientEntry alpha="1.0"
+												 color="#E7E7E7"/>
+							</s:entries>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke weight="1"
+											color="#BBBBBB"/>
+					</s:stroke>
+				</s:Rect>
+				<s:VGroup width="100%"
+						  paddingBottom="10"
+						  paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10"
+						  horizontalAlign="right">
+					<s:Label maxDisplayedLines="10"
+							 text="{_newCaptureDescription}"
+							 width="100%"/>
+					<s:Label maxDisplayedLines="2"
+							 text="{_newCaptureRequirements}"
+							 width="100%"/>
+					<s:HGroup verticalAlign="middle">
+						<s:Button label="New Capture"
+								  icon="{Embeded.NEW_CAPTURE_ICON}"
+								  height="35"
+								  click="onNewCaptureClick()"
+								  cornerRadius="5"/>
+						<s:Button icon="{Embeded.REFRESH_ICON}"
+								  click="onRefereshClick()"
+								  enabled="{!model.loadingCaptureList}"
+								  width="30"
+								  height="35"
+								  cornerRadius="5"/>
+					</s:HGroup>
+				</s:VGroup>
+			</s:Group>
+			<s:DataGrid id="dgCaptureList"
+						width="100%"
+						height="100%"
+						selectionChange="onCaptureListSelectionChange()"
+						doubleClickEnabled="true"
+						doubleClick="onDataGridDoubleClick()"
+						requestedRowCount="10">
+				<s:columns>
+					<mx:ArrayList>
+						<s:GridColumn headerText="Lesson Name"
+									  dataField="lessonName"
+									  width="{dgCaptureList.width * .5}"/>
+						<s:GridColumn headerText="Capture Id"
+									  dataField="id"/>
+						<s:GridColumn headerText="Timestamp"
+									  dataField="timeStamp"
+									  labelFunction="dateColumnLabelFunction"
+									  width="{dgCaptureList.width * .25}"/>
+					</mx:ArrayList>
+				</s:columns>
+			</s:DataGrid>
+			<s:CheckBox id="cbxAssociated"
+						label="Only show Screen Captures associated with this Lesson"
+						enabled="{!model.loadingCaptureList}"
+						selected="{model.onlyAssociatedCaptures}"
+						change="onAssociatedChange()"/>
+		</s:VGroup>
+		<s:Group width="{this.width}"
+				 height="100%"
+				 clipAndEnableScrolling="true">
+			<s:List id="lstPreview"
+					width="100%"
+					height="100%"
+					allowMultipleSelection="true"
+					typicalItem="{{}}"
+					dataProvider="{_mockDataProvider}"
+					itemRenderer="itrain.lessoneditor.view.renderers.CaptureSlideRenderer"
+					borderVisible="false"
+					useVirtualLayout="true">
+				<s:layout>
+					<s:TileLayout useVirtualLayout="true"/>
+				</s:layout>
+			</s:List>
+		</s:Group>
+	</s:HGroup>
+</s:Group>

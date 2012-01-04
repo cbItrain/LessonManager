@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 preinitialize="onPreinitialize()"
+		 width="400"
+		 creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.MessageEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.model.EnumMessageSeverity;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.core.Container;
+			import mx.events.EffectEvent;
+			import mx.events.ResizeEvent;
+
+			public static const HINT_VISIBILITY_INTERVAL:int=10000;
+			public static const HINT_CACHE_SIZE:int=3;
+
+			[Inject]
+			[Bindable]
+			public var model:EditorModel;
+
+			private var _hints:Vector.<String>=new Vector.<String>();
+			private var _timer:Timer=new Timer(HINT_VISIBILITY_INTERVAL, 1);
+			private var _timerObsolete:Timer=new Timer(HINT_VISIBILITY_INTERVAL * 5, 1);
+			private var _visible:Boolean=false;
+			private var _watcher:ChangeWatcher;
+			private var _lastMessage:String;
+
+			[PostConstruct]
+			public function onPostConstruct():void {
+				_watcher=ChangeWatcher.watch(model, "enableHints", onEnableHintsChange);
+			}
+
+			private function onEnableHintsChange(o:Object):void {
+				_lastMessage = null;
+				if (model.enableHints) {
+					_hints.splice(0, _hints.length);
+				} else if (_visible) {
+					stopMessageTimer();
+					hideEffect.play();
+				}
+
+			}
+
+			private function onPreinitialize():void {
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerComplete);
+				_timerObsolete.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerObsoleteComplete);
+				parentApplication.addEventListener(ResizeEvent.RESIZE, onApplicationResize);
+			}
+			
+			private function onApplicationResize(e:ResizeEvent):void {
+				stopMessageTimer();
+				_visible = this.visible = false;
+				_lastMessage = null;
+			}
+
+			private function onCreationComplete():void {
+				this.y=parentDocument.height + 5;
+			}
+
+			private function onTimerObsoleteComplete(e:TimerEvent):void {
+				_lastMessage=null;
+			}
+
+			private function onTimerComplete(te:TimerEvent):void {
+				if (_hints.length)
+					fadeEffect.play(null, true);
+				else {
+					hideEffect.play();
+				}
+			}
+
+			private function onFadeEffectEnd():void {
+				if (lblHint.alpha == 0.0) {
+					showMessages();
+				} else {
+					startMessageTimer();
+					scaleBulb();
+				}
+			}
+			
+			private function startMessageTimer():void {
+				stopMessageTimer();
+				_timer.reset();
+				_timer.start();
+			}
+			
+			private function stopMessageTimer():void {
+				if (_timer.running)
+					_timer.stop();
+			}
+
+			private function onHideEffectEnd():void {
+				visible = _visible = false;
+				unlistenForClick();
+				showMessages();
+			}
+
+			[Mediate(event="MessageEvent.SHOW_MESSAGE")]
+			public function onShowMessage(me:MessageEvent):void {
+				if (me.message && me.messageSeverity.equals(EnumMessageSeverity.HINT)) {
+					if (_hints.length == 0 && me.message == _lastMessage) {
+						return;
+					}
+					if (_hints.indexOf(me.message) < 0) {
+						_hints.push(me.message);
+						if (_hints.length > HINT_CACHE_SIZE)
+							_hints.splice(0, HINT_CACHE_SIZE);
+					}
+				}
+				showMessages();
+			}
+
+			private function showMessages():void {
+				if (model.enableHints) {
+					if (_hints.length) {
+						if (!(fadeEffect.isPlaying || _timer.running)) {
+							_lastMessage=lblHint.text=_hints.shift();
+							fadeEffect.play();
+						}
+						if (!_visible) {
+							_visible=true;
+							showEffect.play();
+						} else if (hideEffect.isPlaying) {
+							hideEffect.stop();
+							showEffect.play();
+						}
+						stopObsoleteTimer();
+					} else {
+						startObsoleteTimer();
+					}
+				}
+			}
+			
+			private function startObsoleteTimer():void {
+				stopObsoleteTimer();
+				_timerObsolete.reset();
+				_timerObsolete.start();
+			}
+			
+			private function stopObsoleteTimer():void {
+				if (_timerObsolete.running)
+					_timerObsolete.stop();
+			} 
+
+			private var _revertScale:Boolean=false;
+
+			private function scaleBulb():void {
+				_revertScale=true;
+				scaleEffect.play();
+			}
+
+			private function onScaleEffectEnd(e:EffectEvent):void {
+				if (_revertScale) {
+					_revertScale=false;
+					scaleEffect.play(null, true);
+				}
+			}
+			
+			private function onShowEffectEnd():void {
+				listenForClick();
+			}
+			
+			private function listenForClick():void {
+				unlistenForClick();
+				parentApplication.addEventListener(MouseEvent.CLICK, onApplicationMouseClick);
+			}
+			
+			private function unlistenForClick():void {
+				parentApplication.removeEventListener(MouseEvent.CLICK, onApplicationMouseClick);
+			}
+			
+			private function onApplicationMouseClick(e:MouseEvent):void {
+				if (_hints.length)
+					_hints.splice(0, _hints.length);
+				stopMessageTimer();
+				if (!hideEffect.isPlaying)
+					hideEffect.play();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Move id="hideEffect"
+				yFrom="{parentDocument.height - this.height + 1}"
+				yTo="{parentDocument.height + 5}"
+				duration="600"
+				target="{this}"
+				effectEnd="onHideEffectEnd()"/>
+		<s:Move id="showEffect"
+				yFrom="{parentDocument.height + 5}"
+				yTo="{parentDocument.height - this.height + 1}"
+				effectStart="{this.visible = true}"
+				duration="600"
+				target="{this}"
+				effectEnd="onShowEffectEnd()"/>
+		<s:Fade id="fadeEffect"
+				alphaFrom="0.0"
+				alphaTo="1.0"
+				target="{lblHint}"
+				effectEnd="onFadeEffectEnd()"/>
+		<s:Scale id="scaleEffect"
+				 scaleXFrom="1.0"
+				 scaleXTo="1.5"
+				 scaleYFrom="1.0"
+				 scaleYTo="1.5"
+				 autoCenterTransform="true"
+				 duration="250"
+				 applyChangesPostLayout="true"
+				 target="{imgBulb}"
+				 effectEnd="onScaleEffectEnd(event)"/>
+	</fx:Declarations>
+	<s:Rect width="100%"
+			height="100%"
+			alpha=".9"
+			topLeftRadiusX="10"
+			topLeftRadiusY="10"
+			topRightRadiusX="10"
+			topRightRadiusY="10">
+		<s:fill>
+			<s:LinearGradient>
+				<s:entries>
+					<s:GradientEntry alpha=".9"
+									 color="#787878"/>
+					<s:GradientEntry alpha="1.0"
+									 color="#787878"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="1"
+								color="#BBBBBB"/>
+		</s:stroke>
+	</s:Rect>
+	<s:VGroup width="100%"
+			  paddingBottom="10"
+			  paddingLeft="15"
+			  paddingRight="15"
+			  paddingTop="10">
+		<s:HGroup width="100%">
+			<s:Image id="imgBulb"
+					 source="{Embeded.HINT_ICON}"
+					 horizontalAlign="center"
+					 verticalAlign="middle"
+					 filters="{[Common.dropShadow]}"/>
+			<s:Label id="lblHint"
+					 width="100%"
+					 alpha="0.0"
+					 paddingTop="2"
+					 fontWeight="bold"
+					 styleName="hint"
+					 maxWidth="600"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:Group>

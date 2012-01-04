@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <header>
+    <slides>3</slides>
+    <locale>United Kingdom</locale>
+  </header>
+  <slide path="assets/sample/frame_125_3496_1.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3496/thumbs/frame_125_3496_1.jpeg">
+    <event action="MANUAL" />
+  </slide>
+  <slide path="assets/sample/frame_125_3496_2.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3496/thumbs/frame_125_3496_2.jpeg">
+    <event action="MANUAL" />
+  </slide>
+  <slide path="assets/sample/frame_125_3496_3.png" thumb="http://stratus.itrainconsulting.co.uk/captures/125/capture/3496/thumbs/frame_125_3496_3.jpeg">
+    <event action="MANUAL" />
+  </slide>
+</root>
+

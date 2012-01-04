@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Image xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 mouseOver="mouseOver(event)" mouseOut="mouseOut(event)" click="clicked(event)"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" addedToStage="addedToStage()">
+	<fx:Metadata>
+		[Event(name="clicked")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable] public var upSource:Class;
+			[Bindable] public var overSource:Class;
+			[Bindable] public var disabledSource:Class;
+			private var _clickEnabled:Boolean = true;
+			[Bindable] public function set clickEnabled(val:Boolean):void{
+				_clickEnabled = val;
+				if (_clickEnabled)
+					this.source = upSource;
+				else
+					this.source = disabledSource;
+			}
+			public function get clickEnabled():Boolean{
+				return _clickEnabled;
+			} 
+			private function addedToStage():void{
+				if (this.clickEnabled)
+					this.source = upSource;
+				else
+					this.source = disabledSource;
+			}
+			private function mouseOver(e:MouseEvent):void{
+				if (!clickEnabled)
+					this.source = disabledSource;
+				else
+					this.source = overSource;
+			}
+			private function mouseOut(e:MouseEvent):void{
+				if (!clickEnabled)
+					this.source = disabledSource;
+				else
+					this.source = upSource;
+			}
+			private function clicked(e:MouseEvent):void{
+				if (clickEnabled)
+					this.dispatchEvent(new Event("clicked", true));
+			}
+			
+		]]>
+	</fx:Script>
+</s:Image>

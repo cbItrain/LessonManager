@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%"
+         height="100%"
+         click="onMouseClick(event)"
+         xmlns:components="itrain.lessoneditor.view.components.*">
+    <fx:Script>
+        <![CDATA[
+            import flashx.textLayout.conversion.TextConverter;
+            
+            import itrain.common.utils.Embeded;
+            import itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin;
+        ]]>
+    </fx:Script>
+    <fx:Declarations>
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+			import itrain.lessoneditor.model.EditorModel;
+            import com.adobe.linguistics.spelling.SpellUI;
+            import mx.skins.halo.WindowBackground;
+            import itrain.lessoneditor.model.CaptureUtils;
+            import itrain.common.events.ModelEvent;
+            import itrain.lessoneditor.events.EditorEvent;
+            import itrain.lessoneditor.model.SlidePropertiesModel;
+
+            private const MAIN_DESCRIPTION:String="Add an instruction to the user for the current slide.";
+            private const ADDITIONAL_DESCRIPTION:String="Leave the text blank to repeat the instruction from the previous slide.";
+
+            [Inject]
+            [Bindable]
+            public var model:SlidePropertiesModel;
+			
+			[Inject]
+			public var editorModel:EditorModel;
+			
+			private var _spellCheckEnabled:Boolean=false;
+
+			[PostConstruct]
+            private function onPostConstruct():void {
+                if (editorModel) {
+					enableSpelling();
+				}
+            }
+			
+			private function enableSpelling():void {
+				try {
+					if (!_spellCheckEnabled) {
+						SpellUI.enableSpelling(txtInstruction, "en_US");
+						_spellCheckEnabled=true;
+						var ee:EditorEvent=new EditorEvent(EditorEvent.SPELL_CHECK_COMPLETED, true);
+						dispatchEvent(ee);
+					}
+				} catch (e:Error) {
+					trace(e);
+				}
+			}
+			
+			private function disableSpelling():void {
+				try {
+					if (_spellCheckEnabled) {
+						SpellUI.disableSpelling(txtInstruction);
+						_spellCheckEnabled=false;
+					}
+				} catch (e:Error) {
+					trace(e);
+				}
+			}
+			
+			[Mediate(event="EditorEvent.SPELL_CHECK_CHANGES")]
+			public function onSpellCheckChanges(ee:EditorEvent):void {
+				if (ee.additionalData) {
+					enableSpelling();
+				} else {
+					disableSpelling();
+				}
+			}
+
+            private function onEditInstructionClick(e:Event=null):void {
+                var ee:EditorEvent;
+                if (btnInstruction.selected) {
+                    if (e)
+                        ee=new EditorEvent(EditorEvent.HIDE_SLIDE_INSTRUCTION, true);
+                    else
+                        ee=new EditorEvent(EditorEvent.EDIT_SLIDE_INSTRUCTION, true);
+                } else {
+                    if (e)
+                        ee=new EditorEvent(EditorEvent.EDIT_SLIDE_INSTRUCTION, true);
+                    else
+                        ee=new EditorEvent(EditorEvent.HIDE_SLIDE_INSTRUCTION, true);
+                }
+                dispatchEvent(ee);
+            }
+
+            private function onMouseClick(e:MouseEvent):void {
+                e.stopImmediatePropagation();
+            }
+
+            [Mediate(event="EditorEvent.SLIDE_INSTRUCTION_HIDDEN")]
+            public function onSlideInstructionHidden():void {
+                btnInstruction.selected=false;
+            }
+
+            [Mediate(event="EditorEvent.SLIDE_INSTRUCTION_SHOWN")]
+            public function onSlideInstructionShown():void {
+                btnInstruction.selected=true;
+            }
+
+            [Mediate(event="ModelEvent.SLIDE_IMAGE_READY")]
+            public function onSlideImageReady(me:ModelEvent):void {
+                var labelDimension:String="Unavailable";
+                var labelCaptureId:String="Unavailable";
+                if (me.url == model.currentlySelected.source) {
+                    var point:Point=me.additionalData as Point;
+                    labelDimension=point.x + " x " + point.y;
+                    labelCaptureId=CaptureUtils.getCaptureIdFromUrl(model.currentlySelected.source);
+                }
+                lblDimensions.text=labelDimension;
+                lblCaptureId.text=labelCaptureId;
+            }
+
+            private function onImageURLClick():void {
+                if (urlWindow.alpha == 1.0) {
+                    urlWindow.hide();
+                } else {
+                    urlWindow.show();
+                }
+
+            }
+        ]]>
+    </fx:Script>
+    <s:VGroup width="100%"
+              height="100%"
+              gap="20">
+        <s:VGroup width="100%">
+            <s:Label text="Watch-It Properties"
+                     styleName="propertiesLabel"
+                     fontWeight="bold"/>
+            <s:Line width="100%"
+                    height="1">
+                <s:stroke>
+                    <s:SolidColorStroke color="#BBBBBB"/>
+                </s:stroke>
+            </s:Line>
+        </s:VGroup>
+        <s:VGroup width="100%"
+                  gap="15">
+            <s:Label text="Mouse Pause"
+                     paddingTop="2"
+                     styleName="propertiesLabel"/>
+            <mx:Grid>
+                <mx:GridRow verticalAlign="middle">
+                    <mx:GridItem horizontalAlign="right"
+                                 verticalAlign="middle">
+                        <s:Label text="Start:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem horizontalAlign="left"
+                                 verticalAlign="middle">
+                        <s:HGroup verticalAlign="middle">
+                            <s:NumericStepper id="nstpPauseStart"
+                                              width="70"
+                                              minimum="0"
+                                              maximum="1000"
+                                              value="{model.currentlySelected.start}"
+                                              change="{model.currentlySelected != null ? model.currentlySelected.start = nstpPauseStart.value : null}"/>
+                            <s:Label text="seconds"
+                                     paddingTop="2"
+                                     styleName="propertiesLabel"/>
+                        </s:HGroup>
+                    </mx:GridItem>
+                </mx:GridRow>
+                <mx:GridRow verticalAlign="middle">
+                    <mx:GridItem horizontalAlign="right"
+                                 verticalAlign="middle">
+                        <s:Label text="End:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem horizontalAlign="right"
+                                 verticalAlign="middle">
+                        <s:HGroup verticalAlign="middle">
+                            <s:NumericStepper id="nstpPauseEnd"
+                                              width="70"
+                                              value="{model.currentlySelected.end}"
+                                              change="{model.currentlySelected != null ? model.currentlySelected.end = nstpPauseEnd.value : null}"/>
+                            <s:Label text="seconds"
+                                     paddingTop="2"
+                                     styleName="propertiesLabel"/>
+                        </s:HGroup>
+                    </mx:GridItem>
+                </mx:GridRow>
+            </mx:Grid>
+        </s:VGroup>
+        <s:VGroup width="100%">
+            <s:Label text="Try-It Properties"
+                     styleName="propertiesLabel"
+                     fontWeight="bold"/>
+            <s:Line width="100%"
+                    height="1">
+                <s:stroke>
+                    <s:SolidColorStroke color="#BBBBBB"/>
+                </s:stroke>
+            </s:Line>
+        </s:VGroup>
+        <s:Group width="100%"
+                 height="150"
+                 alpha=".9"
+                 doubleClick="onEditInstructionClick(event)"
+                 doubleClickEnabled="true">
+            <s:Rect id="navigationBackground"
+                    width="100%"
+                    height="100%"
+                    radiusX="5"
+                    radiusY="5">
+                <s:fill>
+                    <s:LinearGradient rotation="90">
+                        <s:GradientEntry color="#FFB15F"/>
+                        <s:GradientEntry color="#FD8300"/>
+                    </s:LinearGradient>
+                </s:fill>
+                <s:stroke>
+                    <s:SolidColorStroke color="#555555"
+                                        id="borderStroke"
+                                        weight="1"/>
+                </s:stroke>
+            </s:Rect>
+            <s:VGroup width="100%"
+                      height="100%"
+                      paddingBottom="5"
+                      paddingLeft="5"
+                      paddingRight="5"
+                      paddingTop="5">
+                <s:HGroup width="100%"
+                          verticalAlign="middle">
+                    <s:Label text="Try-It Instruction"
+                             fontWeight="bold"
+                             paddingTop="5"
+                             paddingBottom="2"
+                             color="#FFFFFF"/>
+                    <s:Spacer width="100%"/>
+                    <s:ToggleButton id="btnInstruction"
+                                    toolTip="{btnInstruction.selected ? 'Hide Instruction Editor' : 'Show Instruction Editor'}"
+                                    width="30"
+                                    height="25"
+                                    icon="{Embeded.EDIT_ICON}"
+                                    skinClass="itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin"
+                                    change="onEditInstructionClick()"/>
+                </s:HGroup>
+                <s:TextArea id="txtInstruction"
+                            editable="false"
+                            selectable="false"
+                            width="100%"
+                            height="100%"
+                            verticalScrollPolicy="off"
+                            horizontalScrollPolicy="off"
+                            textFlow="{TextConverter.importToFlow(model.currentlySelected.interText, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+            </s:VGroup>
+        </s:Group>
+        <s:HGroup width="100%"
+                  verticalAlign="middle">
+            <s:Label text="Position at:"
+                     paddingTop="3"
+                     styleName="propertiesLabel"/>
+            <s:RadioButton id="rbTop"
+                           label="Top"
+                           selected="{model.currentlySelected.instructionTopPos}"
+                           click="{model.currentlySelected.instructionTopPos = true}"/>
+            <s:RadioButton id="rbBottom"
+                           label="Bottom"
+                           selected="{!model.currentlySelected.instructionTopPos}"
+                           click="{model.currentlySelected.instructionTopPos = false}"/>
+            <s:Label text="of Screen"
+                     paddingTop="3"
+                     styleName="propertiesLabel"/>
+        </s:HGroup>
+        <s:VGroup width="100%">
+            <s:Group width="100%">
+                <s:Label text="Image Properties"
+                         styleName="propertiesLabel"
+                         fontWeight="bold"
+                         left="0"
+                         verticalCenter="0"/>
+                <mx:LinkButton label="Image URL"
+                               right="0"
+                               fontWeight="bold"
+                               color="0x0000FF"
+                               textDecoration="underline"
+                               verticalCenter="0"
+                               mouseDown="event.stopImmediatePropagation()"
+                               click="onImageURLClick()"/>
+            </s:Group>
+            <s:Line width="100%"
+                    height="1">
+                <s:stroke>
+                    <s:SolidColorStroke color="#BBBBBB"/>
+                </s:stroke>
+            </s:Line>
+        </s:VGroup>
+        <s:Group width="100%"
+                 height="100%">
+            <mx:Grid>
+                <mx:GridRow verticalAlign="middle">
+                    <mx:GridItem horizontalAlign="right">
+                        <s:Label text="Image dimensions:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem horizontalAlign="left">
+                        <s:Label id="lblDimensions"
+                                 paddingTop="2"/>
+                    </mx:GridItem>
+                </mx:GridRow>
+                <mx:GridRow verticalAlign="middle">
+                    <mx:GridItem horizontalAlign="right">
+                        <s:Label text="Capture ID:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem horizontalAlign="left">
+                        <s:Label id="lblCaptureId"
+                                 paddingTop="2"/>
+                    </mx:GridItem>
+                </mx:GridRow>
+            </mx:Grid>
+            <components:URLWindow id="urlWindow"
+                                  text="{model.currentlySelected.source}"
+                                  verticalCenter="0"
+                                  width="100%"/>
+        </s:Group>
+    </s:VGroup>
+</s:Group>

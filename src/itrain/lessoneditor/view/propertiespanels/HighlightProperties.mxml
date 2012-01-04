@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%"
+		 click="onMouseClick(event)"
+		 xmlns:view="itrain.common.view.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.vo.HighlightVO;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.EditorEvent;
+
+			import mx.collections.IList;
+			import mx.core.mx_internal;
+			import mx.utils.ObjectUtil;
+
+			private const _highliterColors:Array=[0xFFFF00, 0xFF8645, 0xFF5AB6, 0x60B8EA, 0x00FF33, 0xFF2A00];
+
+			[Bindable]
+			public var highlightVO:HighlightVO;
+
+
+			private function onMouseClick(e:MouseEvent):void {
+				e.stopImmediatePropagation();
+			}
+
+			private function onVisibilityChange(target:SwitchButton):void {
+				if (target == cbxTryIt) {
+					highlightVO.tryItVisible=cbxTryIt.selected;
+					if (!(cbxWatchIt.selected || cbxTryIt.selected)) {
+						highlightVO.watchItVisible=true;
+					}
+				} else {
+					highlightVO.watchItVisible=cbxWatchIt.selected;
+					if (!(cbxWatchIt.selected || cbxTryIt.selected)) {
+						highlightVO.tryItVisible=true;
+					}
+				}
+			}
+
+			private function dataTipFormatFunction(value:Number):String {
+				switch (value) {
+					case 1.0:
+						return "Slow";
+					case 2.0:
+						return "Medium";
+					case 3.0:
+						return "Fast";
+					case 4.0:
+						return "Very fast";
+				}
+				return "Undefined";
+			}
+
+			private function onAnimationPreviewClick():void {
+				var ev:EditorEvent=new EditorEvent(EditorEvent.PREVIEW_HIGHLIGHT_ANIMATION, true);
+				ev.model=highlightVO;
+				dispatchEvent(ev);
+			}
+		]]>
+	</fx:Script>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace view "itrain.common.view.*";
+		
+		.swatchPanelColorStyle {
+			swatchHeight: 30;
+			swatchWidth: 30;
+			columnCount: 3;
+			previewWidth: 25;
+			textFieldWidth: 60;
+			swatchGridBackgroundColor:#E5E6E7;
+		}
+		
+	</fx:Style>
+	<s:VGroup width="100%"
+			  height="100%"
+			  paddingRight="5"
+			  paddingBottom="1"
+			  paddingLeft="1"
+			  paddingTop="1"
+			  gap="10">
+		<s:HGroup verticalAlign="middle"
+				  gap="10">
+			<s:Label text="Fill:"
+					 styleName="propertiesLabelBolded"/>
+			<mx:ColorPicker id="cpFillColor"
+							dataProvider="{_highliterColors}"
+							swatchPanelStyleName="swatchPanelColorStyle"
+							selectedColor="{highlightVO.fillColor}"
+							change="{highlightVO.fillColor = cpFillColor.selectedColor}"/>
+		</s:HGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+			
+		</s:Line>
+		<mx:Grid width="100%">
+			<mx:GridRow verticalAlign="middle"
+						width="100%">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Opacity:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 width="100%">
+					<s:HSlider id="hsFillAlpha"
+							   width="100%"
+							   maximum="1.0"
+							   minimum="0.0"
+							   stepSize=".01"
+							   value="{highlightVO.fillAlpha}"
+							   change="{highlightVO.fillAlpha = hsFillAlpha.value}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+		<s:Spacer height="10"/>
+		<s:HGroup verticalAlign="middle"
+				  gap="10">
+			<s:Label text="Border:"
+					 styleName="propertiesLabelBolded"/>
+			<mx:ColorPicker id="cpBorderColor"
+							dataProvider="{_highliterColors}"
+							swatchPanelStyleName="swatchPanelColorStyle"
+							selectedColor="{highlightVO.borderColor}"
+							change="{highlightVO.borderColor = cpBorderColor.selectedColor}"/>
+		</s:HGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<mx:Grid width="100%">
+			<mx:GridRow verticalAlign="middle"
+						width="100%">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Opacity:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 width="100%">
+					<s:HSlider id="hsBorderAlpha"
+							   width="100%"
+							   minimum="0.0"
+							   maximum="1.0"
+							   stepSize=".01"
+							   value="{highlightVO.borderAlpha}"
+							   change="{highlightVO.borderAlpha = hsBorderAlpha.value}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow verticalAlign="middle"
+						width="100%">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Thickness:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 width="100%">
+					<s:HSlider id="hsBorderThickness"
+							   width="100%"
+							   minimum="0"
+							   maximum="10.0"
+							   stepSize="1"
+							   value="{highlightVO.borderWidth}"
+							   change="{highlightVO.borderWidth = hsBorderThickness.value}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow verticalAlign="middle"
+						width="100%">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Corners:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 width="100%">
+					<s:HSlider id="hsCornerRadius"
+							   width="100%"
+							   minimum="0"
+							   maximum="{Math.min(highlightVO.width, highlightVO.height)/2}"
+							   stepSize="1"
+							   value="{highlightVO.cornerRadius}"
+							   change="{highlightVO.cornerRadius = hsCornerRadius.value}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+		<s:Spacer height="10"/>
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="Animation:"
+					 styleName="propertiesLabelBolded"/>
+			<s:Spacer width="10"/>
+			<view:SwitchButton id="cbxAnimated"
+							   selected="{highlightVO.animationSpeed &gt; 0}"
+							   change="{cbxAnimated.selected ? highlightVO.animationSpeed = 2 : highlightVO.animationSpeed = 0}"/>
+			<mx:LinkButton label="Preview"
+						   right="0"
+						   enabled="{hsAnimationSpeed.enabled}"
+						   fontWeight="bold"
+						   color="0x0000FF"
+						   textDecoration="underline"
+						   verticalCenter="0"
+						   click="onAnimationPreviewClick()"/>
+		</s:HGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<mx:Grid width="100%">
+			<mx:GridRow verticalAlign="top"
+						width="100%">
+				<mx:GridItem horizontalAlign="right">
+					<s:Label text="Pulse speed:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 width="100%">
+					<s:VGroup width="100%">
+						<s:HSlider id="hsAnimationSpeed"
+								   width="100%"
+								   maximum="4.0"
+								   minimum="1.0"
+								   stepSize="1.0"
+								   dataTipFormatFunction="dataTipFormatFunction"
+								   enabled="{cbxAnimated.selected}"
+								   value="{highlightVO.animationSpeed}"
+								   change="{highlightVO.animationSpeed = hsAnimationSpeed.value}"/>
+						<s:Label text="{cbxAnimated.selected ? dataTipFormatFunction(hsAnimationSpeed.value) : 'Animation disabled'}"
+								 paddingTop="2"
+								 styleName="propertiesLabel"/>
+					</s:VGroup>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+		<s:Spacer height="10"/>
+		<s:Label text="Show in:"
+				 styleName="propertiesLabelBolded"/>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<mx:Grid width="100%">
+			<mx:GridRow verticalAlign="middle"
+						width="100%">
+				<mx:GridItem horizontalAlign="right"
+							 verticalAlign="middle">
+					<s:Label text="Watch-It:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="left"
+							 verticalAlign="middle">
+					<view:SwitchButton id="cbxWatchIt"
+									   selected="{highlightVO.watchItVisible}"
+									   change="onVisibilityChange(cbxWatchIt)"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right"
+							 verticalAlign="middle">
+					<s:Label text="Try-It:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="left"
+							 verticalAlign="middle">
+					<view:SwitchButton id="cbxTryIt"
+									   selected="{highlightVO.tryItVisible}"
+									   change="onVisibilityChange(cbxTryIt)"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+	</s:VGroup>
+</s:Group>

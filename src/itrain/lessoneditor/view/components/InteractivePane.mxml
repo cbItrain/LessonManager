@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%"
+         height="100%"
+         creationComplete="onCreationComplete()"
+         mouseDown="onMouseDown(event)"
+         mouseMove="onMouseOver(event)"
+         doubleClickEnabled="true"
+         doubleClick="onDoubleClick(event)">
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import com.objecthandles.HandleDescription;
+            import com.objecthandles.HandleRoles;
+            import com.objecthandles.ObjectHandles;
+            import com.objecthandles.SelectionEvent;
+            import com.objecthandles.constraints.MovementConstraint;
+            import com.objecthandles.constraints.SizeConstraint;
+            
+            import flash.utils.setTimeout;
+            
+            import itrain.common.model.vo.CaptionVO;
+            import itrain.common.model.vo.HighlightVO;
+            import itrain.common.model.vo.HotspotVO;
+            import itrain.common.model.vo.SlideObjectVO;
+            import itrain.common.model.vo.SlideVO;
+            import itrain.common.model.vo.TextFieldVO;
+            import itrain.common.utils.Embeded;
+            import itrain.common.view.stageobjects.IStageObject;
+            import itrain.common.view.stageobjects.StageCaption;
+            import itrain.common.view.stageobjects.StageHighlight;
+            import itrain.common.view.stageobjects.StageHotspot;
+            import itrain.common.view.stageobjects.StageTextArea;
+            import itrain.lessoneditor.events.EditorEvent;
+            import itrain.lessoneditor.events.FakeObjectHandleMouseEvent;
+            import itrain.lessoneditor.model.EditorModel;
+            import itrain.lessoneditor.other.LessonEditorHandleFactory;
+            import itrain.lessoneditor.other.SpriteHandle;
+            
+            import mx.binding.utils.BindingUtils;
+            import mx.controls.Image;
+            import mx.core.DragSource;
+            import mx.core.IChildList;
+            import mx.core.IUIComponent;
+            import mx.core.UIComponent;
+            import mx.events.DragEvent;
+            import mx.managers.CursorManager;
+            import mx.managers.DragManager;
+            
+            import spark.components.TextArea;
+
+            private var _slide:SlideVO;
+            private var _objectHandles:ObjectHandles;
+
+            private var _sizeConstraint:SizeConstraint;
+            private var _positionConstraint:MovementConstraint;
+
+            private var _textEditorHandles:Array;
+
+            private var _modelToViewMap:Dictionary=new Dictionary();
+
+            private var _preparedObject:SlideObjectVO;
+            private var _plusCursorId:int;
+
+            [Inject]
+            public var editorModel:EditorModel;
+
+            private function onDoubleClick(e:MouseEvent):void {
+                if (e.target == this && _preparedObject) {
+                    var event:EditorEvent=new EditorEvent(EditorEvent.ADD_OBJECT, true);
+                    var addedObject:SlideObjectVO=_preparedObject.clone();
+                    addedObject.unlistenForChange();
+                    (new (Object(_preparedObject).constructor as Class)() as SlideObjectVO).copyTo(addedObject);
+                    addedObject.x=e.localX;
+                    addedObject.y=e.localY;
+                    addedObject.listenForChange();
+                    event.model=addedObject;
+                    event.additionalData=_slide;
+                    dispatchEvent(event);
+
+                    _preparedObject=null;
+                }
+            }
+
+            private function onCreationComplete():void {
+                _objectHandles=new ObjectHandles(holder, null, new LessonEditorHandleFactory());
+                _objectHandles.moveCursor=Embeded.CURSOR_MOVE;
+                _objectHandles.selectionManager.addEventListener(SelectionEvent.ADDED_TO_SELECTION, onObjectSelected);
+                _objectHandles.selectionManager.addEventListener(SelectionEvent.SELECTION_CLEARED, onObjectDeselected);
+
+                _textEditorHandles=_objectHandles.defaultHandles.concat();
+                _textEditorHandles.push(new HandleDescription(HandleRoles.MOVE, new Point(50, 50), new Point(0, 0)));
+
+                _sizeConstraint=new SizeConstraint();
+                _sizeConstraint.minWidth=0.0;
+                _sizeConstraint.minHeight=0.0;
+
+                _positionConstraint=new MovementConstraint();
+                _positionConstraint.minX=0.0;
+                _positionConstraint.minY=0.0;
+                BindingUtils.bindProperty(_positionConstraint, "maxY", this, "height");
+                BindingUtils.bindProperty(_positionConstraint, "maxX", this, "width");
+
+                this.parentApplication.addEventListener(MouseEvent.CLICK, onMouseClick);
+                this.parentApplication.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+
+            private function onMouseDown(ev:MouseEvent):void {
+                if (ev.target == this && _preparedObject) {
+                    _stageMouseDownPoint=new Point(stage.mouseX, stage.mouseY);
+                    _preparedObject.unlistenForChange();
+                    _preparedObject.x=ev.localX;
+                    _preparedObject.y=ev.localY;
+                    _preparedObject.width=_preparedObject.height=0.0;
+                } else {
+                    _preparedObject=null;
+                    CursorManager.removeCursor(_plusCursorId);
+                }
+            }
+
+            private function onMouseUp(e:MouseEvent):void {
+
+            }
+
+            private function onMouseOver(ev:MouseEvent):void {
+                if (ev.buttonDown && _preparedObject && _stageMouseDownPoint) {
+
+                    var thisInstance:DisplayObject=this;
+                    var currentItem:SlideObjectVO=_preparedObject;
+
+                    var onMouseUp:Function=function(e:Event):void {
+                        thisInstance.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+                        var ee:EditorEvent=new EditorEvent(EditorEvent.ADD_OBJECT, true);
+                        ee.model=currentItem;
+                        ee.additionalData=_slide;
+                        dispatchEvent(ee);
+
+                        currentItem.listenForChange();
+                    };
+
+                    this.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+
+                    addObject(_preparedObject)
+
+                    var onAddedToSelection:Function=function(e:Event):void {
+                        _objectHandles.selectionManager.removeEventListener(SelectionEvent.ADDED_TO_SELECTION, onAddedToSelection);
+                        var direction:uint=currentItem.x > mouseX ? HandleRoles.RESIZE_LEFT : HandleRoles.RESIZE_RIGHT;
+                        direction+=currentItem.y > mouseY ? HandleRoles.RESIZE_UP : HandleRoles.RESIZE_DOWN;
+                        callLater(initiateResizing, [direction]);
+                    }
+                    _objectHandles.selectionManager.addEventListener(SelectionEvent.ADDED_TO_SELECTION, onAddedToSelection);
+
+                    _preparedObject=null;
+                    CursorManager.removeCursor(_plusCursorId);
+                }
+            }
+
+            private var _stageMouseDownPoint:Point;
+
+            private function initiateResizing(direction:uint):void {
+                var sh:SpriteHandle=_objectHandles.getHandle(direction) as SpriteHandle;
+                if (sh) {
+                    var ofme:FakeObjectHandleMouseEvent=new FakeObjectHandleMouseEvent();
+                    ofme.target=sh;
+                    ofme.stageX=_stageMouseDownPoint.x;
+                    ofme.stageY=_stageMouseDownPoint.y;
+                    _objectHandles.onHandleDown(ofme);
+                    parentApplication.setFocus();
+                }
+            }
+
+            public function isScrollingEnabled():Boolean {
+                return _preparedObject == null;
+            }
+
+            [Mediate(event="EditorEvent.PREPARE_OBJECT")]
+            public function onPrepareObject(ev:EditorEvent):void {
+                clearSelectionRequested();
+                _preparedObject=ev.model as SlideObjectVO;
+                CursorManager.removeCursor(_plusCursorId);
+                if (_preparedObject)
+                    _plusCursorId=CursorManager.setCursor(Embeded.ADD_ITEM_CURSOR);
+            }
+
+            private function onKeyUp(e:KeyboardEvent):void {
+                if (e.keyCode == Keyboard.DELETE && _objectHandles.selectionManager.currentlySelected.length > 0) {
+                    var ev:EditorEvent;
+                    for each (var vo:SlideObjectVO in _objectHandles.selectionManager.currentlySelected) {
+                        ev=new EditorEvent(EditorEvent.REMOVE_OBJECT, true);
+                        ev.model=vo;
+                        ev.additionalData=_slide;
+                        dispatchEvent(ev);
+                    }
+                }
+            }
+
+            [Mediate(event="EditorEvent.OBJECT_REMOVED")]
+            public function onRemoveObject(ev:EditorEvent):void {
+                var vo:SlideObjectVO=ev.model as SlideObjectVO;
+                if (_modelToViewMap[vo]) {
+                    var display:DisplayObject=_modelToViewMap[vo] as DisplayObject;
+                    if (holder.contains(display))
+                        holder.removeChild(display);
+                    _modelToViewMap[vo]=null;
+                    _objectHandles.unregisterModel(vo);
+                }
+            }
+
+
+            [Mediate(event="EditorEvent.PREVIEW_HIGHLIGHT_ANIMATION")]
+            public function onPreviewHighlightAnimation(ev:EditorEvent):void {
+                var sh:StageHighlight=_modelToViewMap[ev.model] as StageHighlight;
+                if (sh && holder.contains(sh))
+                    sh.preview();
+            }
+
+            private var _selectedOldViewIndex:int=-1;
+
+            private function onObjectSelected(e:SelectionEvent):void {
+                var ee:EditorEvent=new EditorEvent(EditorEvent.OBJECT_SELECTION_CHANGE, true);
+                ee.model=e.targets.shift();
+                this.dispatchEvent(ee);
+
+                var displayObject:UIComponent=_modelToViewMap[ee.model];
+                bringSelectedToFront(displayObject);
+
+                updateCaption(true, displayObject);
+                updateTextField(true, displayObject);
+            }
+
+            private function onObjectDeselected(e:SelectionEvent):void {
+                if (e.targets.length) {
+                    var displayObject:UIComponent=_modelToViewMap[e.targets.shift()];
+                    restoreObjectOrdering(displayObject);
+                    updateTextField(false, displayObject);
+                    updateCaption(false, displayObject);
+                }
+            }
+
+            private function updateCaption(selected:Boolean, displayObject:UIComponent):void {
+                if (displayObject is StageCaption) {
+                    (displayObject as StageCaption).pointerHandleVisible=selected;
+                }
+            }
+
+            private function updateTextField(selected:Boolean, displayObject:UIComponent):void {
+                if (displayObject is StageTextArea) {
+                    (displayObject as StageTextArea).showMarker=!selected;
+                }
+            }
+
+
+            private function bringSelectedToFront(element:UIComponent):void {
+                _selectedOldViewIndex=holder.getChildIndex(element);
+                holder.setChildIndex(element, holder.numChildren - 1);
+            }
+
+            private function restoreObjectOrdering(element:UIComponent):void {
+                if (element)
+                    holder.setChildIndex(element, _selectedOldViewIndex);
+                _selectedOldViewIndex=-1;
+            }
+
+            private function onMouseClick(e:MouseEvent):void {
+                if (!(e.target is IStageObject || e.target is SpriteHandle) && _objectHandles.selectionManager.currentlySelected.length > 0) {
+                    clearSelectionRequested();
+
+                    var ee:EditorEvent=new EditorEvent(EditorEvent.OBJECT_SELECTION_CHANGE, true);
+                    ee.model=null;
+                    this.dispatchEvent(ee);
+                }
+            }
+
+            [Bindable]
+            public function get slide():SlideVO {
+                return _slide;
+            }
+
+            public function set slide(value:SlideVO):void {
+                _slide=value;
+                onSlideChange();
+            }
+
+            private function addTextField(item:TextFieldVO, index:int=NaN, array:Array=null, viewIndex:int=-1):void {
+                var tf:StageTextArea=new StageTextArea(item);
+                tf.selectable=tf.editable=false;
+                if (viewIndex == -1)
+                    holder.addChild(tf);
+                else
+                    holder.addChildAt(tf, viewIndex);
+                _objectHandles.registerComponent(item, tf, null, true, [_sizeConstraint, _positionConstraint]);
+                _modelToViewMap[item]=tf;
+            }
+
+            private function addHotspot(item:HotspotVO, index:int=NaN, array:Array=null, viewIndex:int=-1):void {
+                var h:StageHotspot=new StageHotspot(item);
+                if (viewIndex == -1)
+                    holder.addChild(h);
+                else
+                    holder.addChildAt(h, viewIndex);
+                _objectHandles.registerComponent(item, h, null, true, [_sizeConstraint, _positionConstraint]);
+                _modelToViewMap[item]=h;
+            }
+
+            private function addHighlight(item:HighlightVO, index:int=NaN, array:Array=null, viewIndex:int=-1):void {
+                var h:StageHighlight=new StageHighlight(item);
+                if (viewIndex == -1)
+                    holder.addChild(h);
+                else
+                    holder.addChildAt(h, viewIndex);
+                _objectHandles.registerComponent(item, h, null, true, [_sizeConstraint, _positionConstraint]);
+                _modelToViewMap[item]=h;
+            }
+
+            private function addCaption(item:CaptionVO, index:int=NaN, array:Array=null, viewIndex:int=-1):void {
+                var c:StageCaption=new StageCaption(item, true, editorModel.lesson.oldCaptionStyle);
+                if (viewIndex == -1)
+                    holder.addChild(c);
+                else
+                    holder.addChildAt(c, viewIndex);
+                _objectHandles.registerComponent(item, c, _textEditorHandles, true, [_sizeConstraint, _positionConstraint]);
+                _modelToViewMap[item]=c;
+            }
+			
+			[Mediate(event="EditorEvent.BACKGROUND_IMAGE_VISIBLE")]
+			public function visibleAfterChange():void {
+                if (editorModel.enableSpell) {
+                    callLater(function():void {
+                        setCaptionsSpelling(true);
+						var ee:EditorEvent = new EditorEvent(EditorEvent.SPELL_CHECK_COMPLETED, true);
+						dispatchEvent(ee);
+                    });
+                }
+			}
+
+            private function onSlideChange():void {
+                clearSelectionRequested();
+                setCaptionsSpelling(false);
+                holder.removeAllChildren();
+                if (_slide) {
+                    _slide.highlights.forEach(addHighlight);
+                    _slide.hotspots.forEach(addHotspot);
+                    _slide.textfields.forEach(addTextField);
+                    _slide.captions.forEach(addCaption);
+                }
+//                if (editorModel.enableSpell) {
+//                    callLater(function():void {
+//                        setCaptionsSpelling(true);
+//                    });
+//                }
+            }
+
+            private function setCaptionsSpelling(enabled:Boolean):void {
+                for each (var ui:UIComponent in holder.getChildren()) {
+                    if (ui is StageCaption) {
+                        var sc:StageCaption=ui as StageCaption;
+                        if (enabled) {
+                            sc.enableSpelling();
+                            this.setFocus();
+                        } else
+                            sc.disableSpelling();
+                    }
+                }
+            }
+
+            [Mediate(event="EditorEvent.CLEAR_OBJECT_SELECTION")]
+            public function clearSelectionRequested():void {
+                this.setFocus();
+                _objectHandles.selectionManager.clearSelection();
+            }
+
+            [Mediate(event="EditorEvent.CAPTIONS_STYLE_CHANGES")]
+            public function onCaptionStyleChange(ee:EditorEvent):void {
+                if (slide) {
+                    var sc:StageCaption;
+                    for each (var c:CaptionVO in slide.captions) {
+                        sc=_modelToViewMap[c];
+                        if (sc)
+                            sc.oldStyle=ee.additionalData;
+                    }
+                }
+            }
+
+            [Mediate(event="EditorEvent.SPELL_CHECK_CHANGES")]
+            public function onSpellCheckChanges(ee:EditorEvent):void {
+                setCaptionsSpelling(ee.additionalData);
+            }
+
+            private function addObject(vo:SlideObjectVO):void {
+                if (vo) {
+                    var index:int=0;
+                    var predecessor:SlideObjectVO;
+                    if (vo is CaptionVO) {
+                        predecessor=getObjectPredecessor(vo, slide.captions);
+                        if (predecessor)
+                            index=holder.getChildIndex(_modelToViewMap[predecessor] as DisplayObject) + 1;
+                        else if (slide.textfields.length)
+                            index=holder.getChildIndex(_modelToViewMap[slide.textfields[slide.textfields.length - 1]] as DisplayObject) + 1;
+                        else if (slide.hotspots.length)
+                            index=holder.getChildIndex(_modelToViewMap[slide.hotspots[slide.hotspots.length - 1]] as DisplayObject) + 1;
+                        addCaption(vo as CaptionVO, NaN, null, index);
+                        if (editorModel.enableSpell) {
+                            callLater(function():void {
+                                var sc:StageCaption=_modelToViewMap[vo];
+                                sc.enableSpelling();
+                            });
+                        }
+                    } else if (vo is HotspotVO) {
+                        predecessor=getObjectPredecessor(vo, slide.hotspots);
+                        if (predecessor)
+                            index=holder.getChildIndex(_modelToViewMap[predecessor] as DisplayObject) + 1;
+                        addHotspot(vo as HotspotVO, NaN, null, index);
+                    } else if (vo is TextFieldVO) {
+                        predecessor=getObjectPredecessor(vo, slide.textfields);
+                        if (predecessor)
+                            index=holder.getChildIndex(_modelToViewMap[predecessor] as DisplayObject) + 1;
+                        else if (slide.hotspots.length)
+                            index=holder.getChildIndex(_modelToViewMap[slide.hotspots[slide.hotspots.length - 1]] as DisplayObject) + 1;
+                        addTextField(vo as TextFieldVO, NaN, null, index);
+                    } else if (vo is HighlightVO) {
+                        predecessor=getObjectPredecessor(vo, slide.highlights);
+                        if (predecessor)
+                            index=holder.getChildIndex(_modelToViewMap[predecessor] as DisplayObject) + 1;
+                        addHighlight(vo as HighlightVO, NaN, null, index);
+                    }
+                    callLater(function():void {
+                        _objectHandles.selectionManager.setSelected(vo);
+                    });
+                }
+            }
+
+            private function getObjectPredecessor(vo:SlideObjectVO, array:Array):SlideObjectVO {
+                var index:int=array.indexOf(vo);
+                if (index > 0)
+                    return array[index - 1] as SlideObjectVO;
+                else if (index == 0 || array.length == 0)
+                    return null;
+                else
+                    return array[length - 1] as SlideObjectVO;
+            }
+
+            [Mediate(event="EditorEvent.OBJECT_ADDED")]
+            public function onAddObject(ev:EditorEvent):void {
+                if (!_objectHandles.selectionManager.isSelected(ev.model) && ev.additionalData == slide) {
+                    addObject(ev.model as SlideObjectVO);
+                }
+                CursorManager.removeCursor(_plusCursorId);
+            }
+        ]]>
+    </fx:Script>
+    <mx:Canvas id="holder"
+               width="100%"
+               height="100%"
+               horizontalScrollPolicy="off"
+               verticalScrollPolicy="off"/>
+</s:Group>

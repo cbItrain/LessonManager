@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false"
+				xmlns:components="itrain.lessoneditor.view.components.*"
+				width="230"
+				height="200"				
+				rollOver="{_mouseOver = true}"
+				rollOut="{_mouseOver = false}"
+				initialize="onInitailize()"
+				creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.ImageRepositoryEvent;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.model.vo.HighlightVO;
+			import itrain.common.model.vo.HotspotVO;
+			import itrain.common.model.vo.SlideObjectVO;
+			import itrain.common.model.vo.SlideVO;
+			import itrain.common.model.vo.TextFieldVO;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.common.view.stageobjects.StageCaption;
+			import itrain.common.view.stageobjects.StageHighlight;
+			import itrain.common.view.stageobjects.StageHotspot;
+			import itrain.common.view.stageobjects.StageTextArea;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.events.SlideListEvent;
+			import itrain.lessoneditor.model.EditorModel;
+
+			import mx.controls.SWFLoader;
+			import mx.core.IVisualElement;
+
+			[Bindable]
+			public static var padding:int=10;
+			public static var imageRepository:ImageRepository=ImageRepository.getInstance();
+			public static var editorModel:EditorModel;
+
+			[Bindable]
+			private var _mouseOver:Boolean=false;
+			private var _modelToViewMap:Dictionary=new Dictionary();
+
+			[Bindable]
+			private var _currentBitmapData:BitmapData;
+
+			[Bindable]
+			private var _scale:Number=1.0;
+
+			private var _loaderGraphic:SWFLoader=getLoader();
+
+			private function getLoader():SWFLoader {
+				var loaderGraphic:SWFLoader=new SWFLoader();
+				loaderGraphic.width=80;
+				loaderGraphic.height=80;
+				loaderGraphic.source=ImageRepository.loaderSpinner;
+				return loaderGraphic;
+			}
+
+			private function onInitailize():void {
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated);
+			}
+
+			private function onCreationComplete():void {
+				if ((holderWrapper.width == 0.0 || holderWrapper.height == 0.0) && _currentBitmapData)
+					afterImageUpdate();
+			}
+
+			private function showLoader():void {
+				loaderContainer.visible=true;
+				loaderContainer.addElement(_loaderGraphic);
+				slideContainer.visible=false;
+			}
+
+			private function hideLoader():void {
+				slideContainer.visible=true;
+				loaderContainer.visible=false;
+				loaderContainer.removeAllElements();
+			}
+
+			override public function set data(value:Object):void {
+				if (super.data != value) {
+					super.data=value;
+					if (value is SlideVO) {
+						var slide:SlideVO=value as SlideVO;
+						var bitmapData:BitmapData=imageRepository.imageData(slide.source, true, imgSlide);
+						showLoader();
+						if (bitmapData) {
+							if (ImageRepository.isBitmapAvailable(bitmapData))
+								updateSource(bitmapData);
+							else
+								onImageNotUpdated();
+						}
+						onSlideChange(slide);
+					}
+				}
+			}
+
+			private function onImageUpdated(e:ImageRepositoryEvent=null):void {
+				updateSource(e.bitmapData);
+			}
+
+			private function afterImageUpdate():void {
+				_scale=Math.min(container.height / _currentBitmapData.height, container.width / _currentBitmapData.width);
+				holderWrapper.width=_scale * _currentBitmapData.width;
+				holderWrapper.height=_scale * _currentBitmapData.height;
+				hideLoader();
+				//trace(itemIndex + " slide: " + holderWrapper.width + " " + holderWrapper.height + " scale: " + _scale);
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_REMOVED")]
+			public function onRemoveObject(ev:EditorEvent):void {
+				if (ev.additionalData == data) {
+					var vo:SlideObjectVO=ev.model as SlideObjectVO;
+					var element:IVisualElement=_modelToViewMap[vo] as IVisualElement;
+					if (element && holder.containsElement(element)) {
+						holder.removeElement(element);
+						_modelToViewMap[vo]=null;
+					}
+				}
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_ADDED")]
+			public function onAddObject(ev:EditorEvent):void {
+				if (data == ev.additionalData) {
+					var vo:SlideObjectVO=ev.model as SlideObjectVO;
+					if (vo) {
+						if (vo is CaptionVO)
+							addCaption(vo as CaptionVO);
+						else if (vo is HotspotVO)
+							addHotspot(vo as HotspotVO);
+						else if (vo is HighlightVO)
+							addHighlight(vo as HighlightVO);
+						else if (vo is TextFieldVO)
+							addTextField(vo as TextFieldVO)
+					}
+				}
+			}
+
+			[Mediate(event="EditorEvent.CAPTIONS_STYLE_CHANGES")]
+			public function onCaptionStyleChange(ee:EditorEvent):void {
+				var slide:SlideVO=data as SlideVO;
+				if (slide) {
+					var sc:StageCaption;
+					for each (var c:CaptionVO in slide.captions) {
+						sc=_modelToViewMap[c];
+						if (sc)
+							sc.oldStyle=ee.additionalData;
+					}
+				}
+			}
+
+			private function updateSource(bd:BitmapData):void {
+				_currentBitmapData=bd;
+				imgSlide.source=new Bitmap(bd);
+				loaderContainer.visible=false;
+				afterImageUpdate();
+			}
+
+			private function addTextField(item:TextFieldVO, index:int=NaN, array:Array=null):void {
+				var tf:StageTextArea=new StageTextArea(item, true);
+				holder.addElement(tf);
+				_modelToViewMap[item]=tf;
+			}
+
+			private function addHotspot(item:HotspotVO, index:int=NaN, array:Array=null):void {
+				var h:StageHotspot=new StageHotspot(item);
+				holder.addElement(h);
+				_modelToViewMap[item]=h;
+			}
+
+			private function addHighlight(item:HighlightVO, index:int=NaN, array:Array=null):void {
+				var h:StageHighlight=new StageHighlight(item);
+				holder.addElement(h);
+				_modelToViewMap[item]=h;
+			}
+
+			private function addCaption(item:CaptionVO, index:int=NaN, array:Array=null):void {
+				var c:StageCaption=new StageCaption(item, true, editorModel.lesson.oldCaptionStyle);
+				holder.addElement(c);
+				_modelToViewMap[item]=c;
+			}
+
+			private function onSlideChange(slide:SlideVO):void {
+				holder.removeAllElements();
+				if (slide) {
+					slide.highlights.forEach(addHighlight);
+					slide.hotspots.forEach(addHotspot);
+					slide.textfields.forEach(addTextField);
+					slide.captions.forEach(addCaption);
+				}
+			}
+
+			private function onRemoveClick(e:MouseEvent):void {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				var ev:SlideListEvent=new SlideListEvent(SlideListEvent.REMOVE_SLIDE, true);
+				ev.slide=data as SlideVO;
+				dispatchEvent(ev);
+			}
+
+			private function onCopyClick(e:MouseEvent):void {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				var ev:SlideListEvent=new SlideListEvent(SlideListEvent.COPY_SLIDE, true);
+				ev.slide=data as SlideVO;
+				dispatchEvent(ev);
+			}
+
+			private function onImageNotUpdated(e:Event=null):void {
+				slideContainer.visible=true;
+				imgSlide.source=null;
+				holder.visible=false;
+				notAvailableContainer.visible=true;
+				loaderContainer.visible=false;
+				loaderContainer.removeAllElements();
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+	<s:Group width="100%"
+			 height="100%"
+			 clipAndEnableScrolling="true">
+		<s:Rect width="100%"
+				height="100%"
+				alpha.normal="0.0"
+				alpha.selected="1.0"
+				alpha.hovered="0.5">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:entries>
+						<s:GradientEntry color="#428CCF"/>
+						<s:GradientEntry color="#0660C9"/>
+					</s:entries>
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+		<s:VGroup width="100%"
+				  height="100%"
+				  paddingBottom="{padding}"
+				  paddingLeft="{padding}"
+				  paddingTop="{padding}"
+				  paddingRight="{padding}">
+			<s:Group id="container"
+					 width="100%"
+					 height="100%"
+					 clipAndEnableScrolling="true">
+				<s:VGroup id="loaderContainer"
+						  width="100%"
+						  height="100%"
+						  verticalAlign="middle"
+						  horizontalAlign="center">
+				</s:VGroup>
+				<s:Group id="slideContainer"
+						 width="100%"
+						 mouseEnabled="false"
+						 mouseChildren="false"
+						 height="100%">
+					<s:Group id="notAvailableContainer"
+							 horizontalCenter="0"
+							 verticalCenter="0">
+						<s:VGroup horizontalAlign="center">
+							<s:Image source="{Embeded.BROKEN_IMAGE}"
+									 width="60"
+									 height="80"
+									 fillMode="scale"
+									 scaleMode="letterbox"
+									 smooth="false"/>
+							<s:Label text="Image not available"
+									 fontWeight="bold"/>
+						</s:VGroup>
+					</s:Group>
+					<s:Image id="imgSlide"
+							 width="100%"
+							 height="100%"
+							 maxWidth="{slideContainer.width}"
+							 maxHeight="{slideContainer.height}"
+							 verticalAlign="middle"
+							 horizontalAlign="center"
+							 fillMode="scale"
+							 scaleMode="letterbox"
+							 filters="{[Common.dropShadow]}"/>
+					<s:VGroup width="100%"
+							  height="100%"
+							  verticalAlign="middle"
+							  horizontalAlign="center">
+						<s:Group id="holderWrapper">
+							<s:Group id="holder"
+									 width="100%"
+									 height="100%"
+									 scaleX="{_scale}"
+									 scaleY="{_scale}"
+									 cacheAsBitmap="true"
+									 clipAndEnableScrolling="true"
+									 mouseChildren="false"/>
+						</s:Group>
+					</s:VGroup>
+				</s:Group>
+			</s:Group>
+		</s:VGroup>
+		<s:Group right="0"
+				 top="0">
+			<s:Rect width="100%"
+					height="100%"
+					bottomLeftRadiusX="5"
+					bottomLeftRadiusY="5">
+				<s:fill>
+					<s:SolidColor color="0x111111"
+								  alpha=".7"/>
+				</s:fill>
+			</s:Rect>
+			<s:VGroup paddingBottom="5"
+					  paddingTop="5"
+					  paddingLeft="10"
+					  paddingRight="10">
+				<s:Label id="lblSlideIndex"
+						 text="{this.itemIndex + 1}"
+						 styleName="slideRendererIndexLabel"/>
+			</s:VGroup>
+		</s:Group>
+		<s:Group right="0"
+				 bottom="0"
+				 visible="false"
+				 visible.hovered="true"
+				 visible.selected="{_mouseOver}">
+			<s:Rect width="100%"
+					height="100%"
+					topLeftRadiusX="5"
+					topLeftRadiusY="5">
+				<s:fill>
+					<s:SolidColor color="0x4696DF"
+								  alpha=".8"/>
+				</s:fill>
+			</s:Rect>
+			<s:HGroup paddingBottom="5"
+					  paddingTop="5"
+					  paddingLeft="10"
+					  paddingRight="10"
+					  gap="10">
+				<components:SlideListButton icon="{Embeded.COPY_SLIDE_ICON}"
+											mouseDown="onCopyClick(event)"/>
+				<components:SlideListButton icon="{Embeded.DELETE_SLIDE_ICON}"
+											mouseDown="onRemoveClick(event)"/>
+			</s:HGroup>
+		</s:Group>
+	</s:Group>
+</s:ItemRenderer>

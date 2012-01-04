@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 mouseEnabled="false"
+		 width="100%"
+		 height="50">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.model.vo.SlideVO;
+			import itrain.common.utils.Common;
+			import itrain.lessonplayer.view.itemrenderers.MinimizedItemRenderer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.UIComponent;
+
+			[Bindable]
+			private var _minimized:ArrayCollection=new ArrayCollection();
+
+			public function addToMinimized(item:CaptionVO):void {
+				if (item) {
+					_minimized.addItem(item);
+				}
+			}
+
+			public function removeFromMinimized(item:CaptionVO):void {
+				if (item) {
+					var index:int=_minimized.getItemIndex(item);
+					if (index > -1) {
+						_minimized.removeItemAt(index);
+					}
+				}
+			}
+
+			public function clear():void {
+				_minimized.removeAll();
+			}
+		]]>
+	</fx:Script>
+	<s:DataGroup itemRenderer="{new ClassFactory(MinimizedItemRenderer)}"
+			dataProvider="{_minimized}"
+			contentBackgroundAlpha="0"
+			mouseEnabled="false"
+			width="100%"
+			height="100%">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle"
+								horizontalAlign="right"
+								paddingRight="10"
+								paddingLeft="10"/>
+		</s:layout>
+	</s:DataGroup>
+</s:Group>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:components="itrain.lessoneditor.view.components.*"
+		  verticalAlign="middle"
+		  horizontalAlign="center"
+		  width="100%"
+		  height="100%"
+		  preinitialize="onPreinitialize()"
+		  mouseMove="onMouseMove()"
+		  xmlns:view="itrain.lessoneditor.view.*">
+	<fx:Declarations>
+		<s:Fade id="showEffect"
+				alphaFrom="0.0"
+				alphaTo="1.0"
+				duration="100"
+				target="{image}"
+				effectEnd="onShowEnd()"/>
+		<s:Fade id="hideEffect"
+				alphaFrom="1.0"
+				alphaTo="0.0"
+				duration="100"
+				target="{image}"
+				effectEnd="onHideEnd()"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.ImageRepositoryEvent;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.graphics.ImageUtils;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.model.EditPanelModel;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
+			
+			import spark.filters.DropShadowFilter;
+
+			[Bindable]
+			private var _bitmapData:BitmapData;
+
+			[Inject]
+			[Bindable]
+			public var model:EditPanelModel;
+
+			public var repository:ImageRepository=ImageRepository.getInstance();
+
+			private var _changeWatcherW:ChangeWatcher;
+			private var _changeWatcherH:ChangeWatcher;
+
+			private var _dragScrollPoint:Point=null;
+			private var _dragCursorId:int;
+			private var _scrollsEnabledNotified:Boolean=false;
+			private var _resizeImageTimeout:uint;
+
+			[Bindable]
+			public var editorEnabled:Boolean=true;
+
+			[PostConstruct]
+			public function onPostConstruct():void {
+				ChangeWatcher.watch(model, "currentlySelected", onSlideSelectionChange);
+
+				if (_changeWatcherW)
+					_changeWatcherW.unwatch();
+				if (_changeWatcherH)
+					_changeWatcherH.unwatch();
+				_changeWatcherW=ChangeWatcher.watch(container, "width", onResize);
+				_changeWatcherH=ChangeWatcher.watch(container, "height", onResize);
+			}
+
+			private function onPreinitialize():void {
+				//this.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageNotLoaded);
+			}
+
+			private function onSlideSelectionChange(o:Object=null):void {
+				loadCurrentImage();
+			}
+
+			private function onImageNotLoaded(e:ImageRepositoryEvent=null):void {
+				showBrokenImage();
+			}
+
+			private function showBrokenImage():void {
+				editorEnabled=false;
+				mainContainer.visible=false;
+				notAvailableContainer.visible=!loaderScreen.visible;
+			}
+
+			private function hideBrokenImage():void {
+				editorEnabled=true;
+				mainContainer.visible=true;
+				notAvailableContainer.visible=false;
+			}
+
+			private function onImageLoaded(e:ImageRepositoryEvent=null):void {
+				if (e && model.currentlySelected && e.url == model.currentlySelected.source) {
+					hideBrokenImage();
+					updateSource(e.bitmapData);
+				}
+			}
+
+			private function loadCurrentImage():void {
+				showEffect.stop();
+				hideEffect.stop();
+				hideEffect.play();
+			}
+
+			private function updateSource(bd:BitmapData):void {
+				model.loadingImage=false;
+
+				_bitmapData=bd;
+				onResize();
+
+				var me:ModelEvent=new ModelEvent(ModelEvent.SLIDE_IMAGE_READY, true);
+				me.url=model.currentlySelected.source;
+				me.additionalData = new Point(bd.width, bd.height);
+				dispatchEvent(me);
+
+				if (image.alpha == 0.0)
+					showImage();
+
+				onScaleChange();
+			}
+
+			private function onHideEnd():void {
+				if (model.currentlySelected) {
+					var bitmapData:BitmapData=repository.imageData(model.currentlySelected.source);
+					if (bitmapData) {
+						if (ImageRepository.isBitmapAvailable(bitmapData)) {
+							hideBrokenImage();
+							updateSource(bitmapData);
+						} else {
+							showBrokenImage();
+						}
+					} else {
+						model.loadingImage=true;
+					}
+				}
+			}
+
+			private function showImage():void {
+				showEffect.stop();
+				hideEffect.stop();
+				showEffect.play();
+			}
+
+			private function onResize(o:Object=null):void {
+				if (model.selectedScale == -1.0)
+					doScale();
+			}
+
+			private function doScale(requestedScale:Number=NaN):void {
+				var scale:Number;
+				
+				imageContainer.visible=true;
+				imgScaled.visible=imgScaled.includeInLayout=false;
+				
+				if (_bitmapData) {
+					if (isNaN(requestedScale)) {
+						scale=Math.min(container.height / _bitmapData.height, container.width / _bitmapData.width);
+					} else {
+						scale=requestedScale;
+					}
+					innerContainer.width=_bitmapData.width * scale;
+					innerContainer.height=_bitmapData.height * scale;
+
+					if ((scroller.height != scroller.viewport.contentHeight) || scroller.width != scroller.viewport.contentWidth) {
+						if (!_scrollsEnabledNotified) {
+							dispatchEvent(new EditorEvent(EditorEvent.SCROLLS_ENABLED, true));
+							_scrollsEnabledNotified=true;
+						}
+					} else {
+						_scrollsEnabledNotified=false;
+					}
+				} else {
+					scale=1.0;
+					innerContainer.width=image.width;
+					innerContainer.height=image.height;
+				}
+				imageContainer.scaleX=imageContainer.scaleY=interactivePane.scaleX=interactivePane.scaleY=scale;
+				
+				clearTimeout(_resizeImageTimeout);
+				if (scale != 1.0 && _bitmapData) {
+					_resizeImageTimeout=setTimeout(function():void {
+						var bd:BitmapData=ImageUtils.resizeImage(_bitmapData, _bitmapData.width * scale, _bitmapData.height * scale);
+						imgScaled.source=new Bitmap(bd);
+						imageContainer.visible=false;
+						imgScaled.visible=imgScaled.includeInLayout=true;
+					}, 30);
+				}
+			}
+
+			private function onMouseMove(e:MouseEvent=null):void {
+				if (!scaler.showed && this.height - this.mouseY <= scaler.targetHeight)
+					scaler.show();
+			}
+
+			[Mediate(event="EditorEvent.SCALE_CHANGE")]
+			public function onScaleChange():void {
+				doScale(model.selectedScale == -1.0 ? NaN : model.selectedScale / 100.0);
+			}
+
+			private function onScrollerMouseDown(e:MouseEvent):void {
+				if (e.target == interactivePane && interactivePane.isScrollingEnabled()) {
+					_dragScrollPoint=new Point(e.stageX, e.stageY);
+					systemManager.addEventListener(MouseEvent.MOUSE_UP, onMouseUp, true);
+
+					scroller.addEventListener(MouseEvent.MOUSE_MOVE, onScrollerMove);
+
+					_dragCursorId=CursorManager.setCursor(Embeded.DRAG_HAND_CURSOR);
+				}
+			}
+
+			private function onScrollerMove(e:MouseEvent):void {
+				if (_dragScrollPoint) {
+					scroller.viewport.horizontalScrollPosition-=e.stageX - _dragScrollPoint.x;
+					scroller.viewport.verticalScrollPosition-=e.stageY - _dragScrollPoint.y;
+					_dragScrollPoint.x=e.stageX;
+					_dragScrollPoint.y=e.stageY;
+				}
+			}
+
+			private function onMouseUp(e:MouseEvent):void {
+				_dragScrollPoint=null;
+				systemManager.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp, true);
+
+				scroller.removeEventListener(MouseEvent.MOUSE_MOVE, onScrollerMove);
+
+				CursorManager.removeCursor(_dragCursorId);
+			}
+
+			public function get isTopAvailable():Boolean {
+				return !(instructionEditor.isShown && instructionEditor.isTopPositioned);
+			}
+			
+			private function onShowEnd():void {
+				var ee:EditorEvent = new EditorEvent(EditorEvent.BACKGROUND_IMAGE_VISIBLE, true);
+				dispatchEvent(ee);
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="100%"
+			 clipAndEnableScrolling="true">
+		<s:VGroup width="100%"
+				  height="100%"
+				  paddingBottom="5"
+				  paddingLeft="10"
+				  paddingRight="10"
+				  paddingTop="5"
+				  visible="{!loaderScreen.visible}"
+				  filters="{[Common.dropShadow]}"
+				  id="mainContainer">
+			<s:Scroller id="scroller"
+						width="100%"
+						height="100%"
+						mouseDown="onScrollerMouseDown(event)"
+						horizontalScrollPolicy="off"
+						verticalScrollPolicy="off">
+				<s:Group id="container"
+						 width="100%"
+						 height="100%"
+						 clipAndEnableScrolling="true">
+					<s:VGroup width="100%"
+							  height="100%"
+							  verticalAlign="middle"
+							  horizontalAlign="center">
+						<s:Group id="imagesWrapper">
+							<s:Image id="imgScaled"/>
+							<s:Group id="imageContainer">
+								<s:Image id="image"
+										 verticalAlign="middle"
+										 horizontalAlign="center"
+										 source="{new Bitmap(_bitmapData)}"
+										 alpha="0.0"/>
+							</s:Group>
+						</s:Group>
+					</s:VGroup>
+					<s:VGroup width="100%"
+							  height="100%"
+							  verticalAlign="middle"
+							  horizontalAlign="center">
+						<s:Group id="innerContainer">
+							<components:InteractivePane id="interactivePane"
+														width="100%"
+														height="100%"
+														slide="{model.currentlySelected}"/>
+						</s:Group>
+					</s:VGroup>
+				</s:Group>
+			</s:Scroller>
+		</s:VGroup>
+		<s:Group id="notAvailableContainer"
+				 visible="false"
+				 horizontalCenter="0"
+				 verticalCenter="0">
+			<s:VGroup horizontalAlign="center">
+				<s:Image source="{Embeded.BROKEN_IMAGE}"
+						 fillMode="scale"
+						 smooth="true"
+						 scaleMode="letterbox"
+						 filters="{Common.embossed}"/>
+				<s:Label color="0xFFFFFF"
+						 text="Image not available"
+						 filters="{Common.smallDropShadow}"
+						 fontSize="22"
+						 fontWeight="bold"/>
+			</s:VGroup>
+		</s:Group>
+		<components:InstructionEditor id="instructionEditor"
+									  right="100"
+									  left="50"
+									  height="200"/>
+		<components:Hinter id="hinter"
+						   left="10"/>
+		<components:ScaleSlider id="scaler"
+								model="{model}"
+								bottom="0"
+								right="10"/>
+		<view:LoaderScreen id="loaderScreen"
+						   width="100%"
+						   height="100%"/>
+	</s:Group>
+</s:VGroup>

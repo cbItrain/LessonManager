@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:swiz="http://swiz.swizframework.org"
+          xmlns:view="itrain.lessoneditor.view.*"
+          xmlns:c="itrain.lessoneditor.view.components.*"
+          xmlns:local="*"
+          backgroundColor="#999977"
+          implements="itrain.IRightClickAware"
+          creationComplete="onCreationComplete()"
+          removedFromStage="onRemovedFromStage()"
+          addedToStage="onAddedToStage()"
+          preinitialize="onPreinitialize()"
+          width="100%"
+          height="100%"
+          xmlns:cv="itrain.common.view.*">
+    <fx:Declarations>
+        <swiz:Swiz id="editorModuleSwiz"
+                   domain="{ApplicationDomain.currentDomain}">
+            <!-- BeanProviders simply contain the non-display objects that Swiz should process. -->
+            <swiz:beanProviders>
+                <local:EditorBeans/>
+            </swiz:beanProviders>
+            <swiz:config>
+                <!-- The eventPackages value tells Swiz the path to your Event classes,
+                and viewPackages is an optional value that speeds up the processing of display classes. -->
+                <swiz:SwizConfig eventPackages="{['itrain.common.events.*', 'itrain.lessoneditor.events.*']}"
+                                 viewPackages="itrain.lessoneditor.view.*"/>
+            </swiz:config>
+        </swiz:Swiz>
+        <view:PlayerPopup id="playerPopup"
+                          lesson="{model.lesson}"
+                          slideIndex="{model.currentSlideIndex}"/>
+        <s:Sequence id="editorPositionEffect"
+                    target="{middleContainer}">
+            <s:Fade id="editorPositionFadeOutEffect"
+                    alphaFrom="1.0"
+                    alphaTo="0.0"
+                    effectEnd="onFadeOut()"
+                    duration="400"/>
+            <s:Fade id="editorPositionFadeInEffect"
+                    alphaFrom="0.0"
+                    alphaTo="1.0"
+                    duration="100"/>
+        </s:Sequence>
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import com.adobe.linguistics.spelling.SpellUI;
+            import com.adobe.linguistics.spelling.SpellUIForTLF;
+            import com.adobe.linguistics.spelling.framework.ResourceTable;
+            import com.adobe.linguistics.spelling.framework.SpellingConfiguration;
+
+            import itrain.IRightClickAware;
+            import itrain.common.control.LessonConverter;
+            import itrain.common.events.LessonLoaderEvent;
+            import itrain.common.utils.Embeded;
+            import itrain.lessoneditor.events.EditorEvent;
+            import itrain.lessoneditor.events.MessageEvent;
+            import itrain.lessoneditor.model.EditorModel;
+            import itrain.lessoneditor.model.EnumMessageSeverity;
+            import itrain.lessoneditor.model.EnumPreviewOption;
+
+            import mx.controls.Alert;
+            import mx.core.FlexGlobals;
+            import mx.events.BrowserChangeEvent;
+            import mx.events.ResizeEvent;
+            import mx.graphics.BitmapFillMode;
+            import mx.managers.BrowserManager;
+            import mx.managers.IBrowserManager;
+            import mx.managers.PopUpManager;
+
+            import org.osmf.layout.ScaleMode;
+            import org.swizframework.core.SwizManager;
+
+            import spark.primitives.BitmapImage;
+            import spark.primitives.supportClasses.FilledElement;
+
+            [Bindable]
+            [Inject]
+            public var model:EditorModel;
+
+            [Inject]
+            public var lessonConverter:LessonConverter;
+
+            private static var bm:IBrowserManager=BrowserManager.getInstance();
+
+            private function onPreinitialize():void {
+                configureSpellChecking();
+            }
+
+            private function onCreationComplete():void {
+                this.dispatchEvent(new LessonLoaderEvent(LessonLoaderEvent.LOAD_LESSON, true));
+
+                middleContainer.x=lstSlides.x + lstSlides.width;
+                middleContainer.width=slideProperties.x - middleContainer.x;
+
+                parseFlashVars();
+
+                bm.addEventListener(BrowserChangeEvent.BROWSER_URL_CHANGE, onBrowserURLChange);
+            }
+
+            private function configureSpellChecking():void {
+                var url:String=FlexGlobals.topLevelApplication.parameters.spellConfigUrl;
+                SpellUI.spellingConfigUrl=url;
+                SpellUIForTLF.spellingConfigUrl=url;
+            }
+
+            private function onBrowserURLChange(bce:BrowserChangeEvent):void {
+                if (bm.fragment && bm.fragment != PlayerPopup.EDITOR_FRAGMENT) {
+                    var parameters:Array=bm.fragment.split("_");
+                    if (parameters.length == 2) {
+                        playerPopup.slideIndex=Math.max(Math.min(parseInt(parameters[1]), model.lesson.slides.length), 0);
+                        playerPopup.show(this, parameters[0] == "1");
+                        return;
+                    }
+                }
+                playerPopup.hide();
+            }
+
+            private function parseFlashVars():void {
+                if (ExternalInterface.available) {
+                    var flashVars:Object=parentApplication.parameters;
+                    if (flashVars.beforeUnloadFunction)
+                        ExternalInterface.addCallback(flashVars.beforeUnloadFunction, beforeUnload);
+                }
+            }
+
+            private function onAddedToStage():void {
+                buildCopyXMLContextMenu();
+            }
+
+            [Mediate(event="EditorEvent.SHOW_WATCH_IT_PLAYER")]
+            public function onShowWatchItPlayer(e:EditorEvent):void {
+                var previewOption:EnumPreviewOption=e.additionalData as EnumPreviewOption;
+                playerPopup.show(this, previewOption.equals(EnumPreviewOption.TRY_IT));
+            }
+
+            [Mediate(event="EditorEvent.SHOW_CAPTURE_IMPORTER")]
+            public function onShowCaptureImporter(e:EditorEvent):void {
+                captureImporterPane.show(!e.additionalData);
+            }
+
+            [Mediate(event="EditorEvent.SLIDE_INSTRUCTION_SHOWN")]
+            public function onInstructionShown():void {
+                if (!sldEditor.isTopAvailable)
+                    mainMenu.hide();
+            }
+
+            private function onRemovedFromStage():void {
+                editorModuleSwiz.tearDown();
+            }
+
+            public function rightClick(target:Object):void {
+                playerPopup.rightClick(target);
+            }
+
+            private function onCollapseEnd():void {
+                if (editorPositionEffect.isPlaying)
+                    editorPositionEffect.stop();
+                editorPositionEffect.play();
+            }
+
+            private function onFadeOut():void {
+                middleContainer.x=lstSlides.x + lstSlides.width;
+                middleContainer.width=slideProperties.x - middleContainer.x;
+            }
+
+            private function onResize():void {
+                onFadeOut();
+            }
+
+            private function buildCopyXMLContextMenu():void {
+                var rcMenuItem:ContextMenuItem=new ContextMenuItem("Copy Lesson XML");
+                rcMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onCopyXML);
+
+                var customContextMenu:ContextMenu=new ContextMenu();
+                customContextMenu.customItems.push(rcMenuItem);
+                this.contextMenu=customContextMenu;
+            }
+
+            private function onCopyXML(e:ContextMenuEvent):void {
+                if (model.lesson)
+                    System.setClipboard(lessonConverter.getLessonXML(model.lesson).toXMLString());
+                else
+                    System.setClipboard("There is no Lesson in the Editor.");
+                Alert.show("Lesson XML copied to the system clipboard.", "Lesson copied");
+            }
+
+            private function beforeUnload():Boolean {
+                return model.unload();
+            }
+        ]]>
+    </fx:Script>
+    <fx:Style source="editor.css"/>
+    <s:Rect width="100%"
+            height="100%">
+        <s:fill>
+            <s:LinearGradient rotation="90">
+                <s:entries>
+                    <s:GradientEntry alpha=".5"
+                                     color="#FFFFFF"/>
+                    <s:GradientEntry alpha="0.0"
+                                     color="#FFFFFF"/>
+                </s:entries>
+            </s:LinearGradient>
+        </s:fill>
+    </s:Rect>
+    <s:Group width="100%"
+             height="100%">
+        <s:VGroup width="100%"
+                  height="100%"
+                  gap="0">
+            <view:MainMenu id="mainMenu"
+                           horizontalCenter="0"
+                           hidable="false"
+                           y="0"
+                           depth="2"/>
+            <s:Group id="container"
+                     width="100%"
+                     height="100%"
+                     resize="onResize()"
+                     clipAndEnableScrolling="true">
+                <view:SlideListPanel id="lstSlides"
+                                     height="100%"
+                                     depth="2"
+                                     x="0"
+                                     verticalCenter="0"
+                                     collapseEffectEnd="onCollapseEnd()"
+                                     enableTools="{sldEditor.editorEnabled}"/>
+                <s:Group id="middleContainer"
+                         depth="1"
+                         height="100%"
+                         verticalCenter="0"
+                         cacheAsBitmap="false"
+                         clipAndEnableScrolling="true">
+                    <view:SlideEditorPanel id="sldEditor"
+                                           width="100%"
+                                           height="100%"/>
+                </s:Group>
+                <view:SlidePropertiesPanel id="slideProperties"
+                                           height="100%"
+                                           collapseEffectEnd="onCollapseEnd()"
+                                           x="{container.width - slideProperties.width}"
+                                           depth="2"/>
+            </s:Group>
+        </s:VGroup>
+        <view:Importer id="captureImporterPane"
+                            width="100%"
+                            height="100%"
+							depth="3"/>
+		<c:Messager id="messager" depth="3" top="{mainMenu.height + 20}"/>
+    </s:Group>
+    <!--view:CommentWindow width="100%"
+                        height="100%"
+                        visible="false"/-->
+</s:Module>

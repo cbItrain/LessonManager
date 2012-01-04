@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 initialize="onInitialize()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.ModelEvent;
+			import itrain.lessonplayer.model.PlayerModel;
+			
+			import mx.events.EffectEvent;
+			
+			import spark.effects.Move;
+			import spark.primitives.BitmapImage;
+			
+			private var _scale:Number = 1.0;
+			private var _cursor:BitmapImage;
+			private var _cursorMove:Move;
+			private var _pauseTimer:Timer;
+			
+			private var _unscaledX:Number;
+			private var _unscaledY:Number;
+			
+			[Bindable] [Inject]
+			public var model:PlayerModel;
+			
+			[Bindable]
+			public function set scale(value:Number):void {
+				_scale = value ? value : 1.0;
+				updateScaledPosition();
+			}
+			
+			public function get scale():Number {
+				return _scale;
+			}
+			
+			[Mediate(event="ModelEvent.SLIDE_IMAGE_READY")]
+			public function onImageReady(e:ModelEvent = null):void {
+				if (model.interactive) {
+					if (this.containsElement(_cursor))
+						this.removeElement(_cursor);
+				} else if (!this.containsElement(_cursor)) {
+						this.addElement(_cursor);
+				}
+			}
+			
+			private function onInitialize():void {
+				_cursor=new BitmapImage();
+			}
+			
+			public function setCursor(source:Class):void {
+				_cursor.source = source;
+			}
+			
+			public function setCursorPosition(unscaledX:Number, unscaledY:Number):void {
+				_unscaledX = unscaledX;
+				_unscaledY = unscaledY;
+				updateScaledPosition();
+			}
+			
+			private function updateScaledPosition():void {
+				_cursor.x = _scale * _unscaledX;
+				_cursor.y = _scale * _unscaledY;
+			}
+			
+			public function getCursorPosition():Point {
+				var result:Point = new Point();
+				result.x = _cursor.x/scale;
+				result.y = _cursor.y/scale;
+				return result;
+			}
+			
+			public function simulateMouseClick(endHandler:Function):void {
+				_pauseTimer=new Timer(300, 1);
+				var endHandlerWrapper:Function=function(e:TimerEvent):void {
+					if (_cursor.visible) {
+						_cursor.visible=false;
+						_pauseTimer.start();
+					} else {
+						_cursor.visible=true;
+						_pauseTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, endHandlerWrapper);
+						if (endHandler != null) {
+							endHandler();
+						}
+					}
+				}
+				_pauseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, endHandlerWrapper);
+				_pauseTimer.start();
+			}
+			
+			public function isCursorMoving():Boolean {
+				return _cursorMove && _cursorMove.isPlaying;
+			}
+			
+			public function stopMoving():void {
+				if (_cursorMove)
+					_cursorMove.stop();
+			}
+			
+			public function playMouseMoveAnimation(from:Point, to:Point, duration:int, updateCursor:Function, endHandler:Function):void {
+				if (_cursorMove)
+					_cursorMove.stop();
+				_cursorMove=new Move();
+				_cursorMove.xFrom=from.x*_scale;
+				_cursorMove.yFrom=from.y*_scale;
+				_cursorMove.xTo=to.x*_scale;
+				_cursorMove.yTo=to.y*_scale;
+				_cursorMove.duration=duration;
+				var stopped:Boolean=false;
+				//cursorMove.easer = new Linear();
+				var endHandlerWrapper:Function=function(e:Event):void {
+					//trace(e.target);
+					removeEventListener(Event.ENTER_FRAME, updateCursor);
+					_cursorMove.removeEventListener(EffectEvent.EFFECT_STOP, stopEffect);
+					_cursorMove.removeEventListener(EffectEvent.EFFECT_END, endHandler);
+					if (!(endHandler == null || stopped))
+						endHandler();
+				}
+				var stopEffect:Function=function(e:Event):void {
+					stopped=true;
+				}
+				addEventListener(Event.ENTER_FRAME, updateCursor);
+				_cursorMove.removeEventListener(EffectEvent.EFFECT_STOP, stopEffect);
+				_cursorMove.removeEventListener(EffectEvent.EFFECT_END, endHandler);
+				_cursorMove.addEventListener(EffectEvent.EFFECT_STOP, stopEffect);
+				_cursorMove.addEventListener(EffectEvent.EFFECT_END, endHandlerWrapper);
+				_cursorMove.play([_cursor]);
+			}
+		]]>
+	</fx:Script>
+	<!--s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xFF0000" alpha="0.8"/>
+		</s:fill>
+	</s:Rect-->
+</s:Group>

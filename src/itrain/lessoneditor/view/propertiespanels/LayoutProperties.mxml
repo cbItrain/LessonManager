@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 click="{event.stopImmediatePropagation()}"
+		 width="100%">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.vo.SlideObjectVO;
+
+			[Bindable]
+			public var slideObject:SlideObjectVO;
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%">
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<s:Label text="Position &amp; Dimension:"
+				 styleName="propertiesLabel"/>
+		<mx:Grid>
+			<mx:GridRow verticalAlign="middle">
+				<mx:GridItem horizontalAlign="right">
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="X:"/>
+						<s:NumericStepper id="nmstpX"
+										  value="{slideObject.x}"
+										  width="60"
+										  minimum="0"
+										  maximum="9000"
+										  change="{slideObject.x = nmstpX.value}"/>
+					</s:HGroup>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right">
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="Y:"/>
+						<s:NumericStepper id="nmstpY"
+										  value="{slideObject.y}"
+										  width="60"
+										  minimum="0"
+										  maximum="9000"
+										  change="{slideObject.y = nmstpY.value}"/>
+					</s:HGroup>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow verticalAlign="middle">
+				<mx:GridItem horizontalAlign="right">
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="Width:"/>
+						<s:NumericStepper id="nmstpWidth"
+										  value="{slideObject.width}"
+										  width="60"
+										  minimum="0"
+										  maximum="9000"
+										  change="{slideObject.width = nmstpWidth.value}"/>
+					</s:HGroup>
+				</mx:GridItem>
+				<mx:GridItem horizontalAlign="right">
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="Height:"/>
+						<s:NumericStepper id="nmstpHeight"
+										  value="{slideObject.height}"
+										  width="60"
+										  minimum="0"
+										  maximum="9000"
+										  change="{slideObject.height = nmstpHeight.value}"/>
+					</s:HGroup>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow verticalAlign="middle">
+				<mx:GridItem horizontalAlign="right">
+					<s:HGroup verticalAlign="middle">
+						<s:Label text="Rotation:"/>
+						<s:NumericStepper id="nmstpRotation"
+										  value="{slideObject.rotation}"
+										  width="60"
+										  minimum="-360"
+										  maximum="360"
+										  change="{slideObject.rotation = nmstpRotation.value}"/>
+					</s:HGroup>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+	</s:VGroup>
+</s:Group>

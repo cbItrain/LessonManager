@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%">
+	<fx:Declarations>
+		<s:Sequence id="scaleEffect"
+					target="{lblText}"
+					duration="200">
+			<s:Scale scaleXFrom="1.0"
+					 scaleYFrom="1.0"
+					 scaleXTo="1.3"
+					 scaleYTo="1.3"
+					 autoCenterTransform="true"
+					 applyChangesPostLayout="true"/>
+			<s:Scale scaleXFrom="1.3"
+					 scaleYFrom="1.3"
+					 scaleXTo="1.0"
+					 scaleYTo="1.0"
+					 autoCenterTransform="true"
+					 applyChangesPostLayout="true"/>
+		</s:Sequence>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public function set text(value:String):void {
+				lblText.text=value;
+				if (scaleEffect.isPlaying)
+					scaleEffect.stop();
+				scaleEffect.play();
+			}
+
+			public function get text():String {
+				return lblText.text;
+			}
+		]]>
+	</fx:Script>
+	<s:Label id="lblText"
+			 fontWeight="bold"
+			 width="100%"
+			 height="100%"
+			 verticalAlign="middle"
+			 textAlign="center"
+			 maxDisplayedLines="1"
+			 paddingTop="4"/>
+</s:Group>

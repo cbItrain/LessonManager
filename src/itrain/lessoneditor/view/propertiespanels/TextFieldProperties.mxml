@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:ce="itrain.lessoneditor.view.components.*"
+         width="100%"
+         height="100%"
+         click="{event.stopImmediatePropagation()}"
+         xmlns:view="itrain.common.view.*">
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import flashx.textLayout.conversion.ConversionType;
+            import flashx.textLayout.conversion.TextConverter;
+            import flashx.textLayout.elements.TextFlow;
+
+            import itrain.common.model.vo.TextFieldVO;
+
+            [Bindable]
+            public var slideObject:TextFieldVO;
+
+            private function getCleanText(text:String):String {
+                var result:TextFlow=TextConverter.importToFlow(text, TextConverter.TEXT_FIELD_HTML_FORMAT);
+                return result.getText();
+            }
+
+            private function onStartTextChange():void {
+                rteToolBar.updateStartText(txtStart.text);
+            }
+
+            private function onTargetTextChange():void {
+                rteToolBar.updateTargetText(txtTarget.text);
+            }
+        ]]>
+    </fx:Script>
+    <s:VGroup width="100%"
+              height="100%"
+              gap="20">
+        <mx:Grid>
+            <mx:GridRow verticalAlign="middle">
+                <mx:GridItem horizontalAlign="right">
+                    <s:Label text="Validate on Hotspot click:"
+                             paddingTop="2"
+                             styleName="propertiesLabel"/>
+                </mx:GridItem>
+                <mx:GridItem horizontalAlign="left">
+                    <view:SwitchButton id="cbxHotspotVal"
+                                       selected="{slideObject.validateOnHotspot}"
+                                       change="{slideObject.validateOnHotspot = cbxHotspotVal.selected}"/>
+                </mx:GridItem>
+            </mx:GridRow>
+            <mx:GridRow verticalAlign="middle">
+                <mx:GridItem horizontalAlign="right">
+                    <s:Label text="Validate on ENTER key:"
+                             paddingTop="2"
+                             styleName="propertiesLabel"/>
+                </mx:GridItem>
+                <mx:GridItem horizontalAlign="left">
+                    <view:SwitchButton id="cbxEnterVal"
+                                       selected="{slideObject.validateOnEnter}"
+                                       change="{slideObject.validateOnEnter = cbxEnterVal.selected}"/>
+                </mx:GridItem>
+            </mx:GridRow>
+        </mx:Grid>
+        <mx:Grid>
+            <mx:GridRow verticalAlign="middle">
+                <mx:GridItem horizontalAlign="right">
+                    <s:Label text="Starting Text:"
+                             styleName="propertiesLabel"/>
+                </mx:GridItem>
+                <mx:GridItem horizontalAlign="left">
+                    <s:TextInput id="txtStart"
+                                 width="100%"
+                                 text="{getCleanText(slideObject.startText)}"
+                                 change="onStartTextChange()"/>
+                </mx:GridItem>
+            </mx:GridRow>
+            <mx:GridRow verticalAlign="middle">
+                <mx:GridItem horizontalAlign="right">
+                    <s:Label text="Target Text:"
+                             styleName="propertiesLabel"/>
+                </mx:GridItem>
+                <mx:GridItem horizontalAlign="left">
+                    <s:TextInput id="txtTarget"
+                                 width="100%"
+                                 text="{getCleanText(slideObject.targetText)}"
+                                 change="onTargetTextChange()"/>
+                </mx:GridItem>
+            </mx:GridRow>
+        </mx:Grid>
+        <s:VGroup width="100%">
+            <mx:Grid>
+                <mx:GridRow>
+                    <mx:GridItem horizontalAlign="right"
+                                 verticalAlign="middle">
+                        <s:Label text="Case sensitive:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem>
+                        <view:SwitchButton id="cbxCaseSens"
+                                           selected="{slideObject.caseSensitive}"
+                                           change="{slideObject.caseSensitive = cbxCaseSens.selected}"/>
+                    </mx:GridItem>
+                </mx:GridRow>
+                <mx:GridRow>
+                    <mx:GridItem horizontalAlign="right"
+                                 verticalAlign="middle">
+                        <s:Label text="Password:"
+                                 paddingTop="2"
+                                 styleName="propertiesLabel"/>
+                    </mx:GridItem>
+                    <mx:GridItem>
+                        <view:SwitchButton id="cbxPassword"
+                                           selected="{slideObject.password}"
+                                           change="{slideObject.password = cbxPassword.selected}"/>
+                    </mx:GridItem>
+                </mx:GridRow>
+            </mx:Grid>
+            <!--s:CheckBox id="cbxCaseSens"
+                        label="Case sensitive"
+                        selected="{slideObject.caseSensitive}"
+                        change="{slideObject != null ? slideObject.caseSensitive = cbxCaseSens.selected : null}"/>
+            <s:CheckBox id="cbxPassword"
+                        label="Password"
+                        selected="{slideObject.password}"
+                        change="{slideObject != null ? slideObject.password = cbxPassword.selected : null}"/-->
+        </s:VGroup>
+        <s:Line width="100%"
+                height="1">
+            <s:stroke>
+                <s:SolidColorStroke color="#BBBBBB"/>
+            </s:stroke>
+        </s:Line>
+        <s:VGroup width="100%">
+            <s:Label text="Text Style:"
+                     styleName="propertiesLabel"/>
+            <ce:TextFieldToolbar id="rteToolBar"
+                                 slideObject="{slideObject}"
+                                 title="Caption Text"/>
+        </s:VGroup>
+        <s:VGroup width="100%"
+                  gap="10">
+            <s:Label text="Background Transparency:"
+                     styleName="propertiesLabel"/>
+            <s:HSlider id="slBAlpha"
+                       minimum="0.0"
+                       maximum="1.0"
+                       width="200"
+                       stepSize=".01"
+                       value="{slideObject.backgroundAlpha}"
+                       change="{slideObject != null ? slideObject.backgroundAlpha = slBAlpha.value : null}"/>
+        </s:VGroup>
+        <s:HGroup width="100%"
+                  verticalAlign="middle">
+            <s:Label text="Background Color:"
+                     styleName="propertiesLabel"/>
+            <mx:ColorPicker id="cpBackgroundColor"
+                            selectedColor="{slideObject.backgroundColor}"
+                            change="{slideObject.backgroundColor = cpBackgroundColor.selectedColor}"/>
+        </s:HGroup>
+    </s:VGroup>
+</s:Group>

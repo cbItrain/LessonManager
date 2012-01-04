@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%" 
+		 xmlns:view="itrain.common.view.*">
+	<fx:Declarations>
+		<s:Parallel id="changeLayoutEffect" effectEnd="effectEnds(event)" duration="900">
+			<s:Move3D applyChangesPostLayout="false"/>
+			<s:Rotate3D applyChangesPostLayout="false"/>
+		</s:Parallel>
+
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.lessoneditor.model.SlideListModel;
+			import itrain.lessoneditor.view.renderers.SlideStaticItemRenderer;
+			
+			import mx.events.EffectEvent;
+			
+			[Inject]
+			[Bindable] public var model:SlideListModel;
+			
+			private function onListLayoutChange():void {
+				if (tbtnState.selected)
+					animateTo("wheel");
+				else
+					animateTo("flow");
+			}
+			
+			private function animateTo(toState:String):void
+			{
+				// Make sure any previous animation is stopped.
+				if (changeLayoutEffect.isPlaying)
+					changeLayoutEffect.stop();
+				
+				// Add targets
+				changeLayoutEffect.targets = new Array();
+				for (var i:int = 0; i < lstSlides.dataGroup.numElements; i++)
+					changeLayoutEffect.targets.push(lstSlides.dataGroup.getElementAt(i));
+				
+				// Create Transition for all elements
+				changeLayoutEffect.captureStartValues();
+				
+				// Go to the end state
+				var fromState:String = this.currentState;
+				setCurrentState(toState);
+				
+				// Validate everything before turning off the layout
+				lstSlides.validateNow();
+				
+				// Turn the layout off before running the effect
+				lstSlides.dataGroup.autoLayout = false;
+				
+				// Play the effect
+				changeLayoutEffect.play();
+			}
+			
+			protected function effectEnds(event:EffectEvent):void
+			{
+				lstSlides.dataGroup.autoLayout = true;
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="wheel"/>
+		<s:State name="flow"/>
+	</s:states>
+	<s:VGroup width="100%" height="100%">
+		<s:List id="lstSlides" 				
+				dataProvider="{model.slides}"
+				selectedItem="{model.currentlySelected}"
+				itemRenderer="itrain.lessoneditor.view.renderers.SlideStaticItemRenderer"
+				contentBackgroundAlpha="0.0"
+				width="100%"
+				height="100%"
+				useVirtualLayout="false">
+			<s:layout.wheel>
+				<view:WheelLayout gap="20" axisAngle="0"/>
+			</s:layout.wheel>
+			<s:layout.flow>
+				<s:TileLayout/>
+			</s:layout.flow>
+		</s:List>
+		<s:VGroup id="editPanel" height="200">
+			<s:ToggleButton id="tbtnState" label="Wheel" change="onListLayoutChange()" selected="true"/>
+		</s:VGroup>
+	</s:VGroup>
+</s:Group>

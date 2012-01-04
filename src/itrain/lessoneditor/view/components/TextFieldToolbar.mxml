@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floatingtexteditor:HTMLTextFormatToolbar xmlns:fx="http://ns.adobe.com/mxml/2009" 
+								  xmlns:s="library://ns.adobe.com/flex/spark" 
+								  xmlns:mx="library://ns.adobe.com/flex/mx" 
+								  xmlns:components="itrain.lessoneditor.view.components.*"
+								  change="onChange(event)"
+								  initialize="onInitialize()" xmlns:floatingtexteditor="itrain.common.view.floatingtexteditor.*">
+	<fx:Script>
+		<![CDATA[
+			import flash.text.engine.FontWeight;
+			
+			import flashx.textLayout.conversion.ConversionType;
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
+			import flashx.textLayout.formats.TextAlign;
+			import flashx.textLayout.formats.TextDecoration;
+			
+			import itrain.common.model.vo.TextFieldVO;
+			
+			[Bindable]
+			public var slideObject:TextFieldVO;
+			
+			private function selectAllText():void {
+				selection.beginIndex=0;
+				selection.endIndex=text.length - 1;
+			}
+			
+			protected function onInitialize():void {
+				this.toolbar.removeChild(this.linkTextInput);
+				this.toolbar.removeChild(this.bulletButton);
+			}
+			
+			private function buildHTMLString(text:String):String {
+				var textFlow:TextFlow=TextConverter.importToFlow(text, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				textFlow=TextConverter.importToFlow(textFlow.getText(), TextConverter.TEXT_FIELD_HTML_FORMAT);
+				textFlow.fontFamily=fontFamilyCombo.selectedItem;
+				textFlow.fontSize=fontSizeCombo.selectedItem;
+				textFlow.color=colorPicker.selectedColor;
+				if (boldButton.selected)
+					textFlow.fontWeight=FontWeight.BOLD;
+				else
+					textFlow.fontWeight=FontWeight.NORMAL;
+				if (underlineButton.selected)
+					textFlow.textDecoration=TextDecoration.UNDERLINE;
+				else
+					textFlow.textDecoration=TextDecoration.NONE;
+				switch (alignButtons.selectedIndex) {
+					case 0:
+						textFlow.textAlign=TextAlign.LEFT;
+						break;
+					case 1:
+						textFlow.textAlign=TextAlign.CENTER;
+						break;
+					case 2:
+						textFlow.textAlign=TextAlign.RIGHT;
+						break;
+					case 3:
+						textFlow.textAlign=TextAlign.JUSTIFY;
+						break;
+				}
+				var flowResult:String=TextConverter.export(textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+				return flowResult.substring(12, flowResult.length - 14);
+			}
+			
+			public function updateStartText(string:String=null):void {
+				if (slideObject) {
+					if (string != null) {
+						slideObject.startText=buildHTMLString(string);
+					} else {
+						slideObject.startText=buildHTMLString(slideObject.startText);
+					}
+				}
+			}
+			
+			
+			public function updateTargetText(string:String=null):void {
+				if (slideObject) {
+					if (string != null) {
+						slideObject.targetText=buildHTMLString(string);
+					} else {
+						slideObject.targetText=buildHTMLString(slideObject.targetText);
+					}
+				}
+			}
+			
+			public function updateAll():void {
+				updateStartText(slideObject.startText);
+				updateTargetText(slideObject.targetText);
+			}
+			
+			private function onChange(e:Event):void {
+				updateAll();
+			}
+		]]>
+	</fx:Script>
+</floatingtexteditor:HTMLTextFormatToolbar>

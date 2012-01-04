@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:ce="itrain.lessoneditor.view.components.*"
+		 click="{event.stopImmediatePropagation()}"
+		 xmlns:view="itrain.common.view.*"
+		 width="100%">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.model.EditorModel;
+
+			[Inject]
+			[Bindable]
+			public var model:EditorModel;
+			
+			private function onOldCaptionsStyleChange():void {
+				model.lesson.oldCaptionStyle = cbxOldCaptions.selected;
+				
+				var ee:EditorEvent = new EditorEvent(EditorEvent.CAPTIONS_STYLE_CHANGES, true);
+				ee.additionalData = cbxOldCaptions.selected;
+				dispatchEvent(ee);
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%" gap="10">
+		<s:VGroup width="100%" gap="3">
+			<s:Label text="Global settings:"
+					 paddingTop="2"
+					 styleName="propertiesLabel"
+					 fontWeight="bold"/>
+			<s:Line width="100%"
+					height="1">
+				<s:stroke>
+					<s:SolidColorStroke color="#BBBBBB"/>
+				</s:stroke>
+			</s:Line>
+		</s:VGroup>
+		<mx:Grid>
+			<mx:GridRow>
+				<mx:GridItem horizontalAlign="right"
+							 verticalAlign="middle">
+					<s:Label text="Old Caption Styling:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem>
+					<view:SwitchButton id="cbxOldCaptions"
+									   selected="{model.lesson.oldCaptionStyle}"
+									   change="onOldCaptionsStyleChange()"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem horizontalAlign="right"
+							 verticalAlign="middle">
+					<s:Label text="Visual Actions while Watch-It:"
+							 paddingTop="2"
+							 styleName="propertiesLabel"/>
+				</mx:GridItem>
+				<mx:GridItem>
+					<view:SwitchButton id="cbxActions"
+									   selected="{model.lesson.showActionIndicator}"
+									   change="{model.lesson.showActionIndicator = cbxActions.selected}"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+	</s:VGroup>
+</s:Group>

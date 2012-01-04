@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="{targetHeight}"
+		 filters="{[Common.dropShadow]}"
+		 preinitialize="onPreInitialize()"
+		 creationComplete="onCreationComplete()"
+		 click="onClick(event)"
+		 clipAndEnableScrolling="true"
+		 mouseOut="{hidable ? onMouseOut() : null}"
+		 mouseOver="{hidable ? onMouseOver() : null}"
+		 xmlns:view="itrain.common.view.*"
+		 xmlns:components="itrain.lessoneditor.view.components.*">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.LessonLoaderEvent;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.DataUtils;
+			import itrain.common.utils.Embeded;
+			import itrain.common.view.skins.InvisibleButtonSkin;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.model.EnumPreviewOption;
+			import itrain.lessoneditor.model.UndoRedoBean;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+
+			[Inject]
+			[Bindable]
+			public var model:EditorModel;
+
+			[Inject]
+			[Bindable]
+			public var undoRedoBean:UndoRedoBean;
+
+			[Bindable]
+			public var targetHeight:Number=35.0;
+
+			[Bindable]
+			public var hidable:Boolean=true;
+
+			private var _timer:Timer=new Timer(Common.IDLE_WINDOW_SHOW_INTERVAL, 1);
+			private var _showed:Boolean=false;
+			private var _mouseOver:Boolean=false;
+			private var _popupButtonMenuShowed:Boolean=false;
+
+			private var _undoWatcher:ChangeWatcher;
+			private var _redoWarcher:ChangeWatcher;
+			private var _dataManipulationWatcher:ChangeWatcher;
+
+			private function onCreationComplete():void {
+
+				parentApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+				parentApplication.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
+				if (hidable) {
+					setTimeout(startTimer, 1000);
+					parentDocument.addEventListener(MouseEvent.MOUSE_MOVE, onContainerMouseMove);
+				}
+			}
+
+			private function onClick(me:MouseEvent):void {
+				me.stopImmediatePropagation();
+			}
+			
+			private function onContainerMouseMove(e:MouseEvent):void {
+				if (!_showed && (parentDocument as LessonEditorModule).sldEditor.isTopAvailable && parentDocument.mouseY < targetHeight)
+					show();
+			}
+
+			public function get showed():Boolean {
+				return _showed;
+			}
+
+			private function onPreInitialize():void {
+				_showed=true;
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerComplete);
+			}
+
+			private function onPopupButtonReady():void {
+				var menu:Menu=new Menu();
+				menu.dataProvider=[EnumPreviewOption.WATCH_IT, EnumPreviewOption.TRY_IT];
+				menu.labelFunction=menuLabelFunction;
+				menu.addEventListener(MenuEvent.ITEM_CLICK, onMenuItemClick);
+				ppbPreview.popUp=menu;
+			}
+
+			private function onMenuShow():void {
+				_popupButtonMenuShowed=true;
+				stopTimer();
+			}
+
+			private function onMenuHide():void {
+				_popupButtonMenuShowed=false;
+				if (!_mouseOver)
+					startTimer();
+			}
+
+			private function menuLabelFunction(value:EnumPreviewOption):String {
+				switch (value.ordinal) {
+					case EnumPreviewOption.WATCH_IT.ordinal:
+						return "Watch It (ALT + CTRL + W)";
+					case EnumPreviewOption.WATCH_IT_DEBUG.ordinal:
+						return "Watch It (Developer Mode)";
+					case EnumPreviewOption.TRY_IT.ordinal:
+						return "Try It (ALT + CTRL + I)";
+					case EnumPreviewOption.TRY_IT_DEBUG.ordinal:
+						return "Try It (Developer Mode)";
+				}
+				return "";
+			}
+
+			private function onMenuItemClick(e:Object=null):void {
+				var ev:EditorEvent=new EditorEvent(EditorEvent.SHOW_WATCH_IT_PLAYER, true);
+				ev.additionalData=e == null ? EnumPreviewOption.WATCH_IT : ((e is MenuEvent) ? e.item : e);
+				dispatchEvent(ev);
+			}
+
+
+			private function onTimerComplete(e:TimerEvent):void {
+				hide();
+			}
+
+			private function stopTimer():void {
+				if (_timer.running)
+					_timer.stop();
+			}
+
+			private function startTimer():void {
+				stopTimer();
+				_timer.start();
+			}
+
+			private function onMouseOver():void {
+				_mouseOver=true;
+				stopTimer();
+			}
+
+			private function onMouseOut():void {
+				_mouseOver=false;
+				if (!_popupButtonMenuShowed)
+					startTimer();
+			}
+
+			public function hide():void {
+				if (_showed) {
+					if (moveEffect.isPlaying)
+						moveEffect.stop();
+					moveEffect.play(null, true);
+				}
+			}
+
+			public function show():void {
+				if (!(_showed || moveEffect.isPlaying)) {
+					if (moveEffect.isPlaying)
+						moveEffect.stop();
+					moveEffect.play([this]);
+					startTimer();
+				}
+			}
+
+			private function onEffectEnd():void {
+				_showed=this.y == 0;
+			}
+
+			private function onImportCaptureClick():void {
+				var ev:EditorEvent=new EditorEvent(EditorEvent.SHOW_CAPTURE_IMPORTER, true);
+				dispatchEvent(ev);
+			}
+
+			private function onSaveClick():void {
+				model.saveLesson();
+			}
+
+			private function onKeyDown(e:KeyboardEvent):void {
+				if (e.ctrlKey) {
+					if (e.keyCode == Keyboard.Z && undoRedoBean.undoEnabled)
+						onUndoClick();
+					else if (e.keyCode == Keyboard.Y && undoRedoBean.redoEnabled)
+						onRedoClick();
+				}
+			}
+
+			private function onKeyUp(e:KeyboardEvent):void {
+				if (model.dataManipulationEnabled) {
+					if (e.ctrlKey) {
+						if (e.keyCode == Keyboard.W)
+							onMenuItemClick(EnumPreviewOption.WATCH_IT);
+						else if (e.keyCode == Keyboard.I)
+							onMenuItemClick(EnumPreviewOption.TRY_IT);
+						else if (e.keyCode == Keyboard.S)
+							onSaveClick();
+					}
+				}
+			}
+
+			private function onRedoClick():void {
+				dispatchEvent(new EditorEvent(EditorEvent.REDO, true));
+			}
+
+			private function onUndoClick():void {
+				dispatchEvent(new EditorEvent(EditorEvent.UNDO, true));
+			}
+
+			private function onCloseClick():void {
+				model.close()
+			}
+
+			private function getSlideIndexText(value:int):String {
+				var trueValue:int=value + 1;
+				return trueValue + DataUtils.getNumberOrderEnding(trueValue) + " slide of " + model.lesson.slides.length;
+			}
+
+			[Mediate(event="EditorEvent.SLIDES_REMOVED_SILENTLY")]
+			[Mediate(event="EditorEvent.SLIDES_ADDED_SILENTLY")]
+			[Mediate(event="SlideListEvent.SLIDE_COPIED")]
+			[Mediate(event="SlideListEvent.SLIDE_REMOVED")]
+			public function onItemAddDelete():void {
+				selectedIndexText.text=getSlideIndexText(model.currentSlideIndex);
+			}
+			
+			private function onLoaderShow():void {
+				spinnerLoader.source = ImageRepository.loaderSpinner;
+			}
+			
+			private function onLoaderHide():void {
+				callLater(function ():void {
+					spinnerLoader.source = null;
+				});
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Move id="moveEffect"
+				yFrom="{-this.height-5}"
+				yTo="0"
+				target="{this}"
+				effectEnd="onEffectEnd()"/>
+	</fx:Declarations>
+	<s:Rect width="100%"
+			height="100%"
+			bottomLeftRadiusX="{hidable ? 10 : 0}"
+			bottomLeftRadiusY="{hidable ? 10 : 0}"
+			bottomRightRadiusX="{hidable ? 10 : 0}"
+			bottomRightRadiusY="{hidable ? 10 : 0}">
+		<s:fill>
+			<s:LinearGradient>
+				<s:entries>
+					<s:GradientEntry alpha=".9"
+									 color="#DEE0E7"/>
+					<s:GradientEntry alpha="1.0"
+									 color="#DEE0E7"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="1"
+								color="#BBBBBB"/>
+		</s:stroke>
+	</s:Rect>
+	<s:HGroup width="100%"
+			  height="100%"
+			  paddingLeft="10">
+		<s:Image height="100%"
+				 width="100"
+				 smooth="true"
+				 source="{Embeded.LOGO}"/>
+		<s:Label paddingTop="3"
+				 fontWeight="bold"
+				 width="150"
+				 height="100%"
+				 textAlign="right"
+				 verticalAlign="middle"
+				 maxDisplayedLines="1"
+				 text="{model.lessonName}"/>
+		<s:HGroup width="100%"
+				  height="100%"
+				  paddingBottom="5"
+				  paddingTop="5"
+				  paddingLeft="10"
+				  paddingRight="10"
+				  verticalAlign="middle"
+				  clipAndEnableScrolling="true">
+			<s:Group>
+				<s:HGroup verticalAlign="middle"
+						  visible="{model.isSaving}"
+						  show="onLoaderShow()"
+						  hide="onLoaderHide()"
+						  height="25">
+					<s:SWFLoader id="spinnerLoader"
+								 width="30"
+								 height="30"
+								 scaleContent="true"/>
+					<s:Label text="Saving..."
+							 fontSize="11"
+							 paddingTop="2"/>
+				</s:HGroup>
+				<s:Button id="btnSave"
+						  icon="{Embeded.SAVE_ICON}"
+						  label="Save"
+						  visible="{!model.isSaving}"
+						  toolTip="Save Lesson (CTRL + S)"
+						  width="67"
+						  height="25"
+						  fontSize="11"
+						  enabled="{model.dataManipulationEnabled &amp;&amp; undoRedoBean.saveRequired}"
+						  skinClass="itrain.common.view.skins.InvisibleButtonSkin"
+						  click="onSaveClick()"/>
+			</s:Group>
+			<s:Button icon="{Embeded.IMPORT_ICON}"
+					  toolTip="Import Capture"
+					  width="77"
+					  fontSize="11"
+					  label="Import"
+					  height="25"
+					  skinClass="itrain.common.view.skins.InvisibleButtonSkin"
+					  click="onImportCaptureClick()"/>
+			<s:Line width="0"
+					height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#BBBBBB"/>
+				</s:stroke>
+			</s:Line>
+			<s:Button id="btnUndo"
+					  icon="{Embeded.UNDO_ICON}"
+					  toolTip="Undo (CTRL + Z)"
+					  width="73"
+					  height="25"
+					  label="Undo"
+					  click="onUndoClick()"
+					  enabled="{model.dataManipulationEnabled &amp;&amp; undoRedoBean.undoEnabled}"
+					  skinClass="itrain.common.view.skins.InvisibleButtonSkin"/>
+			<s:Button id="btnRedo"
+					  icon="{Embeded.REDO_ICON}"
+					  enabled="{model.dataManipulationEnabled &amp;&amp; undoRedoBean.redoEnabled}"
+					  toolTip="Redo (CTRL + Y)"
+					  label="Redo"
+					  width="73"
+					  height="25"
+					  skinClass="itrain.common.view.skins.InvisibleButtonSkin"
+					  click="onRedoClick()"/>
+			<s:Line width="0"
+					height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#BBBBBB"/>
+				</s:stroke>
+			</s:Line>
+			<s:Group enabled="{model.dataManipulationEnabled}">
+				<mx:PopUpButton id="ppbPreview"
+								width="95"
+								height="25"
+								label="Preview"
+								cornerRadius="5"
+								close="onMenuHide()"
+								open="onMenuShow()"
+								enabled="{model.dataManipulationEnabled}"
+								icon="{Embeded.PLAY_ICON_BLUE}"
+								toolTip="Preview"
+								skin="itrain.lessoneditor.view.skins.InvisiblePopUpButtonSkin"
+								click="onMenuItemClick()"
+								creationComplete="onPopupButtonReady()"/>
+			</s:Group>
+			<s:Line width="0"
+					height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#BBBBBB"/>
+				</s:stroke>
+			</s:Line>
+			<s:HGroup height="100%"
+					  verticalAlign="middle"
+					  paddingLeft="5">
+				<s:Label text="Hints:"
+						 paddingTop="3"/>
+				<view:SwitchButton id="swHints"
+								   selected="{model.enableHints}"
+								   change="{model.enableHints = swHints.selected}"/>
+			</s:HGroup>
+			<s:HGroup height="100%"
+					  verticalAlign="middle"
+					  paddingLeft="5">
+				<s:Label text="Spell check:"
+						 paddingTop="3"/>
+				<view:SwitchButton id="swSpelling"
+								   selected="{model.enableSpell}"
+								   change="{model.enableSpell = swSpelling.selected}"/>
+			</s:HGroup>
+			<s:Spacer width="100%"/>
+			<components:ScalableLabel id="selectedIndexText"
+									  text="{getSlideIndexText(model.currentSlideIndex)}"
+									  width="100"/>
+			<s:Button id="btnClose"
+					  icon="{Embeded.COURSE_EXIT_ICON}"
+					  label="Back to course"
+					  enabled="{!model.isSaving}"
+					  width="120"
+					  height="25"
+					  fontSize="11"
+					  skinClass="itrain.common.view.skins.InvisibleButtonSkin"
+					  click="onCloseClick()"/>
+		</s:HGroup>
+	</s:HGroup>
+</s:Group>

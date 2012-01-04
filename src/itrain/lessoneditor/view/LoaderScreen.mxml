@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%"
+         height="100%"
+		 initialize="onInitialize()"
+         creationComplete="onLoadLesson()">
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+			import itrain.common.utils.Embeded;
+			
+			import mx.controls.SWFLoader;
+
+			private var _loaderGraphic:SWFLoader;
+			
+			private function onInitialize():void {
+				_loaderGraphic = new SWFLoader();
+				_loaderGraphic.source = Embeded.WHITE_LOADER;
+				_loaderGraphic.width = _loaderGraphic.height = 80;
+			}
+			
+			
+            //[Mediate(event="LessonLoaderEvent.LESSON_TOGGLE_LOCKED")]
+            [Mediate(event="LessonLoaderEvent.LESSON_LOADED")]
+            [Mediate(event="LessonLoaderEvent.SET_LESSON")]
+            [Mediate(event="LessonLoaderEvent.LESSON_LOAD_FAULT")]
+            public function hideLoader():void {
+                this.visible=false;
+                
+				if (mainContainer.contains(_loaderGraphic))
+					mainContainer.removeElement(_loaderGraphic);
+            }
+
+            [Mediate(event="LessonLoaderEvent.LOAD_LESSON")]
+            public function onLoadLesson():void {
+                lblInfo.text="Loading data...";
+                show();
+            }
+
+//			[Mediate(event="LessonLoaderEvent.TOGGLE_LOCK_LESSON")]
+//			public function onToggleLockLesson():void {
+//				lblInfo.text="Unlocking content before closing...";
+//				show();
+//			}
+
+            private function show():void {
+                this.visible=true;
+                
+				if (!mainContainer.containsElement(_loaderGraphic)) {
+					mainContainer.addElementAt(_loaderGraphic, 0);
+				}
+            }
+        ]]>
+    </fx:Script>
+    <s:VGroup width="100%"
+              height="100%"
+              verticalAlign="middle"
+              horizontalAlign="center">
+        <s:VGroup id="mainContainer"
+                  horizontalAlign="center">
+            <s:Label id="lblInfo"
+                     color="0xFFFFFF"
+                     fontWeight="bold"/>
+        </s:VGroup>
+    </s:VGroup>
+</s:Group>

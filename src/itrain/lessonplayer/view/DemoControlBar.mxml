@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SlideObserverGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+						 xmlns:s="library://ns.adobe.com/flex/spark"
+						 xmlns:mx="library://ns.adobe.com/flex/mx"
+						 xmlns:view="itrain.lessonplayer.view.*"
+						 width="100%"
+						 color="#ffffff"
+						 mouseOver="{_mouseOver = true}"
+						 mouseOut="{_mouseOver = false}"
+						 click="onMouseClick()"
+						 currentState="incomplete"
+						 xmlns:components="itrain.lessonplayer.view.components.*">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+			import itrain.common.model.enum.EnumAction;
+			import itrain.common.utils.ColorUtils;
+			import itrain.lessonplayer.events.PlayerEvent;
+			import itrain.lessonplayer.events.ValidationEvent;
+
+			import mx.graphics.IStroke;
+			import mx.utils.ColorUtil;
+
+			import org.osmf.events.TimeEvent;
+
+			import spark.components.Group;
+			import spark.components.VGroup;
+
+			[Embed(source="assets/cross.png")]
+			[Bindable]
+			private var cross:Class;
+			[Embed(source="assets/tick.png")]
+			[Bindable]
+			private var tick:Class;
+			[Embed(source="assets/restart.png")]
+			[Bindable]
+			private var restartUp:Class;
+			[Embed(source="assets/restart_over.png")]
+			[Bindable]
+			private var restartOver:Class;
+			[Embed(source="assets/previous.png")]
+			[Bindable]
+			private var previousUp:Class;
+			[Embed(source="assets/previous_over.png")]
+			[Bindable]
+			private var previousOver:Class;
+			[Embed(source="assets/previous_disabled.png")]
+			[Bindable]
+			private var previousDisabled:Class;
+			[Embed(source="assets/next.png")]
+			[Bindable]
+			private var nextUp:Class;
+			[Embed(source="assets/next_over.png")]
+			[Bindable]
+			private var nextOver:Class;
+			[Embed(source="assets/next_disabled.png")]
+			[Bindable]
+			private var nextDisabled:Class;
+
+			[Bindable]
+			public var progressText:String="";
+			
+			[Bindable]
+			private var _previousEnabled:Boolean;
+			[Bindable]
+			private var _nextEnabled:Boolean;
+			[Bindable]
+			private var _instruction:String;
+			[Bindable]
+			private var _mouseOver:Boolean=false;
+
+
+			private var _timer:Timer;
+
+			private function onMouseClick():void {
+				if (model.interactive && currentState != "complete" && _instruction) {
+					if (instructionDisplay.isPopedUp)
+						instructionDisplay.hide();
+					else
+						instructionDisplay.show();
+				}
+			}
+
+			public function isInstructionVisible():Boolean {
+				return instructionDisplay.isPopedUp;
+			}
+
+			public function hideInstruction(immediately:Boolean=false):void {
+				if (instructionDisplay.isPopedUp)
+					instructionDisplay.hide(immediately);
+			}
+
+			public function showInstruction():void {
+				if (!instructionDisplay.isPopedUp)
+					instructionDisplay.show();
+			}
+
+			override protected function onSlideSelectionChange(o:Object=null):void {
+				if (model.currentlySelected) {
+					this.visible=this.height > 0;
+					var newSlideNum:int=0;
+					for (var i:int=0, ix:int=model.lessonPointers.length; i < ix; i++) {
+						if (model.lessonPointers[i] <= model.currentSlideIndex)
+							newSlideNum++;
+					}
+					progressText=newSlideNum + " of " + model.lessonPointers.length;
+					_previousEnabled=newSlideNum != 1;
+					_nextEnabled=newSlideNum != model.lessonPointers.length;
+					if (model.currentlySelected.interText)
+						_instruction=model.currentlySelected.interText;
+				} else {
+					this.visible=false;
+				}
+			}
+
+			private function restartClicked():void {
+				model.clean();
+				controller.selectSlideAt(0);
+				hideAction();
+			}
+
+			private function previousClicked():void {
+				controller.previousSlide();
+				hideAction();
+			}
+
+			private function nextClicked():void {
+				controller.nextSlide();
+				hideAction();
+			}
+
+			public function lessonReady():void {
+				var themeColor:int=ColorUtils.parseStringColor(parentApplication.parameters.themeColor);
+				if (themeColor > -1) {
+					gradEntry2.color=themeColor;
+					gradEntry1.color=ColorUtil.adjustBrightness2(gradEntry2.color, 25);
+					borderStroke.color=ColorUtil.adjustBrightness2(gradEntry2.color, -50);
+				} else if (model.lesson.themeColor) {
+					gradEntry2.color=model.lesson.themeColor;
+					gradEntry1.color=ColorUtil.adjustBrightness2(gradEntry2.color, 25);
+					borderStroke.color=ColorUtil.adjustBrightness2(gradEntry2.color, -50);
+				} else {
+					gradEntry2.color=0x6c6c6c;
+					gradEntry1.color=0xa9a9a9;
+					borderStroke.color=0x555555;
+				}
+				if (model.interactive) {
+					if (model.currentlySelected)
+						_instruction=model.currentlySelected.interText;
+					currentState="incomplete";
+				} else {
+					hideInstruction(true);
+				}
+				if (model.interactive && _instruction) {
+					showInstruction();
+				} else {
+					hideInstruction(true);
+				}
+			}
+
+			[Mediate(event="ValidationEvent.VALIDATION_EVENT")]
+			public function onValidationMessage(e:ValidationEvent=null):void {
+				if (e) {
+					if (e.valid) {
+						currentState="correct";
+					} else {
+						currentState="incorrect";
+					}
+					doPause(function():void {
+						currentState="incomplete";
+					});
+				}
+			}
+
+			[Mediate(event="ValidationEvent.LESSON_COMPLETE")]
+			public function onLessonComplete(e:ValidationEvent=null):void {
+				doPause(function():void {
+					currentState="complete";
+					instructionDisplay.hide();
+				});
+			}
+
+			[Mediate(event="ValidationEvent.LESSON_RESET")]
+			public function onLessonReset(e:ValidationEvent=null):void {
+				currentState="incomplete";
+				if (model.interactive && _instruction)
+					instructionDisplay.show();
+			}
+
+			private function doPause(handler:Function=null, interval:Number=1000):void {
+				if (_timer && _timer.running)
+					_timer.stop();
+				_timer=new Timer(interval, 1);
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, function(e:Event):void {
+					if (handler != null)
+						handler();
+				});
+				_timer.start();
+			}
+
+			[Mediate(event="LessonModuleEvent.PREPARE_TO_UNLOAD")]
+			public function onPrepareToUnload():void {
+				if (model.interactive)
+					instructionDisplay.hide(true);
+			}
+
+			[Mediate(event="PlayerEvent.ACTION_CHANGE")]
+			public function onActionChange(e:PlayerEvent):void {
+				if (!model.interactive && model.lesson.showActionIndicator)
+					actionIndicator.action=e.data as EnumAction;
+			}
+
+			private function hideAction():void {
+				if (!model.interactive && model.lesson.showActionIndicator)
+					actionIndicator.action=null;
+			}
+		]]>
+	</fx:Script>
+	<view:states>
+		<s:State name="incomplete"/>
+		<s:State name="complete"/>
+		<s:State name="correct"/>
+		<s:State name="incorrect"/>
+	</view:states>
+	<s:Rect id="navigationBackground"
+			width="100%"
+			height="100%"
+			visible="{!model.interactive}">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry id="gradEntry1"
+								 color="#A9A9A9"/>
+				<s:GradientEntry id="gradEntry2"
+								 color="#6C6C6C"/>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="#555555"
+								id="borderStroke"
+								weight="1"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Rect id="instructionBackground"
+			width="100%"
+			height="100%"
+			visible="{model.interactive}">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color.incomplete="#FFB15F"
+								 color.correct="#00CD00"
+								 color.incorrect="#FC7C7C"
+								 color.complete="#7CC4FB"/>
+				<s:GradientEntry color.incomplete="#FD8300"
+								 color.correct="#008800"
+								 color.incorrect="#C11010"
+								 color.complete="#1073BF"/>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="#555555"
+								weight="1"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Rect id="mouseOverShadow"
+			width="100%"
+			height="100%"
+			visible="{_mouseOver &amp;&amp; model.interactive}">
+		<s:fill>
+			<s:SolidColor alpha="0.1"
+						  color="#333333"/>
+		</s:fill>
+	</s:Rect>
+	<s:Group width="100%" visible="{this.height > 0}">
+		<components:ActionIndicator id="actionIndicator"
+									height="100%"/>
+		<s:HGroup gap="9"
+				  paddingBottom="7"
+				  paddingTop="7"
+				  verticalCenter="0"
+				  horizontalCenter="0"
+				  visible="{!model.interactive}"
+				  includeInLayout="{!model.interactive}"
+				  verticalAlign="middle"
+				  horizontalAlign="center">
+			<view:ImageButton clicked="restartClicked()"
+							  upSource="{restartUp}"
+							  overSource="{restartOver}"/>
+
+			<view:ImageButton clickEnabled="{_previousEnabled}"
+							  clicked="previousClicked()"
+							  upSource="{previousUp}"
+							  overSource="{previousOver}"
+							  disabledSource="{previousDisabled}"/>
+			<s:Label color="#ffffff"
+					 fontWeight="bold"
+					 fontSize="15"
+					 text="{progressText}"
+					 paddingTop="3"/>
+			<view:ImageButton clicked="nextClicked()"
+							  clickEnabled="{_nextEnabled}"
+							  upSource="{nextUp}"
+							  overSource="{nextOver}"
+							  disabledSource="{nextDisabled}"/>
+		</s:HGroup>
+	</s:Group>
+	<s:HGroup width="100%"
+			  gap="9"
+			  paddingBottom="7"
+			  paddingTop="7"
+			  paddingRight="10"
+			  paddingLeft="10"
+			  visible="{model.interactive}"
+			  includeInLayout="{model.interactive}"
+			  verticalAlign="middle"
+			  horizontalAlign="center">
+		<s:Image id="imgIcon"
+				 height="20"
+				 source="{null}"
+				 source.complete="{tick}"
+				 source.correct="{tick}"
+				 source.incorrect="{cross}"/>
+		<s:Label fontSize="18"
+				 text="Instructions"
+				 text.complete="Complete"
+				 text.correct="Correct"
+				 text.incorrect="Incorrect"/>
+		<s:Spacer width="100%"/>
+		<s:Label color="#ffffff"
+				 fontWeight="bold"
+				 fontSize="15"
+				 visible="{_instruction.length != 0}"
+				 text="{progressText}"
+				 paddingTop="3"/>
+	</s:HGroup>
+	<components:InstructionDisplay id="instructionDisplay"
+								   y="{model.currentlySelected.instructionTopPos ? this.height : -instructionDisplay.height}"
+								   right="0"
+								   left="0"
+								   instruction="{_instruction}"
+								   frameColor.incomplete="{model.currentlySelected.instructionTopPos ? 0xFD8300 : 0xFFB15F}"
+								   frameColor.incorrect="{model.currentlySelected.instructionTopPos ? 0xC11010 : 0xFC7C7C}"
+								   frameColor.complete="{model.currentlySelected.instructionTopPos ? 0x1073BF : 0x7CC4FB}"
+								   frameColor.correct="{model.currentlySelected.instructionTopPos ? 0x008800 : 0x00CD00}"/>
+</view:SlideObserverGroup>

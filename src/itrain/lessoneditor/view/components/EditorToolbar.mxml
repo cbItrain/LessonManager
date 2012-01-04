@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="38"
+		 mouseEnabled="false"
+		 filters="{[Common.dropShadow]}">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.model.vo.HighlightVO;
+			import itrain.common.model.vo.HotspotVO;
+			import itrain.common.model.vo.SlideObjectVO;
+			import itrain.common.model.vo.TextFieldVO;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.common.view.skins.InvisibleButtonSkin;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin;
+
+			[Bindable]
+			private var _selectedObject:SlideObjectVO;
+
+			[Bindable]
+			public var hideIcon:Class;
+
+			[Bindable]
+			public var hideButtonClickHandler:Function;
+			
+			[Bindable]
+			public var enableTools:Boolean = true;
+			
+			[Inject][Bindable]
+			public var model:EditorModel;
+
+			private function onHideButtonClick(e:Event):void {
+				if (hideButtonClickHandler != null)
+					hideButtonClickHandler(e);
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_SELECTION_CHANGE")]
+			public function onSlideObjectSelectionChange(e:EditorEvent):void {
+				_selectedObject=e.model as SlideObjectVO;
+				if (_selectedObject) {
+					if (_selectedObject is CaptionVO)
+						bbarProperties.selectedIndex=0;
+					else if (_selectedObject is HotspotVO)
+						bbarProperties.selectedIndex=1;
+					else if (_selectedObject is TextFieldVO)
+						bbarProperties.selectedIndex=2;
+					else
+						bbarProperties.selectedIndex=-1;
+				} else {
+					bbarProperties.selectedIndex=-1;
+				}
+				btnCursor.selected=true;
+			}
+
+			[Mediate(event="ModelEvent.SLIDE_SELECTION_CHANGE")]
+			public function onSlideSelectionChange():void {
+				bbarProperties.selectedIndex=-1;
+				_selectedObject=null;
+				btnCursor.selected=true;
+			}
+
+			[Mediate(event="EditorEvent.OBJECT_REMOVED")]
+			public function onRemoveObject(ev:EditorEvent):void {
+				bbarProperties.selectedIndex=-1;
+				_selectedObject=null;
+			}
+
+			private function onButtonBarUserChange():void {
+				btnCursor.selected=false;
+				
+				var ev:EditorEvent=new EditorEvent(EditorEvent.PREPARE_OBJECT, true);
+				if (bbarProperties.selectedIndex == 0) {
+					ev.model=new CaptionVO();
+				} else if (bbarProperties.selectedIndex == 1) {
+					ev.model=new HotspotVO();
+				} else if (bbarProperties.selectedIndex == 2) {
+					ev.model=new TextFieldVO();
+				} else if (bbarProperties.selectedIndex == 3) {
+					ev.model=new HighlightVO();
+				} else {
+					btnCursor.selected=true;
+				}
+				dispatchEvent(ev);
+			}
+			
+			private function onCursorClick():void {
+				bbarProperties.selectedIndex = -1;
+				
+				var ev:EditorEvent=new EditorEvent(EditorEvent.CLEAR_OBJECT_SELECTION, true);
+				dispatchEvent(ev);
+				
+				ev=new EditorEvent(EditorEvent.PREPARE_OBJECT, true);
+				dispatchEvent(ev);
+				
+				btnCursor.selected=true;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Rect width="100%"
+			height="100%"
+			bottomRightRadiusX="5"
+			bottomRightRadiusY="5"
+			topRightRadiusX="5"
+			topRightRadiusY="5">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:entries>
+					<s:GradientEntry alpha=".9"
+									 color="#E7E7E7"/>
+					<s:GradientEntry alpha="1.0"
+									 color="#E7E7E7"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="1"
+								color="#000000"/>
+		</s:stroke>
+	</s:Rect>
+	<s:VGroup paddingLeft="4"
+			  paddingBottom="5"
+			  paddingRight="4"
+			  paddingTop="5"
+			  gap="3"
+			  width="100%">
+		<s:ButtonBar id="bbarProperties"
+					 skinClass="itrain.lessoneditor.view.skins.CustomButtonSparkSkin"
+					 click="{event.stopImmediatePropagation()}"
+					 enabled="{model.dataManipulationEnabled &amp;&amp; enableTools}"
+					 change="onButtonBarUserChange()"
+					 width="30">
+			<s:dataProvider>
+				<s:ArrayList>
+					<fx:Object label="Caption"
+							   icon="{Embeded.CAPTION_ICON}"/>
+					<fx:Object label="Hotspot"
+							   icon="{Embeded.HOTSPOT_ICON}"/>
+					<fx:Object label="Text Field"
+							   icon="{Embeded.TEXT_INPUT_ICON}"/>
+					<fx:Object label="Highlight"
+							   icon="{Embeded.HIGHLIGHT_ICON}"/>
+				</s:ArrayList>
+			</s:dataProvider>
+		</s:ButtonBar>
+		<s:Spacer height="5"/>
+		<s:ToggleButton id="btnCursor"
+						width="30"
+						height="25"
+						selected="false"
+						toolTip="Select mode"
+						click="onCursorClick()"
+						icon="{Embeded.CURSOR}"
+						enabled="{model.dataManipulationEnabled}"
+						skinClass="itrain.lessoneditor.view.skins.InvisibleToggleButtonSkin"/>
+		<s:Button icon="{hideIcon}"
+				  click="onHideButtonClick(event)"
+				  toolTip="Hide slide list"
+				  cornerRadius="5"
+				  width="30"
+				  height="25"
+				  skinClass="itrain.common.view.skins.InvisibleButtonSkin"/>
+	</s:VGroup>
+</s:Group>

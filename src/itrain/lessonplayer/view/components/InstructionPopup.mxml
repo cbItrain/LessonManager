@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 clipAndEnableScrolling="true"
+		 height="0"
+		 creationCompleteEffect="{topPopUpPosition ? showEffectDown : showEffectUp}">
+	<fx:Declarations>
+		<s:Resize id="showEffectDown"
+				  duration="400"
+				  heightFrom="0"
+				  heightTo="{mainContainer.height + 10}"
+				  target="{this}"/>
+		<s:Resize id="hideEffectDown"
+				  duration="400"
+				  heightFrom="{mainContainer.height + 10}"
+				  heightTo="0"
+				  target="{this}"
+				  effectEnd="{PopUpManager.removePopUp(this)}"/>
+		<s:Parallel id="showEffectUp"
+					duration="400"
+					target="{this}">
+			<s:Resize heightFrom="0"
+					  heightTo="{mainContainer.height + 10}"/>
+			<s:Move yFrom="{_parentObjectY}"
+					yTo="{_parentObjectY-mainContainer.height - 10}"/>
+		</s:Parallel>
+		<s:Parallel id="hideEffectUp"
+					duration="400"
+					target="{this}"
+					effectEnd="{PopUpManager.removePopUp(this)}">
+			<s:Resize heightTo="0"
+					  heightFrom="{mainContainer.height + 10}"/>
+			<s:Move yTo="{_parentObjectY}"
+					yFrom="{_parentObjectY-mainContainer.height - 10}"/>
+		</s:Parallel>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+
+			[Bindable]
+			private var _padding:Number=5.0;
+
+			[Bindable]
+			public var instruction:String;
+			[Bindable]
+			public var frameColor:uint;
+			[Bindable]
+			public var topPopUpPosition:Boolean;
+
+			[Bindable]
+			private var _parentObjectY:Number;
+
+			private var _parent:Group;
+
+			public function show(parent:Group):void {
+//				if (!this.isPopUp) {
+//					_parent=parent;
+//					this.width=parent.width;
+//					watchSize(parent);
+//					var point:Point=parent.localToGlobal(new Point());
+//					this.x=point.x;
+//					_parentObjectY=point.y;
+//					PopUpManager.addPopUp(this, parent);
+//					stopAllEffects();
+//					this.y=_parentObjectY
+//					if (topPopUpPosition) {
+//						this.y+=parent.height;
+//						callLater(function ():void {
+//							showEffectDown.play();
+//						});
+//					} else {
+//						callLater(function ():void {
+//							showEffectUp.play();
+//						});
+//					}
+//
+//				}
+			}
+			
+			public function updatePosition():void {
+				var thisInstance:Group = this;
+				callLater(function ():void {
+					thisInstance.width=_parent.width;
+					thisInstance.height= mainContainer.height + 10;
+					if (_parent) {
+						var point:Point=_parent.localToGlobal(new Point());
+						thisInstance.x=point.x;
+						if (topPopUpPosition) {	
+							thisInstance.y=point.y + thisInstance.height;
+						} else {
+							thisInstance.y=point.y - thisInstance.height;
+						}
+					}
+				});
+			}
+
+			private function watchSize(parent:Group):void {
+				parent.removeEventListener(ResizeEvent.RESIZE, onResizeEvent);
+				parent.addEventListener(ResizeEvent.RESIZE, onResizeEvent);
+			}
+
+			private function onResizeEvent(e:ResizeEvent):void {
+				updatePosition();
+			}
+
+			private function stopAllEffects():void {
+				hideEffectDown.stop();
+				hideEffectUp.stop();
+				showEffectDown.stop();
+				showEffectUp.stop();
+			}
+
+			public function hide(now:Boolean=false):void {
+//				if (this.isPopUp) {
+//					stopAllEffects();
+//					if (now)
+//						PopUpManager.removePopUp(this);
+//					else if (topPopUpPosition)
+//						hideEffectDown.play();
+//					else
+//						hideEffectUp.play();
+//				}
+			}
+		]]>
+	</fx:Script>
+	<s:Rect id="instructionBackground"
+			width="{this.width}"
+			height="{this.height}">
+		<s:fill>
+			<s:SolidColor color="{frameColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup paddingBottom="5"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  paddingTop="5"
+			  width="100%">
+		<s:Group id="mainContainer"
+				 width="100%">
+			<s:Rect width="100%"
+					height="100%"
+					radiusX="5"
+					radiusY="5">
+				<s:fill>
+					<s:SolidColor color="#FFFFFF"/>
+				</s:fill>
+			</s:Rect>
+			<s:RichText id="txtArea"
+						width="100%"
+						verticalAlign="middle"
+						paddingBottom="{_padding + 5.0}"
+						paddingTop="{_padding + 5.0}"
+						paddingRight="{_padding + 5.0}"
+						paddingLeft="{_padding + 5.0}"
+						textFlow="{TextConverter.importToFlow(instruction, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+		</s:Group>
+	</s:VGroup>
+</s:Group>

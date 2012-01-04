@@ -1,0 +1,120 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+@font-face {
+	src:url("assets/fonts/MyriadPro-Regular.otf");
+	fontFamily: CFFMyriad;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/MyriadPro-Bold.otf");
+	fontFamily: CFFMyriad;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+
+@font-face {
+	src:url("assets/fonts/MyriadPro-It.otf");
+	fontFamily: CFFMyriad;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+}
+
+@font-face {
+	src:url("assets/fonts/MyriadPro-BoldIt.otf");
+	fontFamily: CFFMyriad;
+	fontStyle: italic;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/MyriadPro-Regular.otf");
+	fontFamily: NoCFFMyriad;
+	advancedAntiAliasing: true;
+	embedAsCFF: false;
+}
+@font-face {
+	src:url("assets/fonts/MyriadPro-Bold.otf");
+	fontFamily: NoCFFMyriad;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/MyriadPro-It.otf");
+	fontFamily: NoCFFMyriad;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/MyriadPro-BoldIt.otf");
+	fontFamily: NoCFFMyriad;
+	fontStyle: italic;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+
+@font-face {
+	src:url("assets/fonts/ACaslonPro-Regular.otf");
+	fontFamily: ACaslonPro;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/ACaslonPro-Bold.otf");
+	fontFamily: ACaslonPro;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/ACaslonPro-Italic.otf");
+	fontFamily: ACaslonPro;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+}
+@font-face {
+	src:url("assets/fonts/ACaslonPro-BoldItalic.otf");
+	fontFamily: ACaslonPro;
+	fontStyle: italic;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+}
+
+.propertiesTitles {
+	fontSize:15;
+}
+
+.propertiesLabel {
+	fontSize:12;
+}
+
+.propertiesLabelBolded {
+	fontSize:12;
+	fontWeight: bold;
+}
+
+.slideRendererIndexLabel {
+	color: #FFFFFF;
+	fontWeight: bold;
+}
+
+.slidePropertiesTitleButton {
+	cornerRadius: 5;
+	fontSize: 26;
+	color: #444444;
+}
+
+.messageBig {
+	fontWeight: bold;
+	fontSize: 16;
+	color: #FFFFFF;
+}
+
+.messageSmall {
+	fontWeight: bold;
+	fontSize: 14;
+	color: #FFFFFF;
+}
+
+.hint {
+	color: #FFFFFF;
+}

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2008 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The Spark skin class for the MX PopUpButton component. 
+
+      @see mx.controls.PopUpButton
+        
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+-->
+<local:SparkSkinForHalo xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+      xmlns:local="mx.skins.spark.*"
+      minWidth="21" minHeight="21"
+      alpha.disabled="0.5">
+    
+    <fx:Script>
+        /* Define the skin elements that should not be colorized. 
+           For button, the graphics are colorized but the arrow is not. */
+        static private const exclusions:Array = ["arrow"];
+        /**
+         *  @private
+         */
+        override public function get colorizeExclusions():Array {return exclusions;}
+        
+        /* Define the symbol fill items that should be colored by the "symbolColor" style. */
+        static private const symbols:Array = ["arrowFill1", "arrowFill2"];
+        /**
+         *  @private
+         */
+        override public function get symbolItems():Array {return symbols};
+
+        /* Define the border items.*/
+        static private const borderItem:Array = [];
+        /**
+         *  @private
+         */
+        override protected function get borderItems():Array {return borderItem;}
+        
+        /**
+         * @private
+         */
+        override protected function initializationComplete():void
+        {
+            useChromeColor = false;
+            super.initializationComplete();
+        }
+        
+        /**
+         *  @private
+         */
+    </fx:Script>
+    
+    <!-- states -->
+    <local:states>
+        <s:State name="up" />
+        <s:State name="over" stateGroups="overStates" />
+        <s:State name="down" stateGroups="downStates" />
+        <s:State name="disabled" />
+        <s:State name="popUpOver" stateGroups="overStates, popUpStates" />
+        <s:State name="popUpDown" stateGroups="downStates, popUpStates" />
+    </local:states>
+	<s:Rect id="highlightButton" left="1" right="19" top="1" bottom="1" radiusX="2">
+		<s:fill>
+			<s:SolidColor color="0x999999"
+						  alpha="0"
+						  alpha.down="0.5"
+						  alpha.over="0.12"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="hldownstrokeArrow1" left="1" right="1" top="1" bottom="1" radiusX="2" includeIn="popUpStates, overStates, downStates">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90" weight="1">
+				<s:GradientEntry color="0x000000" alpha="0.25" ratio="0.0" />
+				<s:GradientEntry color="0x000000" alpha="0.25" ratio="0.001" />
+				<s:GradientEntry color="0x000000" alpha="0.07" ratio="0.0011" />
+				<s:GradientEntry color="0x000000" alpha="0.07" ratio="0.965" />
+				<s:GradientEntry color="0x000000" alpha="0.00" ratio="0.9651" />
+			</s:LinearGradientStroke>
+		</s:stroke>
+	</s:Rect>
+	<!--- @private -->
+	<s:Rect id="hldownstrokeButton2" left="2" right="20" top="2" bottom="2" radiusX="2" includeIn="down,over">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90" weight="1">
+				<s:GradientEntry color="0x000000" alpha="0.09" ratio="0.0" />
+				<s:GradientEntry color="0x000000" alpha="0.00" ratio="0.0001" />
+			</s:LinearGradientStroke>
+		</s:stroke>
+	</s:Rect> 
+	<!--Arrow-->
+	<s:Rect id="highlightArrow" width="18" right="1" top="1" bottom="1" radiusX="2">
+		<s:fill>
+			<s:SolidColor color="0x999999"
+						  alpha="0"
+						  alpha.popUpDown="0.5"
+						  alpha.popUpOver="0.12"/>
+		</s:fill>
+	</s:Rect>
+	<!--- @private -->
+	<s:Rect id="hldownstrokeArrow2" width="16" right="2" top="2" bottom="2" radiusX="2" includeIn="popUpStates">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90" weight="1">
+				<s:GradientEntry color="0x000000" alpha="0.09" ratio="0.0" />
+				<s:GradientEntry color="0x000000" alpha="0.00" ratio="0.0001" />
+			</s:LinearGradientStroke>
+		</s:stroke>
+	</s:Rect> 
+    <!-- layer 8: arrow -->
+    <!--- @private -->
+    <s:Path right="6" verticalCenter="0" id="arrow"
+          data="M 4.0 4.0 L 4.0 3.0 L 5.0 3.0 L 5.0 2.0 L 6.0 2.0 L 6.0 1.0 L 7.0 1.0 L 7.0 0.0 L 0.0 0.0 L 0.0 1.0 L 1.0 1.0 L 1.0 2.0 L 2.0 2.0 L 2.0 3.0 L 3.0 3.0 L 3.0 4.0 L 4.0 4.0">
+        <s:fill>
+            <s:RadialGradient rotation="90" focalPointRatio="1">    
+                <!--- @private -->
+                <s:GradientEntry id="arrowFill1" color="0" alpha="0.6" />
+                <!--- @private -->
+                <s:GradientEntry id="arrowFill2" color="0" alpha="0.8" />
+            </s:RadialGradient>
+        </s:fill>
+    </s:Path>
+</local:SparkSkinForHalo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Metadata>
+		[Event(name="collapseEffectEnd", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<s:Resize id="resizeEffect"
+				  widthFrom="0.0"
+				  widthTo="250.0"
+				  duration="400"
+				  effectEnd="onEffectEnd()"/>
+		<s:Move id="moveEffect"
+				duration="400"
+				target="{this}"
+				xFrom="{collapseRight ? parentDocument.width - this.width : 0}"
+				xTo="{collapseRight ? parentDocument.width : -this.width}"
+				effectEnd="onEffectEnd()"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			protected var collapseRight:Boolean=true;
+
+			private function onEffectEnd():void {
+				this.percentHeight=100;
+				dispatchEvent(new Event("collapseEffectEnd"));
+			}
+
+			protected function playHideShow():void {
+				moveEffect.stop();
+				if ((collapseRight) ? x == parent.width - this.width : x == 0) {
+					moveEffect.play();
+				} else {
+					moveEffect.play(null, true);
+				}
+			}
+		]]>
+	</fx:Script>
+</s:Group>

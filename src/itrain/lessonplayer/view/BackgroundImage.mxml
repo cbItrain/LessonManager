@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view:SlideObserverGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+						 xmlns:s="library://ns.adobe.com/flex/spark"
+						 minWidth="500"
+						 minHeight="300"
+						 xmlns:mx="library://ns.adobe.com/flex/mx"
+						 xmlns:view="itrain.lessonplayer.view.*"
+						 preinitialize="onPreInitialize()">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Common;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.ImageRepositoryEvent;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.utils.Embeded;
+
+			public var repository:ImageRepository=ImageRepository.getInstance();
+			
+			private var _currentBitmapData:BitmapData;
+
+			[Dispatcher]
+			public var dispatcher:IEventDispatcher;
+
+			private function onPreInitialize():void {
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageLoaded);
+			}
+
+			public function get bitmapData():BitmapData {
+				return _currentBitmapData;
+			}
+			
+			[Bindable]
+			public function set bitmapData(value:BitmapData):void {
+				_currentBitmapData = value;
+			}
+			
+			[PostConstruct]
+			override public function onPostConstruct():void {
+				super.onPostConstruct();
+			}
+
+			override protected function onSlideSelectionChange(o:Object=null):void {
+				super.onSlideSelectionChange(o);
+				loadCurrentImage();
+			}
+
+			public function onImageLoaded(e:ImageRepositoryEvent=null):void {
+				if (model && model.currentlySelected) {
+					if (e && e.url == model.currentlySelected.source) {
+						updateSource(e.bitmapData);
+					}
+				}
+			}
+
+			private function loadCurrentImage():void {
+				if (model.currentlySelected) {
+					showImage();
+					var bitmapData:BitmapData=repository.imageData(model.currentlySelected.source);
+					if (bitmapData) {
+						updateSource(bitmapData);
+					} else {
+						model.loadingImage=true;
+					}
+				} else {
+					model.imageHeight=image.height=500;
+					model.imageWidth=image.width=500;
+					bitmapData = null;
+					hideImage();
+				}
+			}
+			
+			[Mediate(event="LessonLoaderEvent.LOAD_LESSON")]
+			public function onLoadLesson():void {
+				lbMsg.visible=false;
+			}
+			
+			[Mediate(event="ModelEvent.LESSON_READY")]
+			public function onLessonReady():void {
+				if (!model.currentlySelected) {
+					hideImage();
+				}
+			}
+
+			private function showImage():void {
+				image.visible=true;
+				lbMsg.visible=false;
+			}
+
+			private function hideImage():void {
+				image.visible=false;
+				lbMsg.visible=true;
+				dispatcher.dispatchEvent(new ModelEvent(ModelEvent.SLIDE_IMAGE_NOT_AVAILABLE, true));
+			}
+
+			private function updateSource(bd:BitmapData):void {
+				model.loadingImage=false;
+				var me:ModelEvent;
+				if (bd && ImageRepository.isBitmapAvailable(bd)) {				
+					bitmapData = bd;
+					image.source=new Bitmap(bd);
+					model.imageWidth=image.width=bd.width;
+					model.imageHeight=image.height=bd.height;
+
+					me=new ModelEvent(ModelEvent.SLIDE_IMAGE_READY, true);
+				} else {
+					bitmapData = null;
+					image.source=Embeded.BROKEN_IMAGE;
+					me=new ModelEvent(ModelEvent.SLIDE_IMAGE_NOT_AVAILABLE, true);
+				}
+				me.url=model.currentlySelected.source;
+				dispatcher.dispatchEvent(me);
+			}
+		]]>
+	</fx:Script>
+	<s:Image id="image"
+			 visible="false"
+			 width="100%"
+			 height="100%"
+			 fillMode="clip"
+			 smooth="false"
+			 smoothingQuality="high"
+			 verticalAlign="middle"
+			 horizontalAlign="center"/>
+	<s:Label id="lbMsg"
+			 text="{model.displayMessage}"
+			 fontSize="18"
+			 visible="false"
+			 width="100%"
+			 height="100%"
+			 verticalAlign="middle"
+			 textAlign="center"
+			 filters="{Common.smallDropShadow}"/>
+</view:SlideObserverGroup>

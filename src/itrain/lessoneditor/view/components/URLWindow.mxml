@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 initialize="onInitialize()"
+		 rollOver="onMouseRollOver(event)"
+		 rollOut="onMouseRollOut(event)"
+		 alpha="0">
+	<fx:Declarations>
+		<s:Fade id="fadeEffect"
+				duration="500"
+				target="{this}"
+				effectEnd="onEffectEnd()"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[				
+			
+			private var _timer:Timer = new Timer(5000, 1);
+			
+			
+			private function onInitialize():void {
+				_timer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimerComplete);
+			}
+			
+			public function get text():String {
+				return txtContent.text;
+			}
+			
+			public function set text(value:String):void {
+				txtContent.text = value;
+				onEffectEnd();
+			}
+
+			private function onMouseRollOver(me:MouseEvent):void {
+				stopTimer();
+			}
+			
+			private function onMouseRollOut(me:MouseEvent):void {
+				startTimer();
+			}
+
+			private function onTimerComplete(te:TimerEvent):void {
+				hide();
+			}
+			
+			private function onEffectEnd():void {
+				if (alpha == 1.0) {
+					txtContent.setFocus();
+					txtContent.selectAll();
+					removeEventListeners();
+					addEventListeners();
+				}
+			}
+			
+			private function startTimer():void {
+				stopTimer();
+				_timer.start();
+			}
+			
+			private function stopTimer():void {
+				if (_timer.running)
+					_timer.stop();
+			}
+			
+			private function addEventListeners():void {
+				parentApplication.addEventListener(MouseEvent.MOUSE_DOWN, onApplicationMouseDown);
+				this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			}
+			
+			private function removeEventListeners():void {
+				parentApplication.removeEventListener(MouseEvent.MOUSE_DOWN, onApplicationMouseDown);
+				this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			}
+			
+			private function onApplicationMouseDown(me:MouseEvent):void {
+				removeEventListeners();
+				hide();
+			}
+			
+			private function onMouseDown(me:MouseEvent):void {
+				me.stopImmediatePropagation();
+			}
+
+			public function hide():void {
+				stopTimer();
+				if (fadeEffect.isPlaying)
+					fadeEffect.pause();
+				if (alpha != 0.0) {
+					fadeEffect.alphaFrom=alpha;
+					fadeEffect.alphaTo=0.0;
+					fadeEffect.play();
+				}
+			}
+
+			public function show():void {
+				if (fadeEffect.isPlaying)
+					fadeEffect.pause();
+				if (alpha != 1.0) {
+					fadeEffect.alphaFrom=alpha;
+					fadeEffect.alphaTo=1.0;
+					fadeEffect.play();
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%"
+			height="100%"
+			alpha=".7"
+			radiusX="5"
+			radiusY="5">
+		<s:fill>
+			<s:SolidColor color="0x000000"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup width="100%"
+			  paddingBottom="10"
+			  paddingLeft="10"
+			  paddingRight="10"
+			  paddingTop="10">
+		<s:Label text="Image URL:"
+				 color="0xFFFFFF"
+				 fontWeight="bold"/>
+		<s:TextArea id="txtContent"
+					editable="false"
+					height="70"
+					width="100%"/>
+	</s:VGroup>
+</s:Group>

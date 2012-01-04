@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:view="itrain.common.view.*"
+		 width="100%"
+		 height="100%"
+		 click="onMouseClick(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.model.enum.EnumDisplay;
+			import itrain.common.model.enum.EnumPosition;
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.utils.PositionUtils;
+
+			import mx.collections.ArrayCollection;
+
+			[Bindable]
+			public var captionVO:CaptionVO;
+
+			[Bindable]
+			private var _pointPositionDataProvider:ArrayCollection=new ArrayCollection(EnumPosition.values);
+
+			private function getPointPosition(c:CaptionVO, position:EnumPosition):EnumPosition {
+				if (c) {
+					for each (var p:EnumPosition in _pointPositionDataProvider) {
+						if (p.equals(position))
+							return p
+					}
+				}
+				return null;
+			}
+
+			private function pointPositionLabelFunction(item:EnumPosition):String {
+				return PositionUtils.getPointLabel(item);
+			}
+
+			private function onMouseClick(e:MouseEvent):void {
+				e.stopImmediatePropagation();
+			}
+
+			private function onDisplayChange(target:CheckBox):void {
+				if (cbAfter.selected && cbBefore.selected) {
+					captionVO.display=EnumDisplay.ALWAYS;
+				} else if (cbAfter.selected) {
+					captionVO.display=EnumDisplay.AFTER;
+				} else if (cbBefore.selected) {
+					captionVO.display=EnumDisplay.BEFORE;
+				} else {
+					if (target == cbAfter) {
+						captionVO.display=EnumDisplay.BEFORE;
+						cbBefore.selected=true;
+					} else {
+						captionVO.display=EnumDisplay.AFTER;
+						cbAfter.selected=true;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+			  height="100%"
+			  paddingTop="1"
+			  paddingBottom="1"
+			  paddingLeft="1"
+			  paddingRight="1">
+		<s:VGroup width="100%">
+			<s:Label text="Pointer Position:"
+					 styleName="propertiesLabel"/>
+			<s:DropDownList id="ddlPointPosition"
+							width="150"
+							selectedItem="{getPointPosition(captionVO, captionVO.pointPosition)}"
+							dataProvider="{_pointPositionDataProvider}"
+							labelFunction="pointPositionLabelFunction"
+							change="{captionVO != null ? captionVO.pointPosition = ddlPointPosition.selectedItem as EnumPosition: null}"/>
+		</s:VGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<s:VGroup width="100%">
+			<s:Label text="Display:"
+					 styleName="propertiesLabel"/>
+			<s:CheckBox id="cbBefore"
+						label="Before mouse move"
+						selected="{captionVO.display.equals(EnumDisplay.BEFORE) || captionVO.display.equals(EnumDisplay.ALWAYS)}"
+						change="onDisplayChange(cbBefore)"/>
+			<s:CheckBox id="cbAfter"
+						label="After mouse move"
+						selected="{captionVO.display.equals(EnumDisplay.AFTER) || captionVO.display.equals(EnumDisplay.ALWAYS)}"
+						change="onDisplayChange(cbAfter)"/>
+		</s:VGroup>
+		<s:Line width="100%"
+				height="1">
+			<s:stroke>
+				<s:SolidColorStroke color="#BBBBBB"/>
+			</s:stroke>
+		</s:Line>
+		<s:VGroup width="100%">
+			<s:Label text="Properties:"
+					 styleName="propertiesLabel"/>
+			<mx:Grid>
+				<mx:GridRow>
+					<mx:GridItem horizontalAlign="right"
+								 verticalAlign="middle">
+						<s:Label text="Movable:"
+								 paddingTop="2"
+								 styleName="propertiesLabel"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<view:SwitchButton id="cbxMovable"
+										   selected="{captionVO.movable}"
+										   change="{captionVO.movable = cbxMovable.selected}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow>
+					<mx:GridItem horizontalAlign="right"
+								 verticalAlign="middle">
+						<s:Label text="Hidable:"
+								 paddingTop="2"
+								 styleName="propertiesLabel"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<view:SwitchButton id="cbxHidable"
+										   selected="{captionVO.hidable}"
+										   change="{captionVO.hidable = cbxHidable.selected}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow>
+					<mx:GridItem horizontalAlign="right"
+								 verticalAlign="middle">
+						<s:Label text="Continue button:"
+								 paddingTop="2"
+								 styleName="propertiesLabel"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<view:SwitchButton id="cbxContinue"
+										   cEnabled="{!captionVO.movable}"
+										   selected="{captionVO.movable || captionVO.showContinue}"
+										   change="{captionVO.showContinue = cbxContinue.selected}"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</s:VGroup>
+	</s:VGroup>
+</s:Group>

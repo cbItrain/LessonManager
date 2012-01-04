@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="0"
+		 clipAndEnableScrolling="true">
+	<fx:Declarations>
+		<s:Resize id="showEffect"
+				  heightFrom="0"
+				  duration="400"
+				  heightTo="{mainContainer.height + 10}"
+				  target="{this}"
+				  effectEnd="{this.height = mainContainer.height + 10}"/>
+		<s:Resize id="hideEffect"
+				  heightTo="0"
+				  heightFrom="{mainContainer.height + 10}"
+				  target="{this}"
+				  duration="400"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+			[Bindable]
+			private var _padding:Number=5.0;
+			[Bindable]
+			public var instruction:String;
+			[Bindable]
+			public var frameColor:uint;
+			
+			public var isPopedUp:Boolean=false;
+			
+			public function show():void {
+				if (!isPopedUp) {
+					isPopedUp=true;
+					stopAllEffects();
+					showEffect.play();
+				}
+			}
+
+			public function hide(now:Boolean=false):void {
+				if (isPopedUp) {
+					isPopedUp=false;
+					stopAllEffects();
+					if (now)
+						height=0;
+					else
+						hideEffect.play();
+				}
+			}
+
+			private function stopAllEffects():void {
+				hideEffect.stop();
+				showEffect.stop();
+			}
+		]]>
+	</fx:Script>
+	<s:Rect id="instructionBackground"
+			width="100%"
+			height="100%">
+		<s:fill>
+			<s:SolidColor color="{frameColor}"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup paddingBottom="5"
+			  paddingLeft="5"
+			  paddingRight="5"
+			  paddingTop="5"
+			  width="100%"
+			  clipAndEnableScrolling="true">
+		<s:Group id="mainContainer"
+				 width="100%">
+			<s:Rect width="100%"
+					height="100%"
+					radiusX="5"
+					radiusY="5">
+				<s:fill>
+					<s:SolidColor color="#FFFFFF"/>
+				</s:fill>
+			</s:Rect>
+			<s:RichText id="txtArea"
+						width="100%"
+						resize="{isPopedUp ? this.height = mainContainer.height + 10 : null;}"
+						verticalAlign="middle"
+						paddingBottom="{_padding + 5.0}"
+						paddingTop="{_padding + 5.0}"
+						paddingRight="{_padding + 5.0}"
+						paddingLeft="{_padding + 5.0}"
+						textFlow="{TextConverter.importToFlow(instruction, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+		</s:Group>
+	</s:VGroup>
+</s:Group>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model:RightClickAwareApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:model="itrain.common.model.*"
+			   xmlns:local="*"
+			   implements="itrain.lessonplayer.model.IStandAlonePlayer"
+			   preinitialize="onPreinitialize()">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.LessonModuleEvent;
+			import itrain.common.model.ILessonPlayerModule;
+			import itrain.common.utils.DataUtils;
+			import itrain.lessonplayer.model.IStandAlonePlayer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.http.HTTPService;
+			
+			private var arrayCollection:ArrayCollection;
+			private var httpService:HTTPService;
+			
+			private function onPreinitialize():void {
+				this.addEventListener(LessonModuleEvent.MODULE_CREATION_COMPLETE, onModuleCreationComplete);
+			}
+			
+			private function onModuleCreationComplete(e:LessonModuleEvent):void {
+				lessonPlayerModule.loadLesson(DataUtils.parseBoolean(parameters.interactive));
+			}
+			
+			public function get lessonPlayerModule():ILessonPlayerModule
+			{
+				return playerModule.child as ILessonPlayerModule;
+			}
+			
+			override protected function onRightClick():void {
+				var o:Object = getRightClickTarget();
+				if (o)
+					lessonPlayerModule.rightClick(getRightClickTarget());
+			}
+		]]>
+	</fx:Script>
+	<mx:ModuleLoader id="playerModule"
+					 url="{parameters.playerModuleURL}"
+					 loading="onLoading(event)"
+					 ready="onReady(event)"
+					 width="100%"
+					 height="100%"/>
+</model:RightClickAwareApplication>
+

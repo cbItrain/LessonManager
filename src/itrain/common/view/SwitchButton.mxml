@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="65"
+		 height="20"
+		 creationComplete="onInitialize()"
+		 mouseDown="onClick()">
+	<fx:Metadata>
+		[Event(name="change", type="flash.events.Event")] 
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[		
+			import mx.core.UIComponent;
+			[Bindable]
+			public var onLabel:String="ON";
+
+			[Bindable]
+			public var offLabel:String="OFF";
+
+			[Bindable]
+			private var _selected:Boolean=false;
+
+			[Bindable]
+			public var triggerButtonWidth:int=30;
+
+			public var animated:Boolean=true;
+
+			private var offFillColors:Array=[0xB6B6B6, 0xFEFEFE];
+			private var onFillColors:Array=[0x2A5BB2, 0x76ADFC];
+			private var fillAlphas:Array=[1.0, 1.0];
+			private var _cEnabled:Boolean = true;
+
+			[Bindable]
+			public function get cEnabled():Boolean {
+				return _cEnabled;
+			}
+			
+			public function set cEnabled(value:Boolean):void {
+				mouseChildren = mouseEnabled = _cEnabled = value;
+				alpha = _cEnabled ? 1.0 : .5;
+			}
+			
+			public function set selected(value:Boolean):void {
+				_selected=value;
+				positionButton();
+			}
+
+			[Bindable]
+			public function get selected():Boolean {
+				return _selected;
+			}
+
+			private function onInitialize():void {
+				//rightHalf.drawRoundRect(0, 0, rightHalf.width, rightHalf.height, 5, onFillColors, fillAlphas, verticalGradientMatrix(0, 0, rightHalf.width, rightHalf.height));
+				//leftHalf.drawRoundRect(0, 0, leftHalf.width, leftHalf.height, 5, offFillColors, fillAlphas, verticalGradientMatrix(0, 0, leftHalf.width, leftHalf.height));
+				if (_selected) {
+					objectMove.x=-grButton.x;
+				} else {
+					objectMove.x=0;
+				}
+				var mask:UIComponent=new UIComponent();
+				mask.drawRoundRect(0, 0, width, height + 1, 5, [0xFF0000, 0xFF0000], fillAlphas);
+				this.addElement(mask);
+				this.mask=mask;
+			}
+
+			private function onClick():void {
+				selected=!selected;
+				dispatchEvent(new Event("change"));
+			}
+
+			private function positionButton():void {
+				moveEffect.stop();
+				if (_selected)
+					moveEffect.play([objectMove], true);
+				else
+					moveEffect.play([objectMove]);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Move id="moveEffect"
+				xFrom="{-grButton.x}"
+				xTo="0"
+				duration="300"/>
+	</fx:Declarations>
+	<s:Group id="objectMove"
+			 height="100%">
+		<s:HGroup gap="0" height="100%" width="{2*width - triggerButtonWidth}">
+			<s:Group height="100%"
+					 width="50%"
+					 clipAndEnableScrolling="true">
+				<s:Rect width="100%"
+						height="100%"
+						topLeftRadiusX="5"
+						topLeftRadiusY="5"
+						bottomLeftRadiusX="5"
+						bottomLeftRadiusY="5">
+					<s:fill>
+						<s:LinearGradient rotation="90">
+							<s:GradientEntry color="0xB6B6B6"/>
+							<s:GradientEntry color="0xFEFEFE"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Label text="{offLabel}"
+						 verticalCenter="0"
+						 left="0"
+						 right="{triggerButtonWidth / 2}"
+						 verticalAlign="middle"
+						 textAlign="center"
+						 fontSize="11"
+						 paddingTop="1"
+						 fontWeight="bold"
+						 color="#2A5BB2"
+						 horizontalCenter="-5"/>
+			</s:Group>
+			<s:Group height="100%"
+					 width="50%"
+					 clipAndEnableScrolling="true">
+				<s:Rect width="100%"
+						height="100%"
+						topRightRadiusX="5"
+						topRightRadiusY="5"
+						bottomRightRadiusX="5"
+						bottomRightRadiusY="5">
+					<s:fill>
+						<s:LinearGradient rotation="90">
+							<s:GradientEntry color="0x2A5BB2"/>
+							<s:GradientEntry color="0x76ADFC"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Label text="{onLabel}"
+						 verticalCenter="0"
+						 right="0"
+						 left="{triggerButtonWidth / 2}"
+						 verticalAlign="middle"
+						 textAlign="center"
+						 fontSize="11"
+						 paddingTop="1"
+						 fontWeight="bold"
+						 color="#FFFFFF"
+						 horizontalCenter="5"/>
+			</s:Group>
+		</s:HGroup>
+		<s:Group id="grButton"
+				 top="0"
+				 bottom="0"
+				 horizontalCenter="0">
+			<s:Rect width="100%"
+					top="0"
+					bottom="0"
+					radiusX="5"
+					radiusY="5">
+				<s:fill>
+					<s:SolidColor color="0xFFFFFF"/>
+				</s:fill>
+			</s:Rect>
+			<s:Button width="{triggerButtonWidth}"
+					  top="0"
+					  bottom="0"
+					  cornerRadius="5"/>
+		</s:Group>
+	</s:Group>
+</s:Group>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 clipAndEnableScrolling="true"
+		 click="onMouseClick(event)">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+
+			private const OVER_STATE_TEXT_COLOR:uint = 0x0609CA;
+			private const NORMAL_STATE_TEXT_COLOR:uint = 0x0000FF;
+			
+			[Bindable]
+			public var showHideHandler:Function;
+			[Bindable]
+			public var continueHandler:Function;
+			[Bindable]
+			public var cornerRadius:Number=10.0;
+
+			[Bindable]
+			private var _isOver:Boolean;
+
+			private function onButtonClick(handler:Function):void {
+				if (handler != null) {
+					handler();
+				}
+			}
+
+			private function onMouseDown(me:MouseEvent):void {
+				me.stopImmediatePropagation();
+			}
+
+			private function onMouseClick(me:MouseEvent):void {
+				me.stopImmediatePropagation();
+			}
+		]]>
+	</fx:Script>
+	<s:Group buttonMode="true"
+			 useHandCursor="true"
+			 focusEnabled="false"
+			 toolTip="Continue"
+			 bottom="0"
+			 right="0"
+			 rollOut="{_isOver = false}"
+			 rollOver="{_isOver = true}"
+			 visible="{continueHandler != null}"
+			 includeInLayout="{continueHandler != null}"
+			 mouseDown="onMouseDown(event)"
+			 click="onButtonClick(continueHandler)">
+		<s:Label verticalAlign="middle"
+				 paddingBottom="10"
+				 paddingLeft="8"
+				 paddingRight="10"
+				 paddingTop="8"
+				 text="Click to continue »"
+				 color="0x000000"
+				 fontWeight="bold"/>
+	</s:Group>
+	<s:Group buttonMode="true"
+			 useHandCursor="true"
+			 toolTip="Minimize caption"
+			 focusEnabled="false"
+			 top="0"
+			 right="0"
+			 rollOut="{_isOver = false}"
+			 rollOver="{_isOver = true}"
+			 visible="{showHideHandler != null}"
+			 includeInLayout="{showHideHandler != null}"
+			 mouseDown="onMouseDown(event)"
+			 click="onButtonClick(showHideHandler)">
+		<s:HGroup verticalAlign="middle"
+				  paddingBottom="8"
+				  paddingLeft="8"
+				  paddingRight="8"
+				  paddingTop="8">
+			<s:Image id="btnShowHide"
+					 focusEnabled="false"
+					 source="{_isOver ? Embeded.MINIMIZE_ICON_DARK : Embeded.MINIMIZE_ICON_BRIGHT}"
+					 top="5"
+					 right="5"/>
+		</s:HGroup>
+	</s:Group>
+</s:Group>

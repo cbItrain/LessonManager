@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cv:HidableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:cv="itrain.common.view.*"
+                     xmlns:c="itrain.lessoneditor.view.components.*"
+                     width="250"
+                     height="100%"
+                     mouseEnabled="false"
+                     filters="{[Common.dropShadow]}"
+                     click="{event.stopImmediatePropagation()}"
+                     initialize="onInitialize()">
+    <fx:Declarations>
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import itrain.common.events.ModelEvent;
+            import itrain.common.model.vo.SlideVO;
+            import itrain.common.utils.Common;
+            import itrain.common.utils.Embeded;
+            import itrain.lessoneditor.events.EditorEvent;
+            import itrain.lessoneditor.model.EditorModel;
+            import itrain.lessoneditor.model.SlideListModel;
+            import itrain.lessoneditor.view.renderers.SlideItemRenderer;
+
+            import mx.collections.ArrayCollection;
+            import mx.events.DragEvent;
+            import mx.events.FlexEvent;
+            import mx.managers.DragManager;
+
+            import spark.components.supportClasses.ItemRenderer;
+            import spark.filters.DropShadowFilter;
+
+            [Inject]
+            [Bindable]
+            public var model:SlideListModel;
+
+            [Inject]
+            public var editorModel:EditorModel;
+
+            [Bindable]
+            public var enableTools:Boolean;
+
+            private var _arrowDown:Boolean=false;
+
+            private function onInitialize():void {
+                collapseRight=false;
+                parentApplication.addEventListener(MouseEvent.MOUSE_WHEEL, onApplicationMouseWheel);
+                parentApplication.addEventListener(FlexEvent.APPLICATION_COMPLETE, onApplicationComplete);
+            }
+
+            private function onApplicationComplete(fe:FlexEvent):void {
+                lstSlides.setFocus();
+            }
+
+            [PostConstruct]
+            public function onPostConstruct():void {
+                SlideItemRenderer.editorModel=editorModel;
+            }
+
+            public function hideClickHandler(event:Event):void {
+                event.stopImmediatePropagation();
+                playHideShow();
+            }
+
+            private function onEffectEnd():void {
+                this.percentHeight=100;
+            }
+
+            private function onDragComplete(e:DragEvent):void {
+                model.slides.refresh();
+                model.setSelectedAt(lstSlides.selectedIndex);
+
+                dispatchEvent(new EditorEvent(EditorEvent.ENABLE_PROPERTY_CHANGE_TRACKING, true));
+            }
+
+            private function onDragStart(e:DragEvent):void {
+                dispatchEvent(new EditorEvent(EditorEvent.DISABLE_PROPERTY_CHANGE_TRACKING, true));
+            }
+
+            [Mediate(event="ModelEvent.SLIDE_SELECTION_CHANGE")]
+            public function onSlideSelectionChange():void {
+                lstSlides.selectedItem=model.currentlySelected;
+                lstSlides.setFocus();
+
+                if (model.currentlySelectedIndex > -1) {
+                    callLater(function():void {
+                        lstSlides.ensureIndexIsVisible(model.currentlySelectedIndex);
+                    });
+                }
+                callLater(function():void {
+                    lstSlides.setFocus();
+                });
+            }
+
+            [Mediate(event="EditorEvent.SPELL_CHECK_COMPLETED")]
+            public function visibleAfterChange():void {
+                callLater(function():void {
+                    lstSlides.setFocus();
+                });
+            }
+
+            private function onKeyDown(e:KeyboardEvent):void {
+                if (e.keyCode == Keyboard.UP || e.keyCode == Keyboard.DOWN) {
+                    _arrowDown=true;
+                }
+            }
+
+            private function onKeyUp(e:KeyboardEvent):void {
+                if (_arrowDown && (e.keyCode == Keyboard.UP || e.keyCode == Keyboard.DOWN)) {
+                    _arrowDown=false;
+                    onListSelectionChange();
+                }
+            }
+
+            private function onListSelectionChange():void {
+                if (!_arrowDown)
+                    model.setSelectedAt(lstSlides.selectedIndex);
+            }
+
+            private function onApplicationMouseWheel(e:MouseEvent):void {
+                if (!e.ctrlKey) {
+                    var me:MouseEvent=new MouseEvent(MouseEvent.MOUSE_WHEEL, true, false, e.localX, e.localY, null, e.ctrlKey, e.altKey, e.shiftKey, e.buttonDown, e.delta);
+                    lstSlides.dataGroup.dispatchEvent(me);
+                }
+            }
+
+            protected function onListMouseWheel(event:MouseEvent):void {
+                event.stopImmediatePropagation();
+            }
+        ]]>
+    </fx:Script>
+    <s:Group width="100%"
+             height="100%">
+        <s:List id="lstSlides"
+                dataProvider="{model.slides}"
+                change="{onListSelectionChange()}"
+                selectedItem="{model.currentlySelected}"
+                keyDown="onKeyDown(event)"
+                keyUp="onKeyUp(event)"
+                mouseWheel="onListMouseWheel(event)"
+                itemRenderer="itrain.lessoneditor.view.renderers.SlideItemRenderer"
+                typicalItem="{{}}"
+                contentBackgroundColor="#CFDEF1"
+                dragComplete="onDragComplete(event)"
+                dragStart="onDragStart(event)"
+                dragEnabled="true"
+                dragMoveEnabled="true"
+                dropEnabled="true"
+                useVirtualLayout="true"
+                width="100%"
+                height="100%"/>
+    </s:Group>
+    <c:EditorToolbar id="toolbar"
+                     enableTools="{enableTools}"
+                     right="{-toolbar.width}"
+                     hideIcon="{this.x == 0 ? Embeded.RIGHT_ARROW : Embeded.LEFT_ARROW}"
+                     hideButtonClickHandler="{this.hideClickHandler}"/>
+</cv:HidableContainer>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="false"
+				width="35"
+				height="25"
+				buttonMode="true"
+				useHandCursor="true"
+				click="onClick()"
+				stateChangeComplete="{invalidateDisplayList()}">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.CaptionEvent;
+			import itrain.common.model.vo.CaptionVO;
+			import itrain.common.view.SpeechBubble;
+			import itrain.lessoneditor.utils.CaptionUtils;
+			import itrain.lessonplayer.model.PlayerModel;
+			
+			public static var oldStyleCaption:Boolean = true;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				graphics.clear();
+				if (data) {
+					var c:CaptionVO = data as CaptionVO;
+					var bubbleDetails:Object = CaptionUtils.getBubbleDetails(c, this.width, this.height);
+					CaptionUtils.drawSpeachBubble(this, this.width, this.height, data as CaptionVO, oldStyleCaption, false, currentState == "hovered");
+				}
+			}
+			
+			private function onClick():void {
+				var e:CaptionEvent = new CaptionEvent(CaptionEvent.MAXIMIZE_CAPTION, true);
+				e.data = data;
+				dispatchEvent(e);
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+	</s:states>
+</s:ItemRenderer>

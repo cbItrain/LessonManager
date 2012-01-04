@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:view="itrain.lessonplayer.view.*"
+         xmlns:components="itrain.lessonplayer.view.components.*"
+         initialize="onInitialize()">
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <fx:Script>
+        <![CDATA[
+            import flash.utils.clearTimeout;
+            import flash.utils.setTimeout;
+
+            import itrain.common.events.CaptionEvent;
+            import itrain.common.events.ModelEvent;
+            import itrain.common.model.vo.CaptionVO;
+            import itrain.common.utils.graphics.ImageUtils;
+            import itrain.common.view.stageobjects.StageCaption;
+            import itrain.lessonplayer.model.PlayerModel;
+            import itrain.lessonplayer.view.elements.Caption;
+
+            import mx.core.UIComponent;
+            import mx.events.ResizeEvent;
+
+            [Inject]
+            [Bindable]
+            public var model:PlayerModel;
+
+            [Bindable]
+            public var realHeight:Number=0;
+
+            [Bindable]
+            public var realWidth:Number=0;
+
+            private var _resizeImageTimeout:uint;
+            private var _updateDelayTimeout:uint;
+
+
+            private function onInitialize():void {
+                captionLayer.addEventListener(CaptionEvent.MINIMIZE_CAPTION, onMinimizeCaption);
+                captionLayer.addEventListener(CaptionEvent.CAPTION_MINIMIZED, onCaptionMinimized);
+                captionLayer.addEventListener(Event.REMOVED, onInteractivePanelItemRemove);
+                minCaptionsPanel.addEventListener(CaptionEvent.MAXIMIZE_CAPTION, onMaximizeCaption);
+            }
+
+            [Mediate(event="ModelEvent.LESSON_READY")]
+            public function onLessonReady():void {
+                parentApplication.removeEventListener(ResizeEvent.RESIZE, onResize);
+                if (model.allowScale)
+                    parentApplication.addEventListener(ResizeEvent.RESIZE, onResize);
+            }
+
+            [Mediate(event="ModelEvent.SLIDE_IMAGE_READY")]
+            public function onImageLoaded(e:ModelEvent=null):void {
+                onResize();
+            }
+
+
+            [Mediate(event="ModelEvent.SLIDE_IMAGE_NOT_AVAILABLE")]
+            public function onImageNotAvailable(e:ModelEvent=null):void {
+                backgroundImage.visible=true;
+                imgScaled.visible=imgScaled.includeInLayout=false;
+            }
+
+            private function onResize(e:ResizeEvent=null):void {
+                if (e) {
+                    backgroundImage.visible=true;
+                    imgScaled.visible=imgScaled.includeInLayout=false;
+                }
+
+                var ratio:Number=Math.min(realHeight / container.height, realWidth / container.width);
+                if (ratio > 1.0) {
+                    ratio=1.0;
+                }
+                container.scaleX=container.scaleY=ratio;
+
+                cursorLayer.width=interactiveLayer.width * ratio;
+                cursorLayer.height=interactiveLayer.height * ratio;
+                captionLayerWrapper.scaleX=captionLayerWrapper.scaleY=cursorLayer.scale=ratio;
+
+                clearTimeout(_resizeImageTimeout);
+                if (ratio < 1.0) {
+                    _resizeImageTimeout=setTimeout(function():void {
+                        if (model) {
+                            if (backgroundImage) {
+                                var bd:BitmapData=ImageUtils.resizeImage(backgroundImage.bitmapData, backgroundImage.bitmapData.width * ratio, backgroundImage.bitmapData.height * ratio);
+                                imgScaled.source=new Bitmap(bd);
+                                backgroundImage.visible=false;
+                                imgScaled.visible=imgScaled.includeInLayout=true;
+                                model.loadingImage=false;
+                            } else {
+                                backgroundImage.visible=true;
+                                imgScaled.visible=imgScaled.includeInLayout=false;
+                            }
+                        }
+                    }, 30);
+                }
+            }
+
+            //---------------------Minimizing functionality-------------------------
+
+            private function onMinimizeCaption(ce:CaptionEvent):void {
+                captionLayer.hideCaption(ce.target as StageCaption, new Point(minCaptionsPanel.width, interactiveLayer.height));
+            }
+
+            private function onCaptionMinimized(ce:CaptionEvent):void {
+                minCaptionsPanel.addToMinimized((ce.target as StageCaption).model as CaptionVO);
+            }
+
+            private function onMaximizeCaption(ce:CaptionEvent):void {
+                captionLayer.showCaption(ce.data as CaptionVO, new Point((ce.target as UIComponent).x, interactiveLayer.height - minCaptionsPanel.height));
+                minCaptionsPanel.removeFromMinimized(ce.data as CaptionVO);
+            }
+
+            private function onInteractivePanelItemRemove(e:Event):void {
+                if (e.target is StageCaption) {
+                    minCaptionsPanel.removeFromMinimized((e.target as StageCaption).model as CaptionVO);
+                }
+            }
+        ]]>
+    </fx:Script>
+    <s:Image id="imgScaled"/>
+    <s:Group id="container"
+             resize="onResize()">
+        <view:BackgroundImage id="backgroundImage"/>
+        <view:InteractivePane id="interactiveLayer"
+                              width="{backgroundImage.width}"
+                              height="{backgroundImage.height}"
+                              cursorLayer="{cursorLayer}"
+                              captionLayer="{captionLayer}"/>
+        <components:MinimizedItems id="minCaptionsPanel"
+                                   width="100%"
+                                   height="50"
+                                   bottom="0"/>
+        <mx:SWFLoader source="@Embed('assets/preloader.swf')"
+                      id="loaderGraphic"
+                      visible="{model.loadingImage}"
+                      x="{this.width/2 - loaderGraphic.width/2}"
+                      y="{this.height/2 - loaderGraphic.height/2}"/>
+    </s:Group>
+    <components:CursorLayer id="cursorLayer"/>
+    <s:Group id="captionLayerWrapper"
+             width="{container.width}"
+             height="{container.height}">
+        <components:CaptionLayer id="captionLayer"
+                                 width="100%"
+                                 height="100%"/>
+    </s:Group>
+</s:Group>

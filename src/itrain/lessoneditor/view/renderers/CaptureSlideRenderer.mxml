@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false"
+				width="250"
+				height="250"
+				preinitialize="onPreInitialize()"
+				doubleClickEnabled="true"
+				doubleClick="onDoubleClick()"
+				initialize="onInitailize()">
+
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.setTimeout;
+			
+			import itrain.common.events.CaptureImporterEvent;
+			import itrain.common.events.ImageRepositoryEvent;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.common.view.stageobjects.StageHotspot;
+			import itrain.lessoneditor.model.SlideCaptureVO;
+			
+			import mx.controls.SWFLoader;
+
+			public static const ITEM_DOUBLE_CLICKED:String = "CaptureSlideRendererItemDoubleClicked";
+			
+			public static var imageRepository:ImageRepository=ImageRepository.getInstance();
+			public static const padding:int=5;
+
+			[Bindable]
+			public static var showObjects:Boolean=true;
+
+			[Dispatcher]
+			public var dispatcher:IEventDispatcher;
+
+			[Bindable]
+			private var _scale:Number=1.0;
+
+			private var _loaderGraphic:SWFLoader;
+			
+			private function onPreInitialize():void {
+				_loaderGraphic=new SWFLoader();
+				_loaderGraphic.width=80;
+				_loaderGraphic.height=80;
+				_loaderGraphic.source=ImageRepository.loaderSpinner;
+			}
+			
+			override public function set data(value:Object):void {
+				if (super.data != value) {
+					super.data=value;
+					if (value is SlideCaptureVO) {
+						var slide:SlideCaptureVO=value as SlideCaptureVO;
+						var bitmapData:BitmapData=imageRepository.imageData(slide.source, false, imgSlide);
+						showLoader();
+						notAvailableContainer.visible=false;
+						updateHolder(slide);
+						if (bitmapData) {
+							if (ImageRepository.isBitmapAvailable(bitmapData)) {
+								updateSource(bitmapData);
+								hideLoader();
+							} else {
+								onImageNotUpdated();
+							}
+						}
+					}
+				}
+			}
+
+			private function updateHolder(slide:SlideCaptureVO):void {
+				holder.visible=true;
+				holder.removeAllElements();
+				if (slide.hotspot) {
+					var tf:StageHotspot=new StageHotspot(slide.hotspot);
+					holder.addElement(tf);
+				}
+			}
+
+			private function showLoader():void {
+				imgSlide.visible=false;
+				loaderContainer.visible = true;
+				loaderContainer.addElement(_loaderGraphic);
+			}
+
+			private function hideLoader():void {
+				loaderContainer.visible = false;
+				loaderContainer.removeAllElements();
+				imgSlide.visible=true;
+			}
+
+			private function onImageUpdated(e:ImageRepositoryEvent):void {
+				hideLoader();
+				setScale(e.bitmapData);
+			}
+
+			private function updateSource(bd:BitmapData):void {
+				imgSlide.source=new Bitmap(bd);
+				setScale(bd);
+			}
+
+			private function setScale(bd:BitmapData):void {
+				_scale=Math.min(container.height / bd.height, container.width / bd.width);
+				holderWrapper.width=_scale * bd.width;
+				holderWrapper.height=_scale * bd.height;
+			}
+
+			private function onInitailize():void {
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated);
+			}
+
+			private function onImageNotUpdated(e:Event=null):void {
+				imgSlide.source=null;
+				holder.visible=false;
+				notAvailableContainer.visible=true;
+
+				loaderContainer.visible = false;
+				loaderContainer.removeAllElements();
+			}
+
+			private function onCheckboxSelectionChange():void {
+				data.selected=cbxSelected.selected;
+
+				var cie:CaptureImporterEvent=new CaptureImporterEvent(CaptureImporterEvent.IMPORT_SELECTION_CHANGED, true);
+				cie.additionalData=data;
+				dispatcher.dispatchEvent(cie);
+			}
+			
+			private function onDoubleClick():void {
+				dispatchEvent(new Event(ITEM_DOUBLE_CLICKED,true));
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+	<s:Group width="100%"
+			 height="100%"
+			 clipAndEnableScrolling="true">
+		<s:Rect width="100%"
+				height="100%"
+				radiusX="5"
+				radiusY="5">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCFDEF1"
+									weight="1"/>
+			</s:stroke>
+		</s:Rect>
+		<s:Rect width="100%"
+				height="100%"
+				radiusX="5"
+				radiusY="5"
+				alpha.normal="0.0"
+				alpha.selected="1.0"
+				alpha.hovered="0.5">
+			<s:fill>
+				<s:LinearGradient rotation="90">
+					<s:entries>
+						<s:GradientEntry color="#428CCF"/>
+						<s:GradientEntry color="#0660C9"/>
+					</s:entries>
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+		<s:VGroup width="100%"
+				  height="100%"
+				  paddingBottom="{padding}"
+				  paddingLeft="{padding}"
+				  paddingTop="{padding}"
+				  paddingRight="{padding}">
+			<s:Group id="container"
+					 width="100%"
+					 height="100%"
+					 clipAndEnableScrolling="true">
+				<s:VGroup id="loaderContainer"
+						  width="100%"
+						  height="100%"
+						  visible="true"
+						  verticalAlign="middle"
+						  horizontalAlign="center">
+				</s:VGroup>
+				<s:Image id="imgSlide"
+						 width="100%"
+						 height="100%"
+						 verticalAlign="middle"
+						 horizontalAlign="center"
+						 visible="{!loaderContainer.visible}"
+						 fillMode="scale"
+						 scaleMode="letterbox"
+						 filters="{[Common.dropShadow]}"/>
+				<s:VGroup width="100%"
+						  height="100%"
+						  horizontalAlign="center"
+						  verticalAlign="middle"
+						  visible="{!loaderContainer.visible &amp;&amp; showObjects}">
+					<s:Group id="holderWrapper">
+						<s:Group id="holder"
+								 width="100%"
+								 height="100%"
+								 scaleX="{_scale}"
+								 scaleY="{_scale}"
+								 clipAndEnableScrolling="true"
+								 mouseChildren="false"/>
+					</s:Group>
+				</s:VGroup>
+				<s:CheckBox id="cbxSelected"
+							selected="{data.selected}"
+							bottom="0"
+							right="0"
+							mouseDown="{event.stopImmediatePropagation()}"
+							change="onCheckboxSelectionChange()"/>
+				<s:Group id="notAvailableContainer"
+						 horizontalCenter="0"
+						 verticalCenter="0">
+					<s:VGroup horizontalAlign="center">
+						<s:Image source="{Embeded.BROKEN_IMAGE}"
+								 width="60"
+								 height="80"
+								 fillMode="scale"
+								 scaleMode="letterbox"
+								 smooth="false"/>
+						<s:Label text="Image not available"
+								 fontWeight="bold"/>
+					</s:VGroup>
+				</s:Group>
+			</s:Group>
+		</s:VGroup>
+		<s:Group left="1"
+				 bottom="1">
+			<s:Rect width="100%"
+					height="100%"
+					topRightRadiusX="5"
+					topRightRadiusY="5"
+					bottomLeftRadiusX="5"
+					bottomLeftRadiusY="5">
+				<s:fill>
+					<s:SolidColor color="0x111111"
+								  alpha=".7"/>
+				</s:fill>
+			</s:Rect>
+			<s:VGroup paddingBottom="5"
+					  paddingTop="5"
+					  paddingLeft="10"
+					  paddingRight="10">
+				<s:Label id="lblSlideIndex"
+						 text="{this.itemIndex + 1}"
+						 styleName="slideRendererIndexLabel"/>
+			</s:VGroup>
+		</s:Group>
+	</s:Group>
+</s:ItemRenderer>

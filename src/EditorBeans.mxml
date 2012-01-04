@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<swiz:BeanProvider xmlns:swiz="http://swiz.swizframework.org"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:controlCommon="itrain.common.control.*" 
+				   xmlns:modelCommon="itrain.common.model.*" 
+				   xmlns:model="itrain.lessoneditor.model.*">
+	<fx:Script>
+		<![CDATA[
+			import itrain.lessoneditor.model.CaptureImportModel;
+			import itrain.lessoneditor.model.EditPanelModel;
+			import itrain.lessoneditor.model.SlideListModel;
+			import itrain.lessoneditor.model.SlidePropertiesModel;
+		]]>
+	</fx:Script>
+	<controlCommon:LessonLoader id="lessonLoader"/>
+	<controlCommon:LessonConverter id="lessonConverter"/>
+	<controlCommon:ImageLoadingPolicy id="imagePolicy"/>
+	<model:CaptureLoader id="captureLoader"/>
+	<model:EditorModel id="model" />
+	<model:UndoRedoBean id="undoRedoBean" />
+	<model:CaptureImportModel id="captureModel"/>
+	<model:SlideListModel id="slideListModel"/>
+	<model:EditPanelModel id="editPanelModel"/>
+	<model:SlidePropertiesModel id="slidePropertiesModel"/>
+	<model:MessageBean id="messageBean"/>
+</swiz:BeanProvider>

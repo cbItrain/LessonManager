@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="onClose()"
+			   resize="onResize()"
+			   height="{parentApplication.height}"
+			   width="{parentApplication.width}"
+			   alpha="0.0"
+			   backgroundAlpha=".9"
+			   title="Preview - {_interactive ? 'Try It' : 'Watch It'}"
+			   preinitialize="onPreinitialize()"
+			   creationComplete="onCreationComplete()"
+			   skinClass="itrain.lessoneditor.view.skins.PlayerPopupSkin">
+	<fx:Declarations>
+		<s:Fade id="showEffect"
+				duration="400"
+				alphaFrom="0.0"
+				alphaTo="1.0"
+				target="{this}"
+				effectEnd="showEffectEnd()"/>
+		<s:Fade id="hideEffect"
+				duration="400"
+				alphaFrom="1.0"
+				alphaTo="0.0"
+				effectEnd="hideEffectEnd()"
+				target="{this}"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.events.LessonModuleEvent;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.ILessonPlayerModule;
+			import itrain.common.model.ImageRepository;
+			import itrain.common.model.vo.LessonVO;
+			import itrain.common.model.vo.SlideVO;
+			
+			import mx.managers.BrowserManager;
+			import mx.managers.IBrowserManager;
+			import mx.managers.PopUpManager;
+			
+			import spark.components.Button;
+			import spark.components.Label;
+
+			public static const EDITOR_FRAGMENT:String = "Editor";
+			
+			
+			[Bindable]
+			public var headerCheckboxLabel:String="Developer Mode";
+
+			[Bindable]
+			public var lesson:LessonVO;
+			
+			[Bindable]
+			public var slideIndex:int;
+
+			private var _repository:ImageRepository=ImageRepository.getInstance();
+			private var _headerCheckboxSelected:Boolean=false;
+			private var _isPoppedUp:Boolean=false;
+			
+			[SkinPart]
+			public var btnNext:Button;
+			[SkinPart]
+			public var btnPrevious:Button;
+			[SkinPart]
+			public var btnReset:Button;
+			
+			[SkinPart]
+			public var lblSelectionText:Label;
+
+			[Bindable]
+			private var _interactive:Boolean;
+
+			private static var bm:IBrowserManager = BrowserManager.getInstance();
+			
+			[Bindable]
+			public function get headerCheckboxSelected():Boolean {
+				return _headerCheckboxSelected;
+			}
+
+			public function set headerCheckboxSelected(value:Boolean):void {
+				_headerCheckboxSelected=value;
+
+				updateModuleDeveloperMode();
+			}
+
+			private function onCreationComplete():void {
+				btnNext.addEventListener(MouseEvent.CLICK, onNextClick);
+				btnPrevious.addEventListener(MouseEvent.CLICK, onPreviousClick);
+				btnReset.addEventListener(MouseEvent.CLICK, onResetClick);
+			}
+			
+			private function onNextClick(me:MouseEvent):void {
+				btnNext.enabled = lessonPlayer.next();
+				btnPrevious.enabled = lessonPlayer.previousEnabled();
+			}
+			
+			private function onPreviousClick(me:MouseEvent):void {
+				btnPrevious.enabled = lessonPlayer.previous();
+				btnNext.enabled = lessonPlayer.nextEnabled();
+			}
+			
+			private function onResetClick(me:MouseEvent):void {
+				if (lessonPlayer)
+					lessonPlayer.resetLesson();
+			}
+			
+			private function updateModuleDeveloperMode():void {
+				if (lessonPlayer) {
+					lessonPlayer.developerMode=_headerCheckboxSelected;
+				}
+			}
+
+			private function hideEffectEnd():void {
+				lessonPlayer.beforeUnload();
+
+				PopUpManager.removePopUp(this);
+				playerModule.url=null;
+				loaderContainer.visible=true;
+				_isPoppedUp=false;
+			}
+
+			private function onClose(register:Boolean = true):void {
+				parentApplication.removeEventListener(ResizeEvent.RESIZE, onResizeEvent);
+				
+				if (showEffect.isPlaying)
+					showEffect.stop();
+				if (!hideEffect.isPlaying) {
+					hideEffect.play();
+				}
+				if (register)
+					bm.setFragment(EDITOR_FRAGMENT);
+			}
+			
+			public function hide():void {
+				if (_isPoppedUp)
+					onClose(false);
+			}
+
+			public function show(parent:DisplayObject, interactive:Boolean=false):void {
+				if (!_isPoppedUp) {
+					_isPoppedUp=true;
+					_interactive=interactive;
+
+					PopUpManager.addPopUp(this, parent, true);
+
+					//setSize();
+
+					PopUpManager.centerPopUp(this);
+
+					if (hideEffect.isPlaying)
+						hideEffect.stop();
+					if (!showEffect.isPlaying) {
+						showEffect.play();
+					}
+					
+					parentApplication.addEventListener(ResizeEvent.RESIZE, onResizeEvent);
+					
+					bm.setFragment((interactive ? "1" : "0") + "_" + slideIndex);
+				}
+			}
+			
+			private function onResizeEvent(e:Event):void {
+				callLater(centerPopUp);
+			}
+			
+			private function centerPopUp():void {
+				PopUpManager.centerPopUp(this);
+			}
+
+			private function showEffectEnd():void {
+				playerModule.url=parentApplication.parameters.playerModuleURL;
+			}
+
+			private function onResize():void {
+				this.x=(parentApplication.width - this.width) / 2.0;
+				this.y=(parentApplication.height - this.height) / 2.0;
+			}
+
+			private function onPreinitialize():void {
+				this.addEventListener(LessonModuleEvent.MODULE_CREATION_COMPLETE, onModuleCreationComplete);
+			}
+
+			private function onModuleCreationComplete(e:LessonModuleEvent):void {
+				playerModule.addEventListener(ModelEvent.SLIDE_IMAGE_READY, onSlideChanges);
+				
+				lessonPlayer.playLesson(lesson, _interactive, _headerCheckboxSelected, slideIndex);
+				loaderContainer.visible=false;
+				callLater(function ():void {
+					btnNext.enabled = lessonPlayer.nextEnabled();
+					btnPrevious.enabled = lessonPlayer.previousEnabled();
+				});
+			}
+			
+			private function onSlideChanges(me:ModelEvent):void {
+				callLater(function():void {
+					lblSelectionText.text = lessonPlayer.getSlideSelectionLabel();
+				});
+			}
+
+			private function get lessonPlayer():ILessonPlayerModule {
+				return playerModule.child as ILessonPlayerModule;
+			}
+			
+			public function rightClick(target:Object):void {
+				if (_isPoppedUp && !loaderContainer.visible)
+					lessonPlayer.rightClick(target);
+					
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="100%">
+		<s:VGroup id="loaderContainer"
+				  visible="true"
+				  verticalAlign="middle"
+				  horizontalAlign="center"
+				  width="100%"
+				  height="100%">
+			<mx:SWFLoader id="loaderGraphic"
+						  source="{ImageRepository.loaderSpinner}"
+						  width="80"
+						  height="80"/>
+		</s:VGroup>
+		<s:VGroup id="moduleContainer"
+				  paddingBottom="5"
+				  paddingTop="5"
+				  paddingLeft="5"
+				  paddingRight="5"
+				  width="100%"
+				  height="100%"
+				  horizontalAlign="center"
+				  verticalAlign="middle" clipAndEnableScrolling="true">
+				<s:ModuleLoader id="playerModule" height="{moduleContainer.height - 20}" width="{moduleContainer.width - 10}"/>
+		</s:VGroup>
+	</s:Group>
+</s:TitleWindow>
