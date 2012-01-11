@@ -28,7 +28,7 @@ package itrain.common.view.stageobjects
 	
 	public class StageTextArea extends TextArea implements IStageObject
 	{
-		private static var MARKER_BITMAP_DATA:BitmapData = getMarkerBitmapData();
+		//private static var MARKER_BITMAP_DATA:BitmapData = getMarkerBitmapData();
 		private static var MARKER_COLOR:uint =0xFFD400;
 		
 		[Bindable]
@@ -39,10 +39,6 @@ package itrain.common.view.stageobjects
 		private var _endHandler:Function;
 		private var _editable:Boolean;
 		private var _showMarker:Boolean = true;
-		
-		private static function getMarkerBitmapData():BitmapData {
-			return ((new (Embeded.TEXT_AREA_STRIPE_BACKGROUND)()) as Bitmap).bitmapData;
-		}
 		
 		public function stop():void {
 			_endHandler = null;
@@ -64,6 +60,8 @@ package itrain.common.view.stageobjects
 			
 			this.addEventListener(MouseEvent.CLICK, onMouseClick);
 			this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			
+			this.focusEnabled = false;
 			
 			bindProperty();
 		}

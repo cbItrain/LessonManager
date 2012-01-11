@@ -92,9 +92,6 @@ package itrain.common.utils
 		[Bindable] [Embed(source='assets/doubleMouseButton.png')]
 		public static var DOUBLE_MOUSE_BUTTON:Class;
 		
-		[Bindable] [Embed(source='assets/textAreaStripeBackground.png')]
-		public static var TEXT_AREA_STRIPE_BACKGROUND:Class;
-		
 		[Bindable] [Embed(source="assets/pointer1.png")]
 		public static var POINTER_CURSOR:Class;
 		

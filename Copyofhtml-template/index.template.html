@@ -22,7 +22,7 @@
         -->
         <style type="text/css" media="screen"> 
             html, body  { height:100%; }
-            body { margin:0; padding:0; overflow:auto; text-align:center; 
+            body { margin:0; padding:0; overflow:visible; text-align:center; 
                    background-color: ${bgcolor}; }   
             object:focus { outline:none; }
             #flashContent { display:none; }
@@ -33,55 +33,186 @@
         <link rel="stylesheet" type="text/css" href="history/history.css" />
         <script type="text/javascript" src="history/history.js"></script>
         <!${useBrowserHistory} END Browser History required section -->  
-            
-        <script type="text/javascript" src="swfobject.js"></script>
+        <script src="rightClick.js" type="text/javascript"></script>    
+        <script src="jquery-1.5.min.js" type="text/javascript"></script> 
+        <script type="text/javascript" src="swfobject.js"></script>  
+        <script type="text/javascript" src="spin.min.js"></script>
+        <script type="text/javascript" src="flash_detect_min.js"></script>
         <script type="text/javascript">
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
             var swfVersionStr = "${version_major}.${version_minor}.${version_revision}";
             // To use express install, set to playerProductInstall.swf, otherwise the empty string. 
-            var xiSwfUrlStr = "${expressInstallSwf}";
-            var flashvars = {"lessonId":"1", 
+            var xiSwfUrlStr = "${expressInstallSwf}";          
+            
+            function interceptRightClick() {
+              RightClick.init();
+              console.log("intercepting");
+            }
+            
+            function uninterceptRightClick() {
+              RightClick.UnInit();
+              console.log("unintercepting");
+            }
+            
+            function myDispatcher(name, params) {
+            	console.log(name + " " + params);
+            }
+            
+            var playerInstance = null;
+            
+            //window.onresize = onWindowResize;
+            
+            function onWindowResize() {
+            	var windowSize = window.innerWidth + "x" + window.innerHeight; 
+            	var $div = $("#flashDiv");
+            	var divSize = $div.width() + "x" + $div.height();
+            	var $flash = $("#lessonSWF");
+            	var flashSize = $flash.width() + "x" + $flash.height();
+				console.log(windowSize + "  " + divSize + "  " + flashSize);
+			}
+            
+            function getLessonPlayer() {
+		          if (playerInstance == null) {
+		            if (navigator.appName.indexOf("Microsoft") != -1) {
+		                playerInstance = window["lessonSWF"];
+		            } else {
+		                playerInstance = document["lessonSWF"];
+		            }
+		          }
+		          return playerInstance;
+			}
+			
+			var opts = {
+  				lines: 12, // The number of lines to draw
+			    length: 7, // The length of each line
+			    width: 4, // The line thickness
+			    radius: 10, // The radius of the inner circle
+			    color: '#000', // #rgb or #rrggbb
+			    speed: 1, // Rounds per second
+			    trail: 60, // Afterglow percentage
+			    shadow: false // Whether to render a shadow
+			};
+			
+			$.fn.spin = function(opts) {
+  				this.each(function() {
+	    			var $this = $(this),
+	        		data = $this.data();
+	
+	    			if (data.spinner) {
+		      			data.spinner.stop();
+		      			delete data.spinner;
+				    }
+				    if (opts !== false) {
+				      data.spinner = new Spinner($.extend({color: $this.css('color')}, opts)).spin(this);
+				    }
+			  	});
+			  return this;
+			};
+			
+			var $loadInformer;
+			
+			$(function(){
+				$loadInformer = $("#loadInformer");
+				$loadInformer.spin(opts);
+			});
+			
+			function moduleLoadPrgress(msg) {
+				if (msg == "end") {
+					$loadInformer.remove();
+				}
+			}
+			
+			window.onbeforeunload = function () {
+				var response = getLessonPlayer().beforeFlashUnload();
+				if (!response) {
+					return false;
+				}
+			}
+            
+            var flashvars = {"lessonId":"1260", 
+            				 "companyId" : "111",
             				 "developerMode":"true", 
-            				 "getLessonURL":"assets/xmlservices.getLesson", 
-            				 "saveLessonURL":"",
+            				 //"getLessonURL":"http://luke.stratus.itrain.co.uk/pls/services.getLesson", 
+            				 "getLessonURL":"http://ea.stratus.itrain.co.uk/pls/services.getLesson",
+            				 //"saveLessonURL":"http://luke.stratus.itrain.co.uk/pls/services.setLessonStream", 
+            				 "saveLessonURL":"assets/empty.xml", 
             				 "editorModuleURL": "LessonEditorModule.swf",
             				 "playerModuleURL": "LessonPlayerModule.swf",
-            				 "captureListURL": "assets/captureList.xml",
+            				 "captureListURL":"assets/captureList.xml",
+            				 //"captureListURL": "http://luke.stratus.itrain.co.uk/pls/services.getCapturesXML",
+            				 "newCaptureURL": "http://luke.stratus.itrain.co.uk/elearning/launch125.jnlp",
+            				 "moduleLoadInformer":"moduleLoadPrgress",
+            				 "spellConfigUrl" : "AdobeSpellingConfig.xml",
+            				 "loadContentFunction" : "loadLesson",
+            				 "beforeUnloadFunction" : "beforeFlashUnload",
+                             "dispatcherName" : "myDispatcher",
+                             "resetLessonFunction" : "resetLesson",
+                             "themeColor" : "",
             				 "published":"0", 
+            				 "showToolBar" : "true",
+            				 "allowScale":"true",
+            				 "maxImages" : "5",
+            				 "emptyLessonMsg": "There is no content for this page.",
             				 "interactive":"false"};
+            				 
             var params = {};
-            params.quality = "high";
+            params.quality = "best";
             params.bgcolor = "${bgcolor}";
+            params.wmode = "direct";
             params.allowscriptaccess = "sameDomain";
             params.allowfullscreen = "true";
             var attributes = {};
-            attributes.id = "${application}";
-            attributes.name = "${application}";
+            attributes.id = "lessonSWF";
+            attributes.name = "lessonSWF";
             attributes.align = "middle";
             swfobject.embedSWF(
                 "${swf}.swf", "flashContent", 
                 "${width}", "${height}", 
-                swfVersionStr, xiSwfUrlStr, 
+                swfVersionStr, null, 
                 flashvars, params, attributes);
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
             swfobject.createCSS("#flashContent", "display:block;text-align:left;");
         </script>
     </head>
-    <body>
+    <body style="margin:0px;padding:0px;">
         <!-- SWFObject's dynamic embed method replaces this alternative HTML content with Flash content when enough 
              JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
              when JavaScript is disabled.
         -->
-        <div id="flashContent">
+        <div id="loadInformer" style="position:absolute;top:50%;left:50%;">
+    	</div>
+        <div id="flashDiv" style="width:100%;height:100%;">
+        <div id="flashContent" style="width:100%;height:100%;">
+        	<div style="background-color:#F8F8FF;width:100%;height:100%;position:absolute;font-family:'Lucida Grande',Helvetica,Arial,'Free Sans',sans-serif;padding:10px;">
             <p>
-                To view this page ensure that Adobe Flash Player version 
-                ${version_major}.${version_minor}.${version_revision} or greater is installed. 
+            	<h3>Adobe Flash Player required!</h3>
+            </p>
+            <p>
+            	<script type="text/javascript"> 
+            	var message;
+                if (FlashDetect.installed) {
+           			message = "Your version of the Adobe Flash Player is <b>" + FlashDetect.major + "." +FlashDetect.minor + ".r" + FlashDetect.revision + "<b/>";
+                } else {
+                	message = "Adobe Flash Player plugin is not installed in this browser"
+                }
+                message += ".<br/>";
+                document.write(message); 
+            	</script>
+                To view this content, the minimum required version of the plugin is <b>${version_major}.${version_minor}.${version_revision}</b>.<br/>
+                Please, click the following button to install the newest Adobe Flash Player.
             </p>
             <script type="text/javascript"> 
                 var pageHost = ((document.location.protocol == "https:") ? "https://" : "http://"); 
-                document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='" 
-                                + pageHost + "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
+                document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='assets/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
             </script> 
+            <p>
+            	In case you have no privilages to install a new software on this machine,
+                please contact the administrator of this computer for further assistance.
+            <p/>
+            <script type="text/javascript"> 
+                document.write("<a href='javascript:history.back(-1);'>Go back</a>" ); 
+            </script> 
+            </div>
         </div>
         
         <noscript>
@@ -111,6 +242,6 @@
                 </object>
                 <!--<![endif]-->
             </object>
-        </noscript>     
+        </noscript></div>     
    </body>
 </html>
