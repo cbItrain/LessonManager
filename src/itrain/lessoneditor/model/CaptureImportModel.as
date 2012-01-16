@@ -1,22 +1,24 @@
-package itrain.lessoneditor.model {
+package itrain.lessoneditor.model
+{
 	import flash.events.IEventDispatcher;
-	
+
 	import itrain.common.events.CaptureImporterEvent;
 	import itrain.common.events.CaptureLoaderEvent;
 	import itrain.common.model.ImageRepository;
 	import itrain.lessoneditor.events.EditorEvent;
 	import itrain.lessoneditor.view.renderers.CaptureSlideRenderer;
-	
+
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	import mx.events.CollectionEvent;
 	import mx.events.CollectionEventKind;
 	import mx.utils.ObjectUtil;
-	
+
 	import spark.collections.Sort;
 	import spark.collections.SortField;
 
-	public class CaptureImportModel implements IImportModel {
+	public class CaptureImportModel implements IImportModel
+	{
 		private var _captures:ArrayCollection;
 		private var _captureSlides:ArrayCollection;
 		private var _captureSort:Sort;
@@ -44,56 +46,72 @@ package itrain.lessoneditor.model {
 		[Bindable]
 		public var loadingCaptureList:Boolean=false
 
-		public function CaptureImportModel() {
+		public function CaptureImportModel()
+		{
 			imageImportOnly=false;
 			_lessonId=Number(FlexGlobals.topLevelApplication.parameters.lessonId);
-			
-			_captureSort = new Sort();
-			_captureSort.fields = [new SortField(null, true)];
-			_captureSort.compareFunction = dateCompareFunction;
+
+			_captureSort=new Sort();
+			_captureSort.fields=[new SortField(null, true)];
+			_captureSort.compareFunction=dateCompareFunction;
 		}
 
 		[Bindable]
-		public function get captures():ArrayCollection {
-			if (!_captures) {
+		public function get captures():ArrayCollection
+		{
+			if (!_captures)
+			{
 				_captures=new ArrayCollection();
 				loadCaptures();
 			}
 			return _captures;
 		}
 
-		public function set captures(value:ArrayCollection):void {
+		public function set captures(value:ArrayCollection):void
+		{
 			_captures=value;
 		}
 
 		[Bindable]
-		public function get captureSlides():ArrayCollection {
-			if (selectedCapture) {
+		public function get captureSlides():ArrayCollection
+		{
+			if (selectedCapture)
+			{
 				unlistenForCaptureSlideChange();
 				_captureSlides=selectedCapture.slides;
 				listenForCaptureSlideChange();
-				if (selectedCapture.slides.length == 0) { //request capture slides
+				if (selectedCapture.slides.length == 0)
+				{ //request capture slides
 					var ce:CaptureLoaderEvent=new CaptureLoaderEvent(CaptureLoaderEvent.LOAD_CAPTURE);
 					ce.url=selectedCapture.source;
 					dispatcher.dispatchEvent(ce);
-				} else {
+				}
+				else
+				{
 					onCapturesChange();
 				}
 			}
 			return _captureSlides;
 		}
 
-		public function set captureSlides(value:ArrayCollection):void {
+		public function set captureSlides(value:ArrayCollection):void
+		{
 			_captureSlides=value;
 		}
 
 		[Mediate(event="CaptureLoaderEvent.CAPTURE_LOADED")]
-		public function onCaptureSlide(ce:CaptureLoaderEvent):void {
-			if (selectedCapture && selectedCapture.source == ce.url) {
+		public function onCaptureSlide(ce:CaptureLoaderEvent):void
+		{
+			if (selectedCapture && selectedCapture.source == ce.url)
+			{
 				selectedCapture.slides.addAll(new ArrayCollection(ce.captures));
-			} else {
-				for each (var c:CaptureVO in captures) {
-					if (c.source == ce.url) {
+			}
+			else
+			{
+				for each (var c:CaptureVO in captures)
+				{
+					if (c.source == ce.url)
+					{
 						c.slides.addAll(new ArrayCollection(ce.captures));
 						break;
 					}
@@ -103,7 +121,8 @@ package itrain.lessoneditor.model {
 		}
 
 		[Mediate(event="CaptureLoaderEvent.CAPTURE_LIST_LOADED")]
-		public function onCapturesLoad(ce:CaptureLoaderEvent):void {
+		public function onCapturesLoad(ce:CaptureLoaderEvent):void
+		{
 			if (!_captures)
 				_captures=new ArrayCollection();
 
@@ -111,40 +130,67 @@ package itrain.lessoneditor.model {
 			loadingCaptureList=false;
 		}
 
-		private function addCaptures(newCaptures:Array):void {
-			for each (var c:CaptureVO in _captures.source) {
-				for each (var nc:CaptureVO in newCaptures) {
-					if (c.id == nc.id) {
-						newCaptures.splice(newCaptures.indexOf(nc), 1);
-						break;
+		public function removeCapture(c:CaptureVO):void
+		{
+			var index:int=_captures.getItemIndex(c);
+			if (index > -1)
+			{
+				_captures.removeItemAt(index);
+				_captures.sort=_captureSort;
+				_captures.refresh();
+			}
+		}
+
+		public function addCaptures(newCaptures:Array, uniqueOnly:Boolean=true):void
+		{
+			if (uniqueOnly)
+			{
+				for each (var c:CaptureVO in _captures.source)
+				{
+					for each (var nc:CaptureVO in newCaptures)
+					{
+						if (c.id == nc.id)
+						{
+							newCaptures.splice(newCaptures.indexOf(nc), 1);
+							break;
+						}
 					}
 				}
 			}
 			_captures.addAll(new ArrayCollection(newCaptures));
-			_captures.sort = _captureSort;
+			_captures.sort=_captureSort;
 			_captures.refresh();
 		}
 
-		public function setAllSlideSelection(value:Boolean):void {
+		public function setAllSlideSelection(value:Boolean):void
+		{
 			unlistenForCaptureSlideChange();
-			for each (var sc:SlideCaptureVO in _captureSlides) {
+			for each (var sc:SlideCaptureVO in _captureSlides)
+			{
 				sc.selected=value;
 			}
 			listenForCaptureSlideChange();
-			if (value) {
+			if (value)
+			{
 				allSlidesSelected=EnumSelection.SELECTED;
 				selectedSlidesCount=_captureSlides.length;
-			} else {
+			}
+			else
+			{
 				allSlidesSelected=EnumSelection.UNSELECTED;
 				selectedSlidesCount=0;
 			}
 		}
 
-		public function importSelection(selectedOnly:Boolean):void {
+		public function importSelection(selectedOnly:Boolean):void
+		{
 			var ev:CaptureImporterEvent;
-			if (selectedOnly) {
+			if (selectedOnly)
+			{
 				ev=new CaptureImporterEvent(CaptureImporterEvent.IMPORT_SELECTED_CAPTURES, true);
-			} else {
+			}
+			else
+			{
 				ev=new CaptureImporterEvent(CaptureImporterEvent.IMPORT_ALL_CAPTURES, true);
 			}
 			ev.toImport=selectedCapture;
@@ -156,13 +202,15 @@ package itrain.lessoneditor.model {
 			clearImageCache(capturesToClear);
 		}
 
-		public function onCloseWindow():void {
+		public function onCloseWindow():void
+		{
 
 			selectedCapture=null;
 			clearImageCache();
 		}
 
-		public function loadCaptures():void {
+		public function loadCaptures():void
+		{
 			selectedCapture=null;
 
 			var ce:CaptureLoaderEvent=new CaptureLoaderEvent(CaptureLoaderEvent.LOAD_CAPTURE_LIST);
@@ -172,7 +220,8 @@ package itrain.lessoneditor.model {
 			loadingCaptureList=true;
 		}
 
-		private function clearImageCache(capturesToClear:ArrayCollection=null):void {
+		private function clearImageCache(capturesToClear:ArrayCollection=null):void
+		{
 			var repository:ImageRepository=ImageRepository.getInstance();
 			var array:Array=[];
 			var collection:ArrayCollection;
@@ -180,9 +229,12 @@ package itrain.lessoneditor.model {
 				collection=capturesToClear;
 			else
 				collection=captures;
-			for each (var c:CaptureVO in collection) {
-				if (c != selectedCapture) {
-					for each (var sc:SlideCaptureVO in c.slides) {
+			for each (var c:CaptureVO in collection)
+			{
+				if (c != selectedCapture)
+				{
+					for each (var sc:SlideCaptureVO in c.slides)
+					{
 						array.push(sc.source);
 					}
 				}
@@ -193,25 +245,32 @@ package itrain.lessoneditor.model {
 			dispatcher.dispatchEvent(e);
 		}
 
-		private function listenForCaptureSlideChange():void {
-			if (_captureSlides) {
+		private function listenForCaptureSlideChange():void
+		{
+			if (_captureSlides)
+			{
 				_captureSlides.addEventListener(CollectionEvent.COLLECTION_CHANGE, onCapturesChange);
 			}
 		}
 
-		private function unlistenForCaptureSlideChange():void {
-			if (_captureSlides) {
+		private function unlistenForCaptureSlideChange():void
+		{
+			if (_captureSlides)
+			{
 				_captureSlides.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onCapturesChange);
 			}
 		}
 
-		private function onCapturesChange(e:CollectionEvent=null):void {
-			if (e && e.kind == CollectionEventKind.ADD) {
+		private function onCapturesChange(e:CollectionEvent=null):void
+		{
+			if (e && e.kind == CollectionEventKind.ADD)
+			{
 				allSlidesSelected=EnumSelection.SELECTED;
 				return;
 			}
 			var selectedCount:int=0;
-			for each (var sc:SlideCaptureVO in _captureSlides.source) {
+			for each (var sc:SlideCaptureVO in _captureSlides.source)
+			{
 				if (sc.selected)
 					selectedCount++;
 			}
@@ -224,42 +283,27 @@ package itrain.lessoneditor.model {
 			selectedSlidesCount=selectedCount;
 		}
 
-		public function onObjectVisibilityChange(newValue:Boolean):void {
+		public function onObjectVisibilityChange(newValue:Boolean):void
+		{
 			imageImportOnly=newValue;
 			CaptureSlideRenderer.showObjects=!imageImportOnly;
 		}
 
-		public function setOnlyAssociated(value:Boolean):void {
+		public function setOnlyAssociated(value:Boolean):void
+		{
 			onlyAssociatedCaptures=value;
 			loadCaptures();
 			captures.filterFunction=(onlyAssociatedCaptures) ? onlyAssociatedCapturesFilter : null;
 			captures.refresh();
 		}
 
-		private function onlyAssociatedCapturesFilter(item:CaptureVO):Boolean {
+		private function onlyAssociatedCapturesFilter(item:CaptureVO):Boolean
+		{
 			return item.lessonId == _lessonId;
 		}
 
-		private function dateCompare(a:CaptureVO, b:CaptureVO):int {
-			if (a && b) {
-				var aTime:Number=a.timeStamp.getTime();
-				var bTime:Number=b.timeStamp.getTime();
-				if (aTime < bTime)
-					return -1;
-				else if (aTime > bTime)
-					return 1;
-				else
-					return 0;
-			} else if (a) {
-				return -1;
-			} else if (b) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-		
-		private function dateCompareFunction(a:CaptureVO, b:CaptureVO, fields:Array = null):int {
+		private function dateCompareFunction(a:CaptureVO, b:CaptureVO, fields:Array=null):int
+		{
 			if (a == null && b == null)
 				return 0;
 			else if (a == null)
@@ -267,7 +311,7 @@ package itrain.lessoneditor.model {
 			else if (b == null)
 				return 1;
 			else
-				return -ObjectUtil.dateCompare(a.timeStamp,b.timeStamp);
+				return -ObjectUtil.dateCompare(a.timeStamp, b.timeStamp);
 		}
 	}
 }

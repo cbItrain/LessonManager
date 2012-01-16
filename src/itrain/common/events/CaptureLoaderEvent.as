@@ -10,7 +10,6 @@ package itrain.common.events
 		public static const CAPTURE_LOAD_FAULT:String = "CaptureLoaderEventCaptureLoadFault";
 		public static const LOAD_CAPTURE_LIST:String = "CaptureLoaderEventLoadCaptureList";
 		public static const LOAD_CAPTURE:String = "CaptureLoaderEventLoadCapture";
-		public static const NEW_CAPTURE:String = "CaptureLoaderEventNewCapture";
 		
 		public var url:String;
 		public var captures:Array;

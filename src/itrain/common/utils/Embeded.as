@@ -164,5 +164,20 @@ package itrain.common.utils
 		[Bindable] [Embed(source="assets/icons/control-reset.png")]
 		public static var CONTROL_RESET:Class;
 		
+		[Bindable] [Embed(source="assets/icons/cross-circle.png")]
+		public static var ERROR:Class;
+		
+		[Bindable] [Embed(source="assets/icons/control-pause-record.png")]
+		public static var PAUSE_RECORD:Class;
+		
+		[Bindable] [Embed(source="assets/icons/control-record.png")]
+		public static var RECORD:Class;
+		
+		[Bindable] [Embed(source="assets/icons/control-stop-square.png")]
+		public static var STOP_RECORD:Class;
+		
+		[Bindable] [Embed(source="assets/icons/cross-script.png")]
+		public static var CANCEL_RECORD:Class;
+		
 	}
 }

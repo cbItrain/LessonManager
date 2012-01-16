@@ -7,7 +7,8 @@
 		 clipAndEnableScrolling="true"
 		 preinitialize="onPreinitialize()"
 		 initialize="onInitialize()"
-		 implements="itrain.lessoneditor.model.ISlidePreviewer">
+		 implements="itrain.lessoneditor.model.ISlidePreviewer"
+		 xmlns:imp="itrain.lessoneditor.view.components.importer.*">
 	<fx:Script>
 		<![CDATA[
 			import itrain.common.utils.Embeded;
@@ -27,6 +28,8 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			import spark.events.GridEvent;
+			import spark.events.GridSelectionEvent;
 			import mx.binding.utils.BindingUtils;
 			import itrain.lessoneditor.model.SlideCaptureVO;
 			import itrain.common.events.CaptureImporterEvent;
@@ -51,53 +54,63 @@
 
 			[Bindable]
 			public var hidePreviewHandler:Function;
+			
+			[Bindable]
+			public var firstTimeRun:Boolean;
 
 			private var _enablePreview:Boolean=false;
 
 			[Bindable]
+
 			private var _mockDataProvider:ArrayCollection; // for better list performance
 
 			[Bindable]
-			private var _newCaptureDescription:String="The button below launches the screen capture tool. It may take a few seconds to download. The finished capture will appear in the list below when you are done.";
-
-			[Bindable]
-			private var _newCaptureRequirements:String="The Screen Capture Tool requires Windows and (at least) Java JRE 6 Update 5.";
-
-			[Bindable]
-			public function get enablePreview():Boolean {
+			public function get enablePreview():Boolean
+			{
 				return _enablePreview;
 			}
 
-			public function set enablePreview(value:Boolean):void {
+			public function set enablePreview(value:Boolean):void
+			{
 				_enablePreview=value;
 			}
 
-			public function deselect():void {
+			public function deselect():void
+			{
 				dgCaptureList.selectedItem=null;
 				onCaptureListSelectionChange();
 			}
 
-			private function onPreinitialize():void {
+			private function onPreinitialize():void
+			{
 				generatePreviewMockDataProvider();
 			}
-			
-			public function capturesShown():void {
-				if (dgCaptureList.dataProvider) {
+
+			public function capturesShown():void
+			{
+				if (dgCaptureList.dataProvider)
+				{
 					onRefereshClick();
-				} else {
+				}
+				else
+				{
 					BindingUtils.bindProperty(dgCaptureList, "dataProvider", model, "captures");
 				}
 			}
 
-			private function generatePreviewMockDataProvider(count:int=30):void {
+			private function generatePreviewMockDataProvider(count:int=30):void
+			{
 				_mockDataProvider=new ArrayCollection();
-				for (var i:int=0; i < count; i++) {
+				for (var i:int=0; i < count; i++)
+				{
 					_mockDataProvider.addItem({});
 				}
 			}
 
-			public function showPreview():void {
-				if (movableContainer.x != -this.width) {
+			public function showPreview():void
+			{
+				if (movableContainer.x != -this.width)
+				{
 					lstPreview.dataProvider=model.captureSlides;
 
 					if (hidePreviewEffect.isPlaying)
@@ -107,8 +120,10 @@
 				}
 			}
 
-			public function hidePreview():void {
-				if (movableContainer.x != 0) {
+			public function hidePreview():void
+			{
+				if (movableContainer.x != 0)
+				{
 					if (showPreviewEffect.isPlaying)
 						showPreviewEffect.stop();
 					if (!hidePreviewEffect.isPlaying)
@@ -117,20 +132,26 @@
 			}
 
 			[Mediate(event="CaptureImporterEvent.IMPORT_SELECTION_CHANGED")]
-			public function onImportSelectionChanged(cie:CaptureImporterEvent):void {
+			public function onImportSelectionChanged(cie:CaptureImporterEvent):void
+			{
 				var scVO:SlideCaptureVO=cie.additionalData as SlideCaptureVO;
 				var selectedArray:Vector.<Object>=lstPreview.selectedItems;
-				if (selectedArray.indexOf(scVO) > -1) {
-					if (selectedArray.length > 1) {
-						for each (var s:SlideCaptureVO in selectedArray) {
+				if (selectedArray.indexOf(scVO) > -1)
+				{
+					if (selectedArray.length > 1)
+					{
+						for each (var s:SlideCaptureVO in selectedArray)
+						{
 							s.selected=scVO.selected;
 						}
 					}
 				}
 			}
 
-			private function onCaptureListSelectionChange():void {
-				if (model) {
+			private function onCaptureListSelectionChange():void
+			{
+				if (model)
+				{
 					model.selectedCapture=dgCaptureList.selectedItem as CaptureVO;
 					enablePreview=dgCaptureList.selectedItem != null;
 
@@ -138,39 +159,56 @@
 				}
 			}
 
-			private function onDataGridDoubleClick():void {
-				if (dgCaptureList.selectedItem) {
-					if (runPreviewHandler != null)
-						runPreviewHandler();
-					showPreview();
+			private function onDataGridDoubleClick(e:GridEvent):void
+			{
+				if (dgCaptureList.selectedItem)
+				{
+					var capture:CaptureVO=e.item as CaptureVO;
+					if (capture.timeStamp && capture.source)
+					{
+						if (runPreviewHandler != null)
+							runPreviewHandler();
+						showPreview();
+					}
 				}
 			}
 
-			private function onNewCaptureClick():void {
-				dispatcher.dispatchEvent(new CaptureLoaderEvent(CaptureLoaderEvent.NEW_CAPTURE, true));
-			}
-
-			private function onRefereshClick():void {
+			private function onRefereshClick():void
+			{
 				deselect();
 				model.loadCaptures();
 			}
 
-			private function dateColumnLabelFunction(item:CaptureVO, column:GridColumn):String {
+			private function dateColumnLabelFunction(item:CaptureVO, column:GridColumn):String
+			{
 				return dateTimeFormatter.format(item.timeStamp);
 			}
 
-			private function onListDoubleClick(e:Event = null):void {
+			private function onListDoubleClick(e:Event=null):void
+			{
 				if (hidePreviewHandler != null)
 					hidePreviewHandler();
 				hidePreview();
 			}
 
-			private function onAssociatedChange():void {
+			private function onAssociatedChange():void
+			{
 				model.setOnlyAssociated(cbxAssociated.selected);
 			}
-			
-			private function onInitialize():void {
+
+			private function onInitialize():void
+			{
 				lstPreview.addEventListener(CaptureSlideRenderer.ITEM_DOUBLE_CLICKED, onListDoubleClick);
+			}
+
+			private function onDataGridSelectionChanging(e:GridSelectionEvent):void
+			{
+				if (e.selectionChange.rowIndex > -1 && e.selectionChange.rowIndex < model.captures.length)
+				{
+					var item:CaptureVO=model.captures.getItemAt(e.selectionChange.rowIndex) as CaptureVO;
+					if (!(item.timeStamp && item.source))
+						e.preventDefault();
+				}
 			}
 		]]>
 	</fx:Script>
@@ -179,59 +217,14 @@
 			  gap="0">
 		<s:VGroup width="{this.width}"
 				  height="100%">
-			<s:Group width="100%">
-				<s:Rect width="100%"
-						height="100%"
-						radiusX="10"
-						radiusY="10">
-					<s:fill>
-						<s:LinearGradient rotation="90">
-							<s:entries>
-								<s:GradientEntry alpha=".9"
-												 color="#E7E7E7"/>
-								<s:GradientEntry alpha="1.0"
-												 color="#E7E7E7"/>
-							</s:entries>
-						</s:LinearGradient>
-					</s:fill>
-					<s:stroke>
-						<s:SolidColorStroke weight="1"
-											color="#BBBBBB"/>
-					</s:stroke>
-				</s:Rect>
-				<s:VGroup width="100%"
-						  paddingBottom="10"
-						  paddingLeft="10"
-						  paddingRight="10"
-						  paddingTop="10"
-						  horizontalAlign="right">
-					<s:Label maxDisplayedLines="10"
-							 text="{_newCaptureDescription}"
-							 width="100%"/>
-					<s:Label maxDisplayedLines="2"
-							 text="{_newCaptureRequirements}"
-							 width="100%"/>
-					<s:HGroup verticalAlign="middle">
-						<s:Button label="New Capture"
-								  icon="{Embeded.NEW_CAPTURE_ICON}"
-								  height="35"
-								  click="onNewCaptureClick()"
-								  cornerRadius="5"/>
-						<s:Button icon="{Embeded.REFRESH_ICON}"
-								  click="onRefereshClick()"
-								  enabled="{!model.loadingCaptureList}"
-								  width="30"
-								  height="35"
-								  cornerRadius="5"/>
-					</s:HGroup>
-				</s:VGroup>
-			</s:Group>
+			<imp:NewCaptureGroup id="newCaptureGroup"/>
 			<s:DataGrid id="dgCaptureList"
 						width="100%"
 						height="100%"
+						selectionChanging="onDataGridSelectionChanging(event)"
 						selectionChange="onCaptureListSelectionChange()"
 						doubleClickEnabled="true"
-						doubleClick="onDataGridDoubleClick()"
+						gridDoubleClick="onDataGridDoubleClick(event)"
 						requestedRowCount="10">
 				<s:columns>
 					<mx:ArrayList>
@@ -247,11 +240,20 @@
 					</mx:ArrayList>
 				</s:columns>
 			</s:DataGrid>
-			<s:CheckBox id="cbxAssociated"
-						label="Only show Screen Captures associated with this Lesson"
-						enabled="{!model.loadingCaptureList}"
-						selected="{model.onlyAssociatedCaptures}"
-						change="onAssociatedChange()"/>
+			<s:HGroup width="100%"
+					  verticalAlign="middle">
+				<s:CheckBox id="cbxAssociated"
+							label="Only show Screen Captures associated with this Lesson"
+							enabled="{!model.loadingCaptureList}"
+							selected="{model.onlyAssociatedCaptures}"
+							change="onAssociatedChange()"/>
+				<s:Spacer width="100%"/>
+				<mx:LinkButton icon="{Embeded.REFRESH_ICON}"
+							   label="Refresh"
+							   click="onRefereshClick()"
+							   enabled="{!model.loadingCaptureList}"
+							   cornerRadius="5"/>
+			</s:HGroup>
 		</s:VGroup>
 		<s:Group width="{this.width}"
 				 height="100%"

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="100%"
+		  horizontalAlign="center"
+		  currentState="launchError">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.Messages;
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="launchError"/>
+	</s:states>
+	<s:HGroup verticalAlign="middle" paddingTop="10">
+		<s:BitmapImage source="{Embeded.ERROR}"/>
+		<s:Label id="lblCapStatus"
+				 text.launchError="{Messages.CT_LAUNCHING_ERROR}"
+				 fontSize="20"
+				 paddingTop="5"
+				 color="0x000000"/>
+	</s:HGroup>
+	<s:Label id="lblMessage"
+			 maxDisplayedLines="1"
+			 textAlign="center"
+			 color="0x777777"
+			 text="{Messages.CT_ERROR_INFO}"
+			 width="100%"/>
+</s:VGroup>

@@ -25,9 +25,6 @@ package itrain.lessoneditor.model
 		private var _captureService:HTTPService;
 		
 		private var _sendParameters:Object;
-		private var _newCaptureParameters:URLVariables;
-		
-		private var _beforeNewCaptureHandler:String;
 		
 		[Dispatcher]
 		public var dispatcher:IEventDispatcher;
@@ -44,38 +41,9 @@ package itrain.lessoneditor.model
 			
 			var params:Object = FlexGlobals.topLevelApplication.parameters; 
 			_sendParameters = {};
-			_newCaptureParameters = new URLVariables();
-			_newCaptureParameters.lessonId = _sendParameters.lessonId = params.lessonId;
-			_newCaptureParameters.customerId = params.companyId;
 			//_sendParameters.published = params.published;
 			
 			_captureListService.url = params.captureListURL;
-			
-			_beforeNewCaptureHandler = params.beforeNewCapture;
-		}
-		
-		[Mediate(event="CaptureLoaderEvent.NEW_CAPTURE")]
-		public function onNewCapture():void {
-			var url:String = FlexGlobals.topLevelApplication.parameters.newCaptureURL;
-			if (url) {
-				beforeNewCapture();
-				_newCaptureParameters.uniqueId = String(Date.parse(new Date()));
-				var urlRequest:URLRequest = new URLRequest(url);
-				urlRequest.method = URLRequestMethod.GET;
-				urlRequest.data = _newCaptureParameters;
-				navigateToURL(urlRequest, "_self");
-			}
-		}
-		
-		private function beforeNewCapture():void {
-			if (ExternalInterface.available && _beforeNewCaptureHandler) {
-				ExternalInterface.call(_beforeNewCaptureHandler);
-			}
-		}
-		
-		[Mediate(event="LessonLoaderEvent.LESSON_LOADED")]
-		public function lessonLoaded(e:LessonLoaderEvent):void{
-			_newCaptureParameters.lessonId = e.lessonId;
 		}
 		
 		[Mediate(event="CaptureLoaderEvent.LOAD_CAPTURE_LIST")]

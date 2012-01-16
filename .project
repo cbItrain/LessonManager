@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>LessonManager</name>
+	<name>LessonManagerNewCaptureTool</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -25,6 +25,11 @@
 			<name>bin-release1</name>
 			<type>2</type>
 			<location>D:/iTrain/lm</location>
+		</link>
+		<link>
+			<name>bin-release2</name>
+			<type>2</type>
+			<location>C:/Users/Michael/Desktop/lm</location>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -128,8 +128,43 @@
 					return false;
 				}
 			}
+			
+			function runNewCaptureToolApplet() {
+				setTimeout(function () {
+					updateNewCaptureToolStatus(1, 'LOADING');
+					setTimeout(function () {
+						updateNewCaptureToolStatus(1, 'APPLICATION_STARTED');
+						setTimeout(function () {
+							updateNewCaptureToolStatus(1, 'RECORDING');
+							setTimeout(function () {
+								updateNewCaptureToolStatus(1, 'UPLOADING', 22);
+								setTimeout(function () {
+									updateNewCaptureToolStatus(1, 'UPLOADING', 44);
+									setTimeout(function () {
+										updateNewCaptureToolStatus(1, 'UPLOADING', 66);
+										setTimeout(function () {
+											updateNewCaptureToolStatus(1, 'UPLOADING', 95);
+											setTimeout(function () {
+												updateNewCaptureToolStatus(1, 'FINISHED');
+												setTimeout(function () {
+													updateNewCaptureToolStatus(1, 'CAPTURE_SAVED');
+												}, 3000);
+											}, 1000);
+										}, 1000);
+									}, 1000);
+								}, 1000);
+							}, 5000);
+						}, 2000);
+					}, 3000);
+				}, 1000);
+			}
+			
+			function updateNewCaptureToolStatus(captureId, status, percent) {
+				getLessonPlayer().editorUpdateCaptureToolStatus(captureId, status, percent);
+			}
             
             var flashvars = {"lessonId":"51", 
+            				 "lessonName" : "SuperCool",
             				 "companyId" : "111",
             				 "developerMode":"true", 
             				 //"getLessonURL":"http://luke.stratus.itrain.co.uk/pls/services.getLesson", 
@@ -153,7 +188,9 @@
             				 "allowScale":"true",
             				 "maxImages" : "50",
             				 "emptyLessonMsg": "There is no content for this page.",
-            				 "interactive":"false"};
+            				 "interactive":"false",
+            				 "captureToolRunFunctionName" : "runNewCaptureToolApplet",
+            				 "captureToolStatusUpdateFunction" : "editorUpdateCaptureToolStatus"};
             				 
             var params = {};
             params.quality = "best";

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="100%"
+		  height="100%">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.Messages;
+			import itrain.lessoneditor.model.NewCaptureModel;
+			import itrain.lessoneditor.view.skins.NewCaptureProgressBarSkin;
+			
+			import mx.binding.utils.BindingUtils;
+
+			[Bindable]
+			public var model:NewCaptureModel;
+
+			[PostConstruct]
+			public function onPostConstruct():void
+			{
+				BindingUtils.bindSetter(onUploadProgressChange, model, "uploadProgress");
+			}
+
+			private function onStop():void
+			{
+				model.stopRecording();
+			}
+
+			private function onPause():void
+			{
+				model.pauseRecording();
+			}
+
+			private function onCancel():void
+			{
+				model.cancelRecording();
+			}
+
+			private function onUploadProgressChange(value:int):void
+			{
+				if (pbUpload)
+					pbUpload.setProgress(value, 100);
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="default"/>
+		<s:State name="launching"/>
+		<s:State name="ready"/>
+		<s:State name="recording"/>
+		<s:State name="uploading"
+				 stateGroups="progressVisible"/>
+		<s:State name="finished"
+				 stateGroups="progressVisible"/>
+		<s:State name="saved"
+				 stateGroups="progressVisible"/>
+		<s:State name="launchError"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="*"
+					  toState="*"
+					  excludeFrom="default, launchError">
+			<s:Sequence>
+				<s:Fade alphaFrom="1.0"
+						alphaTo="0.0"
+						duration="180"
+						targets="{[topPart, lblCapStatus]}"
+						excludeFrom="finished, saved, default, launchError"/>
+				<s:SetAction property="text"
+							 targets="{[lblCapStatus, lblMessage]}"/>
+				<s:SetAction property="color"
+							 targets="{[lblCapStatus]}"/>
+				<s:SetAction property="label"
+							 targets="{[pbUpload]}"/>
+				<s:RemoveAction targets="{[pbUpload, lSR, lPR, lCR, hContainer, rDot]}"/>
+				<s:AddAction targets="{[pbUpload, lSR, lPR, lCR, hContainer, rDot]}"/>
+				<s:Fade alphaFrom="0.0"
+						alphaTo="1.0"
+						duration="180"
+						targets="{[topPart, lblCapStatus]}"
+						excludeFrom="finished, saved,default, launchError"/>
+			</s:Sequence>
+		</s:Transition>
+	</s:transitions>
+	<s:Group id="topPart" width="100%">
+		<s:HGroup verticalAlign="middle"
+				  top="10"
+				  horizontalCenter="0"
+				  id="hContainer"
+				  includeIn="recording, launching, ready">
+			<s:Rect id="rDot"
+					width="20"
+					height="20"
+					radiusX="15"
+					radiusY="15"
+					includeIn="recording">
+				<s:fill>
+					<s:SolidColor color="0xFF0000"/>
+				</s:fill>
+			</s:Rect>
+			<s:Label id="lblCapStatus"
+					 text.launching="{Messages.CT_LAUNCHING}"
+					 text.recording="{Messages.CT_RECORDING}"
+					 text.ready="{Messages.CT_READY}"
+					 fontSize="20"
+					 paddingTop="5"
+					 color="0x000000"
+					 color.recording="0xFF0000"/>
+		</s:HGroup>
+		<s:VGroup horizontalAlign="center"
+				  includeIn="progressVisible"
+				  top="10"
+				  horizontalCenter="0">
+			<s:Group height="15">
+				<s:Label verticalCenter="0"
+						 includeIn="finished, saved"
+						 text.finished="Uploading Complete - Exiting Capture Tool"
+						 text.saved="Uploading Complete - Capture Tool closed"/>
+				<s:HGroup verticalCenter="0"
+						  includeIn="uploading"
+						  gap="5"
+						  verticalAlign="middle">
+					<s:Label text.uploading="Uploading Capture -"/>
+					<s:Label text.uploading="{pbUpload.percentComplete}%"
+							 fontWeight="bold"
+							 fontSize="14"/>
+					<s:Label text.uploading="complete"/>
+				</s:HGroup>
+			</s:Group>
+			<mx:ProgressBar id="pbUpload"
+							width="270"
+							height="15"
+							label=""
+							labelPlacement="center"
+							barSkin="{NewCaptureProgressBarSkin}"
+							indeterminate="false"
+							mode="manual"/>
+		</s:VGroup>
+	</s:Group>
+	<s:Label id="lblMessage"
+			 verticalCenter="8"
+			 horizontalCenter="0"
+			 maxDisplayedLines="1"
+			 textAlign="center"
+			 color="0x777777"
+			 excludeFrom="saved, default"
+			 text="{Messages.CT_DO_NOT_CLOSE} running."
+			 text.launching="{Messages.CT_DO_NOT_CLOSE} launching."
+			 width="100%"/>
+	<s:HGroup width="100%"
+			  horizontalAlign="center"
+			  bottom="10"
+			  horizontalCenter="0">
+		<mx:LinkButton id="lSR"
+					   label="Stop Recording"
+					   click="onStop()"
+					   icon="{Embeded.STOP_RECORD}"
+					   includeIn="recording"
+					   fontWeight="bold"
+					   color="0x0000FF"
+					   textDecoration="underline"
+					   cornerRadius="5"/>
+		<mx:LinkButton id="lPR"
+					   label="Pause Recording"
+					   icon="{Embeded.PAUSE_RECORD}"
+					   click="onPause()"
+					   includeIn="recording"
+					   fontWeight="bold"
+					   color="0x0000FF"
+					   textDecoration="underline"
+					   cornerRadius="5"/>
+		<mx:LinkButton id="lCR"
+					   label="Cancel Recording"
+					   icon="{Embeded.CANCEL_RECORD}"
+					   click="onCancel()"
+					   excludeFrom="finished, saved, default"
+					   fontWeight="bold"
+					   color="0x0000FF"
+					   textDecoration="underline"
+					   cornerRadius="5"/>
+	</s:HGroup>
+</s:Group>

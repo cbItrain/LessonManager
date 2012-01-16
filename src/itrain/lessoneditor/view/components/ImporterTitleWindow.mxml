@@ -11,6 +11,15 @@
 			import spark.components.Button;
 			[SkinPart]
 			public var backToCourseButton:Button;
+			
+			public function set closeButtonEnabled(value:Boolean):void {
+				closeButton.enabled = value;
+			}
+			
+			[Bindable]
+			public function get closeButtonEnabled():Boolean {
+				return closeButton.enabled;
+			}
 		]]>
 	</fx:Script>
 </s:TitleWindow>
