@@ -12,7 +12,7 @@
         <![CDATA[
             import flash.utils.clearTimeout;
             import flash.utils.setTimeout;
-
+            
             import itrain.common.events.CaptionEvent;
             import itrain.common.events.ModelEvent;
             import itrain.common.model.vo.CaptionVO;
@@ -20,7 +20,7 @@
             import itrain.common.view.stageobjects.StageCaption;
             import itrain.lessonplayer.model.PlayerModel;
             import itrain.lessonplayer.view.elements.Caption;
-
+            
             import mx.core.UIComponent;
             import mx.events.ResizeEvent;
 
@@ -85,11 +85,15 @@
                     _resizeImageTimeout=setTimeout(function():void {
                         if (model) {
                             if (backgroundImage) {
-                                var bd:BitmapData=ImageUtils.resizeImage(backgroundImage.bitmapData, backgroundImage.bitmapData.width * ratio, backgroundImage.bitmapData.height * ratio);
-                                imgScaled.source=new Bitmap(bd);
-                                backgroundImage.visible=false;
-                                imgScaled.visible=imgScaled.includeInLayout=true;
-                                model.loadingImage=false;
+								try {
+	                                var bd:BitmapData=ImageUtils.resizeImage(backgroundImage.bitmapData, backgroundImage.bitmapData.width * ratio, backgroundImage.bitmapData.height * ratio);
+	                                imgScaled.source=new Bitmap(bd);
+	                                backgroundImage.visible=false;
+	                                imgScaled.visible=imgScaled.includeInLayout=true;
+	                                model.loadingImage=false;
+								} catch (error:Error) {
+									
+								}
                             } else {
                                 backgroundImage.visible=true;
                                 imgScaled.visible=imgScaled.includeInLayout=false;
