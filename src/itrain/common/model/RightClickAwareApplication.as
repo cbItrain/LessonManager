@@ -33,7 +33,6 @@ package itrain.common.model {
 			}
 		}
 
-
 		protected function onRightClick():void {
 			//to be implemented when inherited
 		}
@@ -60,6 +59,9 @@ package itrain.common.model {
 		
 		private function onInitialize(e:Event):void {
 			_moduleLoadInformer = parameters.moduleLoadInformer;
+			
+			if (parameters.fontsURL)
+				styleManager.loadStyleDeclarations(parameters.fontsURL);
 		}
 		
 		protected function informMLI(message:String):void {
@@ -79,6 +81,10 @@ package itrain.common.model {
 		
 		protected function onReady(me:ModuleEvent):void {
 			informMLI("end");
+		}
+		
+		protected function onModuleCreationComplete(e:Event):void {
+			informMLI("complete");
 		}
 	}
 }

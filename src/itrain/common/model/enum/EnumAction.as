@@ -3,11 +3,11 @@ package itrain.common.model.enum
 
 	public class EnumAction extends EnumClass
 	{
-		public static var LEFT_MOUSE:EnumAction = new EnumAction(0);
-		public static var RIGHT_MOUSE:EnumAction = new EnumAction(1);
-		public static var DOUBLE_CLICK:EnumAction = new EnumAction(2);
-		public static var MOUSE_WHEEL:EnumAction = new EnumAction(3);
-		public static var MIDDLE_CLICK:EnumAction = new EnumAction(4);
+		public static const LEFT_MOUSE:EnumAction = new EnumAction(0);
+		public static const RIGHT_MOUSE:EnumAction = new EnumAction(1);
+		public static const DOUBLE_CLICK:EnumAction = new EnumAction(2);
+		public static const MOUSE_WHEEL:EnumAction = new EnumAction(3);
+		public static const MIDDLE_CLICK:EnumAction = new EnumAction(4);
 		
 		public function EnumAction(ordinal:int)
 		{

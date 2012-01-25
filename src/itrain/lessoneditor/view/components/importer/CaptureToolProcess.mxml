@@ -51,7 +51,7 @@
 		<s:State name="recording"/>
 		<s:State name="uploading"
 				 stateGroups="progressVisible"/>
-		<s:State name="finished"
+		<s:State name="uploaded"
 				 stateGroups="progressVisible"/>
 		<s:State name="saved"
 				 stateGroups="progressVisible"/>
@@ -66,7 +66,7 @@
 						alphaTo="0.0"
 						duration="180"
 						targets="{[topPart, lblCapStatus]}"
-						excludeFrom="finished, saved, default, launchError"/>
+						excludeFrom="uploaded, saved, default, launchError"/>
 				<s:SetAction property="text"
 							 targets="{[lblCapStatus, lblMessage]}"/>
 				<s:SetAction property="color"
@@ -79,7 +79,7 @@
 						alphaTo="1.0"
 						duration="180"
 						targets="{[topPart, lblCapStatus]}"
-						excludeFrom="finished, saved,default, launchError"/>
+						excludeFrom="uploaded, saved,default, launchError"/>
 			</s:Sequence>
 		</s:Transition>
 	</s:transitions>
@@ -114,8 +114,8 @@
 				  horizontalCenter="0">
 			<s:Group height="15">
 				<s:Label verticalCenter="0"
-						 includeIn="finished, saved"
-						 text.finished="Uploading Complete - Exiting Capture Tool"
+						 includeIn="uploaded, saved"
+						 text.uploaded="Uploading Complete - Exiting Capture Tool"
 						 text.saved="Uploading Complete - Capture Tool closed"/>
 				<s:HGroup verticalCenter="0"
 						  includeIn="uploading"
@@ -150,6 +150,7 @@
 			 width="100%"/>
 	<s:HGroup width="100%"
 			  horizontalAlign="center"
+			  enabled="{!model.freezed}"
 			  bottom="10"
 			  horizontalCenter="0">
 		<mx:LinkButton id="lSR"
@@ -174,7 +175,7 @@
 					   label="Cancel Recording"
 					   icon="{Embeded.CANCEL_RECORD}"
 					   click="onCancel()"
-					   excludeFrom="finished, saved, default"
+					   excludeFrom="uploaded, saved, default"
 					   fontWeight="bold"
 					   color="0x0000FF"
 					   textDecoration="underline"

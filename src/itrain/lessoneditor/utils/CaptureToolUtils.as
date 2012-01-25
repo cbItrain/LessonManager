@@ -12,11 +12,13 @@ package itrain.lessoneditor.utils
 					case "APPLICATION_STARTED": return EnumCaptureToolStatus.APPLICATION_STARTED;
 					case "UPLOADING": return EnumCaptureToolStatus.UPLOADING;
 					case "IDLE": return EnumCaptureToolStatus.IDLE;
-					case "STOPPED": return EnumCaptureToolStatus.STOPPED;
+					case "UPLOADED": return EnumCaptureToolStatus.UPLOADED;
 					case "RECORDING": return EnumCaptureToolStatus.RECORDING;
 					case "FINISHED": return EnumCaptureToolStatus.FINISHED;
 					case "CAPTURE_SAVED": return EnumCaptureToolStatus.CAPTURE_SAVED;
 					case "LAUNCH_ERROR": return EnumCaptureToolStatus.LAUNCH_ERROR;
+					case "WAIT_USER_DECISION": return EnumCaptureToolStatus.WAIT_USER_DECISION;
+					case "CAPTURE_TOOL_UNAVAILABLE": return EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE;
 				}
 			} 
 			return null;

@@ -43,7 +43,7 @@
 					btnNewCapture.styleName = "highlightedButton";
 					(btnNewCapture.labelDisplay as Label).filters = [Common.shadowedText];
 				} else {
-					btnNewCapture.styleName = "defaultButton";
+					btnNewCapture.styleName = null;
 					(btnNewCapture.labelDisplay as Label).filters = [];
 				}
 			}

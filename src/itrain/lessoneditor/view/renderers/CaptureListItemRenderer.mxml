@@ -1,47 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-				xmlns:s="library://ns.adobe.com/flex/spark"
-				xmlns:mx="library://ns.adobe.com/flex/mx"
-				creationComplete="onCreationComplete()">
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					height="30">
 	<fx:Declarations>
 		<s:Sequence id="seqFade"
 					target="{rectBackground}"
 					repeatCount="10">
-			<s:Fade alphaFrom="1.0"
-					alphaTo="0.0"
-					duration="300"/>
 			<s:Fade alphaFrom="0.0"
 					alphaTo="1.0"
-					duration="300"/>
+					duration="400"/>
+			<s:Fade alphaFrom="1.0"
+					alphaTo="0.0"
+					duration="400"/>
 		</s:Sequence>
+		<s:DateTimeFormatter id="dateTimeFormatter"
+							 dateTimePattern="dd MMM yyyy, h:mm a"/>
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import itrain.lessoneditor.events.CaptureListEvent;
+			import flash.utils.setTimeout;
 			
+			import itrain.lessoneditor.model.CaptureVO;
+			
+			import mx.events.PropertyChangeEvent;
+			
+			import spark.components.DataGrid;
+			import spark.events.GridEvent;
 			import spark.events.GridSelectionEvent;
-			
-			private function onCreationComplete():void {
-				owner.addEventListener(CaptureListEvent.CAPTURE_DONE, onCaptureDone);
-				owner.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
-			}
-			
-			private function onSelectionChange(e:GridSelectionEvent):void {
-				if (seqFade.isPlaying) {
+
+			private function onSelectionChange(e:GridSelectionEvent):void
+			{
+				if (seqFade.isPlaying)
+				{
 					seqFade.stop();
-					rectBackground.visible = false;
+					rectBackground.visible=false;
+					owner.removeEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
 				}
 			}
-			
-			private function onCaptureDone(e:CaptureListEvent):void {
-				if (e.data == data) {
+
+			private function onSourceChange(e:PropertyChangeEvent):void
+			{
+				if (e.property == "source")
+				{
 					seqFade.play();
-					rectBackground.visible = true;
+					rectBackground.visible=true;
+					(data as CaptureVO).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
+					owner.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
+					setTimeout(function ():void {
+						(owner as DataGrid).selectedItem = data;
+						var ge:GridEvent = new GridEvent(GridEvent.GRID_DOUBLE_CLICK,true);
+						ge.item = data;
+						owner.dispatchEvent(ge);
+					},1500);
+				}
+			}
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				if (value)
+				{
+					var cvo:CaptureVO = value as CaptureVO;
+					if (cvo[column.dataField] is Date) {
+						lblLabel.text = dateTimeFormatter.format(cvo[column.dataField]);
+					} else {
+						lblLabel.text = cvo[column.dataField];
+					}
+					if (!cvo.source) {
+						cvo.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
+					}
 				}
 			}
 		]]>
 	</fx:Script>
-	<s:Group>
+	<s:Group width="100%" height="100%">
 		<s:Rect id="rectBackground"
 				width="100%"
 				height="100%"
@@ -50,6 +83,8 @@
 				<s:SolidColor color="0xD8FED3"/>
 			</s:fill>
 		</s:Rect>
-		<s:Label text="{data}"/>
+		<s:Label id="lblLabel"
+				 verticalCenter="2"
+				 left="6"/>
 	</s:Group>
 </s:GridItemRenderer>

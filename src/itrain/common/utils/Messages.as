@@ -8,6 +8,7 @@ package itrain.common.utils
 		public static const CT_READY:String = "Ready to start recording";
 		public static const CT_RECORDING:String = "Recording your screen";
 		public static const CT_LAUNCHING_ERROR:String = "Launch Error";
+		public static const CT_CAPTURE_TOOL_UNV:String = "Capture Tool is unavailable!";
 		public static const CT_ERROR_INFO:String = "Check your network connection. If problem persists, please contact the administrator.";
 	}
 }

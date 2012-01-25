@@ -37,6 +37,7 @@
         <script src="jquery-1.5.min.js" type="text/javascript"></script> 
         <script type="text/javascript" src="swfobject.js"></script>  
         <script type="text/javascript" src="spin.min.js"></script>
+        <script type="text/javascript" src="spin222.min.js"></script>
         <script type="text/javascript" src="flash_detect_min.js"></script>
         <script type="text/javascript">
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
@@ -117,10 +118,13 @@
 			});
 			
 			function moduleLoadPrgress(msg) {
-				if (msg == "end") {
-					$loadInformer.remove();
-				}
-			}
+              if (msg == "complete") {
+                $loadInformer.remove();
+                var $lessonSWF = $("#lessonSWF");
+                $lessonSWF.css("width", "100%");
+                $lessonSWF.css("height", "100%");
+              }
+            } 
 			
 			window.onbeforeunload = function () {
 				var response = getLessonPlayer().beforeFlashUnload();
@@ -141,11 +145,11 @@
 								setTimeout(function () {
 									updateNewCaptureToolStatus(1, 'UPLOADING', 44);
 									setTimeout(function () {
-										updateNewCaptureToolStatus(1, 'UPLOADING', 66);
+										updateNewCaptureToolStatus(1, 'WAIT_USER_DECISION', 66);
 										setTimeout(function () {
 											updateNewCaptureToolStatus(1, 'UPLOADING', 95);
 											setTimeout(function () {
-												updateNewCaptureToolStatus(1, 'FINISHED');
+												updateNewCaptureToolStatus(1, 'UPLOADED');
 												setTimeout(function () {
 													updateNewCaptureToolStatus(1, 'CAPTURE_SAVED');
 												}, 3000);
@@ -162,6 +166,11 @@
 			function updateNewCaptureToolStatus(captureId, status, percent) {
 				getLessonPlayer().editorUpdateCaptureToolStatus(captureId, status, percent);
 			}
+			
+			function onEmbedComplete(e) {
+              if (!e.success) {
+              }
+            }
             
             var flashvars = {"lessonId":"51", 
             				 "lessonName" : "SuperCool",
@@ -204,9 +213,9 @@
             attributes.align = "middle";
             swfobject.embedSWF(
                 "LessonPlayer.swf", "flashContent", 
-                "100%", "100%", 
+                "0", "0", 
                 swfVersionStr, null, 
-                flashvars, params, attributes);
+                flashvars, params, attributes, onEmbedComplete);
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
             swfobject.createCSS("#flashContent", "display:block;text-align:left;");
         </script>

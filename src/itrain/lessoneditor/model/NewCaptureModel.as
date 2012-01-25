@@ -1,24 +1,27 @@
 package itrain.lessoneditor.model
 {
+	import flash.display.Sprite;
 	import flash.events.IEventDispatcher;
 	import flash.external.ExternalInterface;
 	import flash.utils.setTimeout;
 	
 	import itrain.common.events.CaptureLoaderEvent;
+	import itrain.common.utils.Messages;
 	import itrain.lessoneditor.utils.CaptureToolUtils;
 	
 	import mx.controls.Alert;
 	import mx.core.FlexGlobals;
+	import mx.events.CloseEvent;
 
 	public class NewCaptureModel
 	{
 		public static const STATE_DEFAULT:String="default";
-		
+
 		private static const STATE_UPLOADING:String="uploading";
 		private static const STATE_LAUNCHING:String="launching";
 		private static const STATE_RECORDING:String="recording";
 		private static const STATE_SAVED:String="saved";
-		private static const STATE_FINISHED:String="finished";
+		private static const STATE_UPLOADED:String="uploaded";
 		private static const STATE_READY:String="ready";
 		private static const STATE_LAUNCH_ERROR:String="launchError";
 
@@ -35,21 +38,31 @@ package itrain.lessoneditor.model
 
 		[Bindable]
 		public var currentState:String=STATE_DEFAULT;
+
+		[Bindable]
+		public var highlightNewButton:Boolean=false;
 		
 		[Bindable]
-		public var highlightNewButton:Boolean = false;
+		public var message:String;
+		
+		[Bindable]
+		public var description:String;
+		
+		[Bindable]
+		public var freezed:Boolean = false;
 
 		private var _captureToolStatus:EnumCaptureToolStatus=null;
 		private var _captureToolRunFunctionName:String=null;
 		private var _captureToolPauseFunctionName:String=null;
 		private var _captureToolStopFunctionName:String=null;
 		private var _captureToolCancelFucntionName:String=null;
-		private var _lessonName:String = "No name";
+		private var _lessonName:String="No name";
 
 		private var _companyId:int=0;
 
 		private var _currentCapture:CaptureVO=null;
 		private var _capturingStarted:Boolean=false;
+		private var _captureUploaded:Boolean = false;
 
 		public function NewCaptureModel()
 		{
@@ -79,8 +92,9 @@ package itrain.lessoneditor.model
 			{
 				_companyId=flashVars.companyId;
 			}
-			if (flashVars.lessonName) {
-				_lessonName = flashVars.lessonName;
+			if (flashVars.lessonName)
+			{
+				_lessonName=flashVars.lessonName;
 			}
 		}
 
@@ -89,6 +103,7 @@ package itrain.lessoneditor.model
 			if (ExternalInterface.available && _captureToolRunFunctionName)
 			{
 				_capturingStarted=true;
+				_captureUploaded=false;
 				currentState=STATE_LAUNCHING;
 				ExternalInterface.call(_captureToolRunFunctionName);
 			}
@@ -133,14 +148,28 @@ package itrain.lessoneditor.model
 			if (_currentCapture)
 				importModel.removeCapture(_currentCapture);
 		}
+		
+		private function captureCancelled():void {
+			currentState=STATE_DEFAULT;
+			if (_currentCapture)
+			{
+				if (uploadProgress != 100)
+					removeCapture();
+			}
+			uploadProgress=0;
+			_captureUploaded = false;
+			_capturingStarted=false;
+		}
 
 		private function captureToolStatusUpdate(captureId:int, status:String, data:Object):void
 		{
+			_captureToolStatus=CaptureToolUtils.getCaptureToolStatus(status);
 			if (_capturingStarted)
 			{
-				_captureToolStatus=CaptureToolUtils.getCaptureToolStatus(status);
 				if (_captureToolStatus)
 				{
+					freezed = false;
+					message = description = "";
 					switch (_captureToolStatus.ordinal)
 					{
 						case EnumCaptureToolStatus.STARTING_APPLICATION.ordinal:
@@ -158,41 +187,49 @@ package itrain.lessoneditor.model
 							currentState=STATE_UPLOADING;
 							uploadProgress=data as int;
 							break;
-						case EnumCaptureToolStatus.FINISHED.ordinal:
-							currentState=STATE_FINISHED;
+						case EnumCaptureToolStatus.UPLOADED.ordinal:
+							currentState=STATE_UPLOADED;
 							uploadProgress=100;
+							break;
+						case EnumCaptureToolStatus.FINISHED.ordinal:
+							if (uploadProgress != 100)
+								captureCancelled();
 							break;
 						case EnumCaptureToolStatus.CAPTURE_SAVED.ordinal:
 							currentState=STATE_SAVED;
-							uploadProgress=100;
 							setTimeout(function():void
 							{
 								currentState=STATE_DEFAULT;
-								highlightNewButton = false;
+								highlightNewButton=false;
 								uploadProgress=0;
 								if (_currentCapture)
 								{
 									_currentCapture.timeStamp=new Date();
+									//_currentCapture.source="assets/capture1.xml";
 									_currentCapture.source=CaptureUtils.constructCaptureURL(_currentCapture.id, _companyId);
+									_currentCapture = null;
 								}
 								_capturingStarted=false;
 							}, STATE_DELAY);
 							break;
 						case EnumCaptureToolStatus.LAUNCH_ERROR.ordinal:
-							currentState = STATE_LAUNCH_ERROR;
+							currentState=STATE_LAUNCH_ERROR;
+							message = Messages.CT_LAUNCHING_ERROR;
+							description = (data != null && data != "") ? data as String : Messages.CT_ERROR_INFO;
 							setTimeout(function():void
 							{
-								currentState=STATE_DEFAULT;
-								uploadProgress=0;
-								if (_currentCapture)
-								{
-									removeCapture();
-								}
-								_capturingStarted=false;
-							}, STATE_DELAY*2);
+								captureCancelled();
+							}, STATE_DELAY * 3);
+							break;
+						case EnumCaptureToolStatus.WAIT_USER_DECISION.ordinal:
+							freezed = true;
 							break;
 					}
 				}
+			} else if (_captureToolStatus.equals(EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE)) {
+				message = Messages.CT_CAPTURE_TOOL_UNV;
+				description = Messages.CT_ERROR_INFO;
+				currentState=STATE_LAUNCH_ERROR;
 			}
 		}
 	}

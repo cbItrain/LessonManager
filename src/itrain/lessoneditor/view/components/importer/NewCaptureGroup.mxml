@@ -27,7 +27,7 @@
 		<s:State name="recording"/>
 		<s:State name="uploading"
 				 stateGroups="progressVisible"/>
-		<s:State name="finished"
+		<s:State name="uploaded"
 				 stateGroups="progressVisible"/>
 		<s:State name="saved"
 				 stateGroups="progressVisible"/>
@@ -59,6 +59,8 @@
 		<importer:CaptureToolDefault model="{model}"
 									 includeIn="default"
 									 highlightNewCaptureBtn="{model.highlightNewButton}"/>
-		<importer:CaptureToolError includeIn="launchError"/>
+		<importer:CaptureToolError includeIn="launchError"
+								   message="{model.message}"
+								   description="{model.description}"/>
 	</s:Group>
 </s:Group>

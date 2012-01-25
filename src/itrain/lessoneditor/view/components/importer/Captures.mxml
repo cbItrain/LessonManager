@@ -9,11 +9,6 @@
 		 initialize="onInitialize()"
 		 implements="itrain.lessoneditor.model.ISlidePreviewer"
 		 xmlns:imp="itrain.lessoneditor.view.components.importer.*">
-	<fx:Script>
-		<![CDATA[
-			import itrain.common.utils.Embeded;
-		]]>
-	</fx:Script>
 	<fx:Declarations>
 		<s:Move id="showPreviewEffect"
 				xFrom="0"
@@ -23,24 +18,26 @@
 				xFrom="{-this.width}"
 				xTo="0"
 				target="{movableContainer}"/>
-		<s:DateTimeFormatter id="dateTimeFormatter"
-							 dateTimePattern="dd MMM yyyy, h:mm a"/>
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import spark.events.GridEvent;
-			import spark.events.GridSelectionEvent;
-			import mx.binding.utils.BindingUtils;
-			import itrain.lessoneditor.model.SlideCaptureVO;
 			import itrain.common.events.CaptureImporterEvent;
 			import itrain.common.events.CaptureLoaderEvent;
+			import itrain.common.utils.Embeded;
 			import itrain.lessoneditor.model.CaptureImportModel;
 			import itrain.lessoneditor.model.CaptureVO;
 			import itrain.lessoneditor.model.EnumSelection;
 			import itrain.lessoneditor.model.ISlidePreviewer;
+			import itrain.lessoneditor.model.SlideCaptureVO;
+			import itrain.lessoneditor.view.renderers.CaptureListItemRenderer;
 			import itrain.lessoneditor.view.renderers.CaptureSlideRenderer;
-
+			
+			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			
+			import spark.events.GridEvent;
+			import spark.events.GridSelectionEvent;
+			import spark.skins.spark.DefaultGridItemRenderer;
 
 			[Bindable]
 			[Inject]
@@ -163,6 +160,7 @@
 			{
 				if (dgCaptureList.selectedItem)
 				{
+					onCaptureListSelectionChange();
 					var capture:CaptureVO=e.item as CaptureVO;
 					if (capture.timeStamp && capture.source)
 					{
@@ -177,11 +175,6 @@
 			{
 				deselect();
 				model.loadCaptures();
-			}
-
-			private function dateColumnLabelFunction(item:CaptureVO, column:GridColumn):String
-			{
-				return dateTimeFormatter.format(item.timeStamp);
 			}
 
 			private function onListDoubleClick(e:Event=null):void
@@ -230,12 +223,14 @@
 					<mx:ArrayList>
 						<s:GridColumn headerText="Lesson Name"
 									  dataField="lessonName"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
 									  width="{dgCaptureList.width * .5}"/>
 						<s:GridColumn headerText="Capture Id"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
 									  dataField="id"/>
 						<s:GridColumn headerText="Timestamp"
 									  dataField="timeStamp"
-									  labelFunction="dateColumnLabelFunction"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
 									  width="{dgCaptureList.width * .25}"/>
 					</mx:ArrayList>
 				</s:columns>

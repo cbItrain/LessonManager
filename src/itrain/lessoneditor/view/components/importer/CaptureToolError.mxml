@@ -4,11 +4,18 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  width="100%"
 		  horizontalAlign="center"
-		  currentState="launchError">
+		  currentState="launchError"
+		  gap="10">
 	<fx:Script>
 		<![CDATA[
 			import itrain.common.utils.Embeded;
 			import itrain.common.utils.Messages;
+			
+			[Bindable]
+			public var message:String;
+			
+			[Bindable]
+			public var description:String;
 		]]>
 	</fx:Script>
 	<s:states>
@@ -17,15 +24,15 @@
 	<s:HGroup verticalAlign="middle" paddingTop="10">
 		<s:BitmapImage source="{Embeded.ERROR}"/>
 		<s:Label id="lblCapStatus"
-				 text.launchError="{Messages.CT_LAUNCHING_ERROR}"
+				 text.launchError="{message}"
 				 fontSize="20"
 				 paddingTop="5"
 				 color="0x000000"/>
 	</s:HGroup>
 	<s:Label id="lblMessage"
-			 maxDisplayedLines="1"
+			 maxDisplayedLines="2"
 			 textAlign="center"
 			 color="0x777777"
-			 text="{Messages.CT_ERROR_INFO}"
+			 text="{description}"
 			 width="100%"/>
 </s:VGroup>

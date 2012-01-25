@@ -71,7 +71,7 @@
         </excludedEntries>
       </libraryPathEntry>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
-      <libraryPathEntry kind="3" linkType="1" path="/InPlaceTextEditor/bin/InPlaceTextEditor.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="/InPlaceTextEditor/bin/InPlaceTextEditor.swc" rslUrl="InPlaceTextEditor.swf" useDefaultLinkType="true"/>
       <libraryPathEntry kind="3" linkType="1" path="/ObjectHandles/bin/ObjectHandles.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
@@ -85,5 +85,7 @@
     <module destPath="LessonPlayerModule.swf" optimize="false" sourcePath="src/LessonPlayerModule.mxml"/>
     <module destPath="LessonEditorModule.swf" optimize="false" sourcePath="src/LessonEditorModule.mxml"/>
   </modules>
-  <buildCSSFiles/>
+  <buildCSSFiles>
+    <buildCSSFileEntry destPath="bin-debug" sourcePath="src/fonts.css"/>
+  </buildCSSFiles>
 </actionScriptProperties>
