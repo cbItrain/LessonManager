@@ -457,7 +457,7 @@ package itrain.lessoneditor.model {
 				if (_lastSaveIndex > -2 && _lastSaveIndex < _currentIndex)
 					_lastSaveIndex = -2;
 				else
-					_lastSaveIndex -= _currentIndex;
+					_lastSaveIndex = Math.max(-2, _lastSaveIndex - _currentIndex);
 				_currentIndex=0;
 			}
 		}

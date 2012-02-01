@@ -22,23 +22,24 @@
     </fx:Declarations>
     <fx:Script>
         <![CDATA[
-            import com.adobe.linguistics.spelling.SpellUI;
-
-            import flashx.textLayout.conversion.ConversionType;
-            import flashx.textLayout.conversion.TextConverter;
-            import flashx.textLayout.elements.TextFlow;
-
-            import itrain.common.utils.Common;
-            import itrain.lessoneditor.events.EditorEvent;
-            import itrain.lessoneditor.model.EditPanelModel;
-            import itrain.lessoneditor.model.EditorModel;
-
-            import mx.binding.utils.ChangeWatcher;
-            import mx.events.FlexEvent;
-            import mx.events.ResizeEvent;
-
-            import spark.effects.easing.Bounce;
-            import spark.effects.easing.Elastic;
+			import com.adobe.linguistics.spelling.SpellUI;
+			
+			import flashx.textLayout.conversion.ConversionType;
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
+			import flashx.textLayout.events.UpdateCompleteEvent;
+			
+			import itrain.common.utils.Common;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.model.EditPanelModel;
+			import itrain.lessoneditor.model.EditorModel;
+			
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.effects.easing.Bounce;
+			import spark.effects.easing.Elastic;
 
             [Inject]
             [Bindable]
@@ -51,6 +52,13 @@
             private var _visible:Boolean=false;
             private var _positionWatcher:ChangeWatcher;
             private var _spellCheckEnabled:Boolean=false;
+			private var _instChangeWatcher:ChangeWatcher;
+			
+			[PostConstruct]
+			public function onPostConstruct():void {
+				onTextModelChange();
+				_instChangeWatcher = ChangeWatcher.watch(model, ["currentlySelected", "interText"], onTextModelChange);
+			}
 
             private function enableSpelling():void {
                 try {
@@ -59,6 +67,8 @@
                         _spellCheckEnabled=true;
                         var ee:EditorEvent=new EditorEvent(EditorEvent.SPELL_CHECK_COMPLETED, true);
                         dispatchEvent(ee);
+						
+						txtInstruction.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE, onTextViewChange);
                     }
                 } catch (e:Error) {
                     trace(e);
@@ -175,11 +185,37 @@
 
             private function onTxtInstructionInitialize():void {
                 headerContainer.addElementAt(txtInstruction.toolBar, 0);
-                txtInstruction.toolBar.height=50;
+                txtInstruction.toolBar.height=50;	
             }
+			
+			private function onTextViewChange(o:Object=null):void {
+				if (model && model.currentlySelected) {
+					_instChangeWatcher.unwatch();
+					var newText:String=txtInstruction.textFlow.getText();
+					if (model.currentlySelected.interText || newText) {
+						model.currentlySelected.interText = getTextFlowAsString(txtInstruction.textFlow);
+					}
+					_instChangeWatcher.reset(model);
+				}
+			}
+			
+			private function onTextModelChange(o:Object=null):void {
+				if (model && model.currentlySelected) {
+					var hasEventListener:Boolean = txtInstruction.hasEventListener(UpdateCompleteEvent.UPDATE_COMPLETE);
+					if (hasEventListener)
+						txtInstruction.removeEventListener(UpdateCompleteEvent.UPDATE_COMPLETE, onTextViewChange);
+					txtInstruction.textFlow = getTextFlow(model.currentlySelected.interText);
+					if (hasEventListener)
+						txtInstruction.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE, onTextViewChange);
+				}
+			}
+			
+			private function getTextFlowAsString(flow:TextFlow):String {
+				return TextConverter.export(flow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+			}
 
             private function getTextFlow(text:String):TextFlow {
-                var oldText:String=TextConverter.export(txtInstruction.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+                var oldText:String=getTextFlowAsString(txtInstruction.textFlow);
                 if (oldText == text)
                     return txtInstruction.textFlow;
                 else
@@ -253,9 +289,7 @@
                                           paddingLeft="5"
                                           paddingRight="5"
                                           paddingTop="5"
-                                          initialize="onTxtInstructionInitialize()"
-                                          textFlow="{getTextFlow(model.currentlySelected.interText)}"
-                                          textChanges="{model.currentlySelected.interText = TextConverter.export(txtInstruction.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String}"/>
+                                          initialize="onTxtInstructionInitialize()"/>
         </s:Group>
         <!--mx:RichTextEditor id="txtInstruction"
                            width="100%"

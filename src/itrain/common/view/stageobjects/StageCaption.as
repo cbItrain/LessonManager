@@ -3,6 +3,7 @@ package itrain.common.view.stageobjects {
 	import com.adobe.linguistics.spelling.SpellUIForTLF;
 	
 	import flash.display.GradientType;
+	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
@@ -16,6 +17,7 @@ package itrain.common.view.stageobjects {
 	
 	import flashx.textLayout.conversion.ConversionType;
 	import flashx.textLayout.conversion.TextConverter;
+	import flashx.textLayout.events.UpdateCompleteEvent;
 	
 	import itrain.co.uk.components.InPlaceTextEditor;
 	import itrain.co.uk.events.InPlaceTextEditorEvent;
@@ -37,6 +39,7 @@ package itrain.common.view.stageobjects {
 	import mx.core.UIComponent;
 	import mx.core.mx_internal;
 	import mx.events.FlexEvent;
+	import mx.events.MenuEvent;
 	import mx.managers.CursorManager;
 	import mx.managers.CursorManagerPriority;
 	
@@ -194,6 +197,7 @@ package itrain.common.view.stageobjects {
 				if (_editable) {
 					textEditor.addEventListener(InPlaceTextEditorEvent.DELETE_CLICKED, onDeleteItem);
 					textEditor.addEventListener(InPlaceTextEditorEvent.TEXT_CHANGES, onTextChange);
+					textEditor.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 					this.addEventListener(KeyboardEvent.KEY_DOWN, onTextEditorKeyDown, true);
 				}
 			}
@@ -235,7 +239,7 @@ package itrain.common.view.stageobjects {
 			}
 		}
 
-		private function onTextChange(e:Event):void {
+		private function onTextChange(e:Event = null):void {
 			_textModelWatcher.unwatch();
 			(model as CaptionVO).text=TextConverter.export(textEditor.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
 			_textModelWatcher.reset(model);
@@ -269,9 +273,16 @@ package itrain.common.view.stageobjects {
 				trace(e);
 			}
 		}
+		
+		private function onTextLayoutUpdate(e:Event):void {
+			onTextChange();
+		}
 
 		private function onModelTextChange(o:Object):void {
+			textEditor.removeEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 			textEditor.textFlow=TextConverter.importToFlow((model as CaptionVO).text, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			if (_editable)
+				textEditor.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 		}
 
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
