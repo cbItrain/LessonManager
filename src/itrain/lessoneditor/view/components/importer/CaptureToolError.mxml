@@ -4,7 +4,6 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  width="100%"
 		  horizontalAlign="center"
-		  currentState="launchError"
 		  gap="10">
 	<fx:Script>
 		<![CDATA[
@@ -18,13 +17,10 @@
 			public var description:String;
 		]]>
 	</fx:Script>
-	<s:states>
-		<s:State name="launchError"/>
-	</s:states>
 	<s:HGroup verticalAlign="middle" paddingTop="10">
 		<s:BitmapImage source="{Embeded.ERROR}"/>
 		<s:Label id="lblCapStatus"
-				 text.launchError="{message}"
+				 text="{message}"
 				 fontSize="20"
 				 paddingTop="5"
 				 color="0x000000"/>

@@ -11,9 +11,9 @@ package itrain.common.model.vo {
 	[Bindable]
 	[RemoteClass]
 	public class SlideVO extends ChangeAwareModel {
-		public var title:String;
+		//public var title:String;
 		public var source:String;
-		public var thumb:String;
+		//public var thumb:String;
 		public var interText:String;
 		public var hotspots:Array;
 		public var captions:Array;
@@ -21,9 +21,9 @@ package itrain.common.model.vo {
 		public var highlights:Array;
 		public var start:int;
 		public var end:int;
-		public var cursor:String;
-		public var validation:Boolean;
-		public var result:String;
+		//public var cursor:String;
+		//public var validation:Boolean;
+		//public var result:String;
 		public var instructionTopPos:Boolean;
 
 		public function SlideVO() {
@@ -32,7 +32,7 @@ package itrain.common.model.vo {
 			unlistenForChange();
 			
 			instructionTopPos = true;
-			title="Untitled";
+			//title="Untitled";
 			hotspots=[];
 			captions=[];
 			textfields=[];
@@ -46,15 +46,16 @@ package itrain.common.model.vo {
 		public function convertToXML():XML {
 			var slideTag:XML = <slide></slide>;
 			
-			slideTag.appendChild(XMLList("<cursor>" + cursor + "</cursor>"));
+			//slideTag.appendChild(XMLList("<cursor>" + cursor + "</cursor>"));
 			slideTag.appendChild(XMLList("<start>" + start + "</start>"));
 			slideTag.appendChild(XMLList("<end>" + end + "</end>"));
-			slideTag.appendChild(XMLList("<title>" + title + "</title>"));
+			//slideTag.appendChild(XMLList("<title>" + title + "</title>"));
 			slideTag.appendChild(XMLList("<source>" + source + "</source>"));
-			slideTag.appendChild(XMLList("<thumb>" + thumb + "</thumb>"));
+			//slideTag.appendChild(XMLList("<thumb>" + thumb + "</thumb>"));
 			slideTag.appendChild(XMLList("<interText><![CDATA[" + (interText ? interText : "") + "]]></interText>"));
-			slideTag.appendChild(XMLList("<instructionTopPos>" + instructionTopPos + "</instructionTopPos>"));
-			slideTag.appendChild(XMLList("<validation>" + validation + "</validation>"));
+			if (instructionTopPos)
+				slideTag.appendChild(XMLList("<instructionTopPos>" + instructionTopPos + "</instructionTopPos>"));
+			//slideTag.appendChild(XMLList("<validation>" + validation + "</validation>"));
 			
 			var captionsTag:XML = <captions></captions>;
 			
@@ -96,15 +97,15 @@ package itrain.common.model.vo {
 			
 			resultVO.unlistenForChange();
 			
-			resultVO.title = title;
+			//resultVO.title = title;
 			resultVO.source = source;
-			resultVO.thumb = thumb;
+			//resultVO.thumb = thumb;
 			resultVO.interText = interText;
 			resultVO.start = start;
 			resultVO.end = end;
-			resultVO.cursor = cursor;
-			resultVO.validation = validation;
-			resultVO.result = result;
+			//resultVO.cursor = cursor;
+			//resultVO.validation = validation;
+			//resultVO.result = result;
 			resultVO.instructionTopPos = instructionTopPos;
 			for each (var ho:HotspotVO in hotspots) {
 				resultVO.hotspots.push(ho.clone());
@@ -127,14 +128,14 @@ package itrain.common.model.vo {
 			
 			this.unlistenForChange();
 			
-			this.title=op.title;
+			//this.title=op.title;
 			this.source=op.source;
-			this.thumb=op.thumb;
+			//this.thumb=op.thumb;
 			this.interText=DataUtils.cleanHTMLText(op.interText);
 			this.start=op.start;
 			this.end=op.end;
-			this.cursor=op.cursor;
-			this.validation=DataUtils.parseBoolean(op.validation);
+			//this.cursor=op.cursor;
+			//this.validation=DataUtils.parseBoolean(op.validation);
 			this.instructionTopPos=DataUtils.parseBoolean(op.instructionTopPos);
 
 			if (op.captions) {

@@ -29,7 +29,7 @@
 
 			private function onPause():void
 			{
-				model.pauseRecording();
+				model.pauseResumeRecording();
 			}
 
 			private function onCancel():void
@@ -55,18 +55,18 @@
 				 stateGroups="progressVisible"/>
 		<s:State name="saved"
 				 stateGroups="progressVisible"/>
-		<s:State name="launchError"/>
+		<s:State name="error"/>
 	</s:states>
 	<s:transitions>
 		<s:Transition fromState="*"
 					  toState="*"
-					  excludeFrom="default, launchError">
+					  excludeFrom="default, error">
 			<s:Sequence>
 				<s:Fade alphaFrom="1.0"
 						alphaTo="0.0"
 						duration="180"
 						targets="{[topPart, lblCapStatus]}"
-						excludeFrom="uploaded, saved, default, launchError"/>
+						excludeFrom="uploaded, saved, default, error"/>
 				<s:SetAction property="text"
 							 targets="{[lblCapStatus, lblMessage]}"/>
 				<s:SetAction property="color"
@@ -79,7 +79,7 @@
 						alphaTo="1.0"
 						duration="180"
 						targets="{[topPart, lblCapStatus]}"
-						excludeFrom="uploaded, saved,default, launchError"/>
+						excludeFrom="uploaded, saved,default, error"/>
 			</s:Sequence>
 		</s:Transition>
 	</s:transitions>

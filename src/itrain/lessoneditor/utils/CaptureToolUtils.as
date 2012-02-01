@@ -19,6 +19,7 @@ package itrain.lessoneditor.utils
 					case "LAUNCH_ERROR": return EnumCaptureToolStatus.LAUNCH_ERROR;
 					case "WAIT_USER_DECISION": return EnumCaptureToolStatus.WAIT_USER_DECISION;
 					case "CAPTURE_TOOL_UNAVAILABLE": return EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE;
+					case "CRASHED": return EnumCaptureToolStatus.CRASHED;
 				}
 			} 
 			return null;

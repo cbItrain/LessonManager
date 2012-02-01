@@ -41,6 +41,10 @@
 					lessonEditor.rightClick(o);
 			}
 			
+			override protected function get moduleLoader():ModuleLoader {
+				return editorModule;
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Style>
@@ -57,7 +61,6 @@
 					 url="{parameters.editorModuleURL}"
 					 loading="onLoading(event)"
 					 ready="onReady(event)"
-					 creationComplete="onModuleCreationComplete(event)"
 					 width="100%"
 					 height="100%"/>
 </model:RightClickAwareApplication>

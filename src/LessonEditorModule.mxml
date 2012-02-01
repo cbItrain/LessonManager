@@ -47,35 +47,36 @@
     </fx:Declarations>
     <fx:Script>
         <![CDATA[
-            import com.adobe.linguistics.spelling.SpellUI;
-            import com.adobe.linguistics.spelling.SpellUIForTLF;
-            import com.adobe.linguistics.spelling.framework.ResourceTable;
-            import com.adobe.linguistics.spelling.framework.SpellingConfiguration;
-
-            import itrain.IRightClickAware;
-            import itrain.common.control.LessonConverter;
-            import itrain.common.events.LessonLoaderEvent;
-            import itrain.common.utils.Embeded;
-            import itrain.lessoneditor.events.EditorEvent;
-            import itrain.lessoneditor.events.MessageEvent;
-            import itrain.lessoneditor.model.EditorModel;
-            import itrain.lessoneditor.model.EnumMessageSeverity;
-            import itrain.lessoneditor.model.EnumPreviewOption;
-
-            import mx.controls.Alert;
-            import mx.core.FlexGlobals;
-            import mx.events.BrowserChangeEvent;
-            import mx.events.ResizeEvent;
-            import mx.graphics.BitmapFillMode;
-            import mx.managers.BrowserManager;
-            import mx.managers.IBrowserManager;
-            import mx.managers.PopUpManager;
-
-            import org.osmf.layout.ScaleMode;
-            import org.swizframework.core.SwizManager;
-
-            import spark.primitives.BitmapImage;
-            import spark.primitives.supportClasses.FilledElement;
+			import com.adobe.linguistics.spelling.SpellUI;
+			import com.adobe.linguistics.spelling.SpellUIForTLF;
+			import com.adobe.linguistics.spelling.framework.ResourceTable;
+			import com.adobe.linguistics.spelling.framework.SpellingConfiguration;
+			
+			import itrain.IRightClickAware;
+			import itrain.common.control.LessonConverter;
+			import itrain.common.events.LessonLoaderEvent;
+			import itrain.common.events.LessonModuleEvent;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.events.MessageEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.model.EnumMessageSeverity;
+			import itrain.lessoneditor.model.EnumPreviewOption;
+			
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.BrowserChangeEvent;
+			import mx.events.ResizeEvent;
+			import mx.graphics.BitmapFillMode;
+			import mx.managers.BrowserManager;
+			import mx.managers.IBrowserManager;
+			import mx.managers.PopUpManager;
+			
+			import org.osmf.layout.ScaleMode;
+			import org.swizframework.core.SwizManager;
+			
+			import spark.primitives.BitmapImage;
+			import spark.primitives.supportClasses.FilledElement;
 
             [Bindable]
             [Inject]
@@ -91,6 +92,9 @@
             }
 
             private function onCreationComplete():void {
+				var ev:LessonModuleEvent=new LessonModuleEvent(LessonModuleEvent.MODULE_CREATION_COMPLETE, true);
+				dispatchEvent(ev);
+				
                 this.dispatchEvent(new LessonLoaderEvent(LessonLoaderEvent.LOAD_LESSON, true));
 
                 middleContainer.x=lstSlides.x + lstSlides.width;

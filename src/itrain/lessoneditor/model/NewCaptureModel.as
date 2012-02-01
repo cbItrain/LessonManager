@@ -23,7 +23,7 @@ package itrain.lessoneditor.model
 		private static const STATE_SAVED:String="saved";
 		private static const STATE_UPLOADED:String="uploaded";
 		private static const STATE_READY:String="ready";
-		private static const STATE_LAUNCH_ERROR:String="launchError";
+		private static const STATE_ERROR:String="error";
 
 		private static const STATE_DELAY:int=2000;
 
@@ -53,7 +53,7 @@ package itrain.lessoneditor.model
 
 		private var _captureToolStatus:EnumCaptureToolStatus=null;
 		private var _captureToolRunFunctionName:String=null;
-		private var _captureToolPauseFunctionName:String=null;
+		private var _captureToolPauseResumeFunctionName:String=null;
 		private var _captureToolStopFunctionName:String=null;
 		private var _captureToolCancelFucntionName:String=null;
 		private var _lessonName:String="No name";
@@ -78,7 +78,7 @@ package itrain.lessoneditor.model
 			}
 			if (flashVars.captureToolPauseFunctionName)
 			{
-				_captureToolPauseFunctionName=flashVars.captureToolPauseFunctionName;
+				_captureToolPauseResumeFunctionName=flashVars.captureToolPauseResumeFunctionName;
 			}
 			if (flashVars.captureToolStopFunctionName)
 			{
@@ -117,11 +117,11 @@ package itrain.lessoneditor.model
 			}
 		}
 
-		public function pauseRecording():void
+		public function pauseResumeRecording():void
 		{
-			if (ExternalInterface.available && _captureToolPauseFunctionName)
+			if (ExternalInterface.available && _captureToolPauseResumeFunctionName)
 			{
-				ExternalInterface.call(_captureToolPauseFunctionName);
+				ExternalInterface.call(_captureToolPauseResumeFunctionName);
 			}
 		}
 
@@ -212,10 +212,17 @@ package itrain.lessoneditor.model
 								_capturingStarted=false;
 							}, STATE_DELAY);
 							break;
+						case EnumCaptureToolStatus.CRASHED.ordinal:
 						case EnumCaptureToolStatus.LAUNCH_ERROR.ordinal:
-							currentState=STATE_LAUNCH_ERROR;
-							message = Messages.CT_LAUNCHING_ERROR;
-							description = (data != null && data != "") ? data as String : Messages.CT_ERROR_INFO;
+							_capturingStarted=false;
+							currentState=STATE_ERROR;
+							if (_captureToolStatus.equals(EnumCaptureToolStatus.LAUNCH_ERROR)) {
+								message = Messages.CT_LAUNCHING_ERROR;
+								description = (data != null && data != "") ? data as String : Messages.CT_LAUNCHING_ERROR_INFO;
+							} else {
+								message = Messages.CT_CRASHED;
+								description = (data != null && data != "") ? data as String : Messages.CT_CRASHED_INFO;
+							}
 							setTimeout(function():void
 							{
 								captureCancelled();
@@ -228,8 +235,8 @@ package itrain.lessoneditor.model
 				}
 			} else if (_captureToolStatus.equals(EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE)) {
 				message = Messages.CT_CAPTURE_TOOL_UNV;
-				description = Messages.CT_ERROR_INFO;
-				currentState=STATE_LAUNCH_ERROR;
+				description = Messages.CT_LAUNCHING_ERROR_INFO;
+				currentState=STATE_ERROR;
 			}
 		}
 	}

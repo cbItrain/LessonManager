@@ -16,6 +16,7 @@ package itrain.lessoneditor.model
 		public static const LAUNCH_ERROR:EnumCaptureToolStatus = new EnumCaptureToolStatus(9);
 		public static const WAIT_USER_DECISION:EnumCaptureToolStatus = new EnumCaptureToolStatus(10);
 		public static const CAPTURE_TOOL_UNAVAILABLE:EnumCaptureToolStatus = new EnumCaptureToolStatus(11);
+		public static const CRASHED:EnumCaptureToolStatus = new EnumCaptureToolStatus(12);
 		
 		public function EnumCaptureToolStatus(ordinal:int)
 		{
@@ -33,12 +34,13 @@ package itrain.lessoneditor.model
 				case 9: name = "LAUNCH_ERROR"; break;
 				case 10: name = "WAIT_USER_DECISION"; break;
 				case 11: name = "CAPTURE_TOOL_UNAVAILABLE"; break;
+				case 12: name = "CRASHED"; break;
 			}
 			this.ordinal = ordinal;
 		}
 		
 		public function get values():Array {
-			return [LOADING, STARTING_APPLICATION, APPLICATION_STARTED, UPLOADING, IDLE, UPLOADED, RECORDING, FINISHED, CAPTURE_SAVED, LAUNCH_ERROR, WAIT_USER_DECISION, CAPTURE_TOOL_UNAVAILABLE];
+			return [LOADING, STARTING_APPLICATION, APPLICATION_STARTED, UPLOADING, IDLE, UPLOADED, RECORDING, FINISHED, CAPTURE_SAVED, LAUNCH_ERROR, WAIT_USER_DECISION, CAPTURE_TOOL_UNAVAILABLE, CRASHED];
 		}
 	}
 }
