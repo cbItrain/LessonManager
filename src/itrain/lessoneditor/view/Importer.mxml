@@ -2,11 +2,10 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 xmlns:importer="itrain.lessoneditor.view.components.importer.*"
 		 xmlns:se="http://www.sephiroth.it/2006/mxml"
 		 xmlns:view="itrain.common.view.*"
 		 xmlns:c="itrain.lessoneditor.view.components.*"
-		 visible="false">
+		 visible="false" xmlns:importer="itrain.lessoneditor.view.components.importer.*">
 	<fx:Declarations>
 		<s:Fade id="effectIn"
 				alphaFrom="0.0"
@@ -47,46 +46,48 @@
 			[Bindable]
 			[Inject]
 			public var editorModel:EditorModel;
+
+			[Bindable]
+			public var appContextMenu:ContextMenu;
+
+
 			private var _watcher:ChangeWatcher;
 
+			[Bindable]
+			private var _notEmptyLesson:Boolean;
+
 			[PostConstruct]
-			public function onPostConstruct():void
-			{
+			public function onPostConstruct():void {
 				if (_watcher)
 					_watcher.unwatch();
 				_watcher=ChangeWatcher.watch(model, "allSlidesSelected", onAllSelectionModelChange);
 			}
 
-			public function show(showClose:Boolean=true):void
-			{
-				if (!visible)
-				{
+			public function show(showClose:Boolean=true):void {
+				if (!visible) {
 					visible=true;
 					captures.capturesShown();
 
 					effectOut.pause();
 					effectIn.play();
-					window.closeButton.visible = showClose;
-					newCaptureModel.highlightNewButton = !showClose;
+					_notEmptyLesson=window.closeButton.visible=showClose;
+					newCaptureModel.highlightNewButton=!showClose;
 
 					window.backToCourseButton.removeEventListener(MouseEvent.CLICK, onBackToCourseClick);
 					window.backToCourseButton.addEventListener(MouseEvent.CLICK, onBackToCourseClick);
 				}
 			}
 
-			private function onBackToCourseClick(me:MouseEvent):void
-			{
+			private function onBackToCourseClick(me:MouseEvent):void {
 				editorModel.close();
 			}
 
-			private function onClose():void
-			{
+			private function onClose():void {
 				hide();
 				model.onCloseWindow();
 			}
 
-			private function outEffectEnd():void
-			{
+			private function outEffectEnd():void {
 
 				selectedView.hidePreview();
 				selectedView.deselect();
@@ -96,20 +97,16 @@
 				visible=false;
 			}
 
-			public function hide():void
-			{
-				if (visible)
-				{
+			public function hide():void {
+				if (visible) {
 					effectIn.pause();
 					effectOut.play();
 				}
 			}
 
 			[Bindable(event="SelectedViewChanges")]
-			private function get selectedView():ISlidePreviewer
-			{
-				switch (vstNavigation.selectedIndex)
-				{
+			private function get selectedView():ISlidePreviewer {
+				switch (vstNavigation.selectedIndex) {
 					case 0:
 						return captures;
 					default:
@@ -117,56 +114,43 @@
 				}
 			}
 
-			private function onAllSelectionChange():void
-			{
-				if (cbxAllSelection.middle)
-				{
+			private function onAllSelectionChange():void {
+				if (cbxAllSelection.middle) {
 					cbxAllSelection.middle=false;
 				}
 				model.setAllSlideSelection(cbxAllSelection.selected);
 			}
 
-			private function onAllSelectionModelChange(o:Object):void
-			{
-				if (model.allSlidesSelected.equals(EnumSelection.MIDDLE))
-				{
+			private function onAllSelectionModelChange(o:Object):void {
+				if (model.allSlidesSelected.equals(EnumSelection.MIDDLE)) {
 					cbxAllSelection.selected=false;
 					cbxAllSelection.middle=true;
-				}
-				else
-				{
+				} else {
 					cbxAllSelection.middle=false;
 					cbxAllSelection.selected=model.allSlidesSelected.equals(EnumSelection.SELECTED);
 				}
 				btnImport.enabled=(newCaptureModel.currentState == NewCaptureModel.STATE_DEFAULT && model.selectedCapture && (cbxAllSelection.middle || cbxAllSelection.selected));
 			}
 
-			private function onImportClick():void
-			{
+			private function onImportClick():void {
 				model.importSelection(btnPreview.selected);
 				onClose();
 			}
 
-			private function runPreveiwHandler():void
-			{
+			private function runPreveiwHandler():void {
 				btnPreview.selected=true;
 			}
 
-			private function hidePreviewHandler():void
-			{
+			private function hidePreviewHandler():void {
 				btnPreview.selected=false;
 			}
 
-			private function getSelectionLabelText(newCount:Number):String
-			{
+			private function getSelectionLabelText(newCount:Number):String {
 				var result:String=newCount ? newCount.toString() : "0";
 				result+=" of ";
-				if (model && model.captureSlides)
-				{
+				if (model && model.captureSlides) {
 					result+=model.captureSlides.length;
-				}
-				else
-				{
+				} else {
 					result+="0";
 				}
 				return result;
@@ -186,7 +170,7 @@
 							   close="onClose()"
 							   title="Import Slides"
 							   alpha="0.0"
-							   width="800"
+							   width="80%"
 							   height="80%"
 							   verticalCenter="0"
 							   horizontalCenter="0"
@@ -238,6 +222,7 @@
 						<importer:Captures id="captures"
 										   width="100%"
 										   height="100%"
+										   appContextMenu="{appContextMenu}"
 										   hidePreviewHandler="hidePreviewHandler"
 										   runPreviewHandler="{runPreveiwHandler}"/>
 					</s:NavigatorContent>
@@ -278,6 +263,7 @@
 								  gap="3"
 								  toolTip="Select this option to add imported slides at the end of your slide list">
 							<s:RadioButton id="rbEnd"
+										   enabled="{_notEmptyLesson}"
 										   selected="{editorModel.addAtTheEnd}"/>
 							<s:Label paddingTop="3"
 									 text="At the end"/>
@@ -288,6 +274,7 @@
 								  gap="3"
 								  toolTip="Select after which slide in your lesson imported slides should be added">
 							<s:RadioButton id="rbAfter"
+										   enabled="{_notEmptyLesson}"
 										   selected="{!editorModel.addAtTheEnd}"/>
 							<s:Label paddingTop="3"
 									 text="After slide"/>
@@ -295,6 +282,7 @@
 											  value="{editorModel.insertionIndex > -1 ? editorModel.insertionIndex : 1}"
 											  change="{editorModel.insertionIndex = stpIndex.value}"
 											  minimum="1"
+											  enabled="{_notEmptyLesson}"
 											  maximum="{editorModel.lesson.slides.length}"/>
 						</s:HGroup>
 						<s:Spacer width="30"/>

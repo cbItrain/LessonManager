@@ -7,7 +7,6 @@
 		 height="100"
 		 xmlns:importer="itrain.lessoneditor.view.components.importer.*">
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
@@ -18,11 +17,18 @@
 			[Inject]
 			[Bindable]
 			public var model:NewCaptureModel;
+			
+			public var processStartedHandler:Function;
+			
+			private function onLaunchingEnterState():void {
+				if (processStartedHandler != null)
+					processStartedHandler();
+			}
 		]]>
 	</fx:Script>
 	<s:states>
 		<s:State name="default"/>
-		<s:State name="launching"/>
+		<s:State name="launching" enterState="onLaunchingEnterState()"/>
 		<s:State name="ready"/>
 		<s:State name="recording"/>
 		<s:State name="uploading"
@@ -61,6 +67,7 @@
 									 highlightNewCaptureBtn="{model.highlightNewButton}"/>
 		<importer:CaptureToolError includeIn="error"
 								   message="{model.message}"
+								   retryHandler="{model.ctAvailable ? null : model.retryCaptureTool}"
 								   description="{model.description}"/>
 	</s:Group>
 </s:Group>

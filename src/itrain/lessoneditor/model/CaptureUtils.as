@@ -26,7 +26,7 @@ package itrain.lessoneditor.model
 			return "Unavailable";
 		}
 		
-		public static function constructCaptureURL(captureId:int, companyId:int):String {
+		public static function constructCaptureURL(captureId:int, companyId:String):String {
 			return "/captures/" + companyId + "/capture/" + captureId + "/files/course_" + companyId + "_" + captureId + ".xml";
 		}
 	}

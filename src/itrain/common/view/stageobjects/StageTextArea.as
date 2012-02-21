@@ -62,8 +62,8 @@ package itrain.common.view.stageobjects
 			
 			_editable = editable;
 			
-			this.addEventListener(MouseEvent.CLICK, onMouseClick);
-			this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			this.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
+			this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
 			
 			bindProperty();
 		}
@@ -137,7 +137,7 @@ package itrain.common.view.stageobjects
 				}
 				_newText=cleanText;
 				_timer=new Timer(letterHoldDuration);
-				_timer.addEventListener(TimerEvent.TIMER, onTimerEvent);
+				_timer.addEventListener(TimerEvent.TIMER, onTimerEvent, false, 0, true);
 				_timer.start();
 			}
 			else

@@ -5,36 +5,48 @@
 					height="30">
 	<fx:Declarations>
 		<s:Sequence id="seqFade"
-					target="{rectBackground}"
-					repeatCount="10">
+					target="{rectGreenBackground}"
+					repeatCount="2"
+					effectEnd="onEffectEnd()">
 			<s:Fade alphaFrom="0.0"
 					alphaTo="1.0"
 					duration="400"/>
+			<s:Pause duration="200"/>
 			<s:Fade alphaFrom="1.0"
 					alphaTo="0.0"
 					duration="400"/>
 		</s:Sequence>
 		<s:DateTimeFormatter id="dateTimeFormatter"
-							 dateTimePattern="dd MMM yyyy, h:mm a"/>
+							 dateTimePattern="{DEFAULT_FORMAT_STRING}"/>
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			import flash.utils.setTimeout;
 			
+			import itrain.common.events.CaptureImporterEvent;
+			import itrain.common.utils.DateUtils;
+			import itrain.lessoneditor.events.CaptureListItemRendererEvent;
 			import itrain.lessoneditor.model.CaptureVO;
 			
+			import mx.binding.utils.BindingUtils;
 			import mx.events.PropertyChangeEvent;
 			
 			import spark.components.DataGrid;
 			import spark.events.GridEvent;
 			import spark.events.GridSelectionEvent;
-
+			
+			private static const REP_PROB_LABEL:String = "Report Issue on Capture ";
+			
+			private static const TODAY_FORMAT_STRING:String = "h:mm a";
+			private static const WEEK_FORMAT_STRING:String = "EEEE h:mm a";
+			private static const DEFAULT_FORMAT_STRING:String = "dd MMM yyyy, h:mm a";
+			
 			private function onSelectionChange(e:GridSelectionEvent):void
 			{
 				if (seqFade.isPlaying)
 				{
 					seqFade.stop();
-					rectBackground.visible=false;
+					rectGreenBackground.visible=false;
 					owner.removeEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
 				}
 			}
@@ -44,38 +56,71 @@
 				if (e.property == "source")
 				{
 					seqFade.play();
-					rectBackground.visible=true;
-					(data as CaptureVO).addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
-					owner.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
-					setTimeout(function ():void {
-						(owner as DataGrid).selectedItem = data;
-						var ge:GridEvent = new GridEvent(GridEvent.GRID_DOUBLE_CLICK,true);
-						ge.item = data;
-						owner.dispatchEvent(ge);
-					},1500);
+					rectGreenBackground.visible=true;
+					(data as CaptureVO).removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
+					owner.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange, false, 0, true);
+				}
+			}
+			
+			private function onEffectEnd():void {
+				var cvo:CaptureVO = data as CaptureVO;
+				if (cvo && column.dataField == "id") {
+					(owner as DataGrid).selectedItem = data;
+					var ce:CaptureListItemRendererEvent = new CaptureListItemRendererEvent(CaptureListItemRendererEvent.DOUBLE_CLICKED,true);
+					ce.capture = cvo;
+					owner.dispatchEvent(ce);
 				}
 			}
 
 			override public function set data(value:Object):void
 			{
+				var cvo:CaptureVO = data as CaptureVO;
+				if (cvo) {
+					cvo.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
+					owner.removeEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelectionChange);
+				}
 				super.data=value;
+				rectYellowBackground.visible = false;
+				rectGreenBackground.visible = false;
 				if (value)
 				{
-					var cvo:CaptureVO = value as CaptureVO;
+					cvo= value as CaptureVO;
 					if (cvo[column.dataField] is Date) {
-						lblLabel.text = dateTimeFormatter.format(cvo[column.dataField]);
+						setDateLabel(cvo[column.dataField] as Date);
+					} else if (cvo[column.dataField] == null || cvo[column.dataField] == "") {
+						lblLabel.text = "-";
 					} else {
 						lblLabel.text = cvo[column.dataField];
 					}
-					if (!cvo.source) {
-						cvo.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange);
+					rectYellowBackground.visible = !cvo.source;
+					if (rectYellowBackground.visible) {
+						cvo.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onSourceChange, false, 0, true);
 					}
 				}
+			}
+			
+			private function setDateLabel(date:Date):void {
+				if (DateUtils.isToday(date))
+					dateTimeFormatter.dateTimePattern = TODAY_FORMAT_STRING;
+				else if (DateUtils.isThisWeek(date))
+					dateTimeFormatter.dateTimePattern = WEEK_FORMAT_STRING;
+				else
+					dateTimeFormatter.dateTimePattern = DEFAULT_FORMAT_STRING;
+				lblLabel.text = dateTimeFormatter.format(date);
 			}
 		]]>
 	</fx:Script>
 	<s:Group width="100%" height="100%">
-		<s:Rect id="rectBackground"
+		<s:Rect id="rectYellowBackground"
+				width="100%"
+				height="100%"
+				alpha=".4"
+				visible="false">
+			<s:fill>
+				<s:SolidColor color="0xFFFF00"/>
+			</s:fill>
+		</s:Rect>
+		<s:Rect id="rectGreenBackground"
 				width="100%"
 				height="100%"
 				visible="false">
@@ -85,6 +130,8 @@
 		</s:Rect>
 		<s:Label id="lblLabel"
 				 verticalCenter="2"
+				 width="100%"
+				 maxDisplayedLines="1"
 				 left="6"/>
 	</s:Group>
 </s:GridItemRenderer>

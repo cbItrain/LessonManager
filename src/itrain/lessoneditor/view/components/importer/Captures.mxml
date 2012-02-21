@@ -4,9 +4,12 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
 		 width="100%"
 		 height="100%"
+		 addedToStage="onAddedToStage()"
+		 removedFromStage="onRemovedFromStage()"
 		 clipAndEnableScrolling="true"
 		 preinitialize="onPreinitialize()"
 		 initialize="onInitialize()"
+		 xmlns:importer="itrain.lessoneditor.view.components.importer.*"
 		 implements="itrain.lessoneditor.model.ISlidePreviewer"
 		 xmlns:imp="itrain.lessoneditor.view.components.importer.*">
 	<fx:Declarations>
@@ -18,26 +21,40 @@
 				xFrom="{-this.width}"
 				xTo="0"
 				target="{movableContainer}"/>
+		<importer:CaptureIssueReport id="issueReporter"
+									 visible="false"
+									 cancelHandler="{cancelIssueReportHandler}"
+									 sendHandler="{sendIssueReportHandler}"
+									 verticalCenter="0"
+									 horizontalCenter="0"/>
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			import itrain.common.events.CaptureImporterEvent;
 			import itrain.common.events.CaptureLoaderEvent;
 			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.CaptureListItemRendererEvent;
+			import itrain.lessoneditor.events.NewCaptureEvent;
 			import itrain.lessoneditor.model.CaptureImportModel;
 			import itrain.lessoneditor.model.CaptureVO;
+			import itrain.lessoneditor.model.EnumCaptureFilterOption;
 			import itrain.lessoneditor.model.EnumSelection;
 			import itrain.lessoneditor.model.ISlidePreviewer;
 			import itrain.lessoneditor.model.SlideCaptureVO;
+			import itrain.lessoneditor.utils.CaptureFilterHelper;
 			import itrain.lessoneditor.view.renderers.CaptureListItemRenderer;
 			import itrain.lessoneditor.view.renderers.CaptureSlideRenderer;
+			import itrain.lessoneditor.view.skins.HoverIndicator;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
 			
 			import spark.events.GridEvent;
 			import spark.events.GridSelectionEvent;
 			import spark.skins.spark.DefaultGridItemRenderer;
+
+			private static const REP_PROB_LABEL:String="Report Issue on Capture ";
 
 			[Bindable]
 			[Inject]
@@ -51,76 +68,82 @@
 
 			[Bindable]
 			public var hidePreviewHandler:Function;
-			
+
 			[Bindable]
 			public var firstTimeRun:Boolean;
 
+			[Bindable]
+			public var appContextMenu:ContextMenu;
+
 			private var _enablePreview:Boolean=false;
+			private var _reportProblemContMenuItem:ContextMenuItem;
 
 			[Bindable]
 
 			private var _mockDataProvider:ArrayCollection; // for better list performance
 
 			[Bindable]
-			public function get enablePreview():Boolean
-			{
+			public function get enablePreview():Boolean {
 				return _enablePreview;
 			}
 
-			public function set enablePreview(value:Boolean):void
-			{
+			public function set enablePreview(value:Boolean):void {
 				_enablePreview=value;
 			}
 
-			public function deselect():void
-			{
+			private function onAddedToStage():void {
+				PopUpManager.addPopUp(issueReporter, parentApplication as DisplayObject);
+			}
+
+			private function onRemovedFromStage():void {
+				PopUpManager.removePopUp(issueReporter);
+			}
+
+			public function deselect():void {
 				dgCaptureList.selectedItem=null;
 				onCaptureListSelectionChange();
 			}
 
-			private function onPreinitialize():void
-			{
+			private function onPreinitialize():void {
 				generatePreviewMockDataProvider();
 			}
 
-			public function capturesShown():void
-			{
-				if (dgCaptureList.dataProvider)
-				{
+			public function capturesShown():void {
+				setCurrentFilter(EnumCaptureFilterOption.LESSON);
+				if (dgCaptureList.dataProvider) {
 					onRefereshClick();
-				}
-				else
-				{
+				} else {
 					BindingUtils.bindProperty(dgCaptureList, "dataProvider", model, "captures");
 				}
 			}
 
-			private function generatePreviewMockDataProvider(count:int=30):void
-			{
+			private function setCurrentFilter(value:EnumCaptureFilterOption):void {
+				ddlFilter.selectedIndex=value.ordinal;
+				model.setCaptureListFilter(value);
+			}
+
+			private function generatePreviewMockDataProvider(count:int=30):void {
 				_mockDataProvider=new ArrayCollection();
-				for (var i:int=0; i < count; i++)
-				{
+				for (var i:int=0; i < count; i++) {
 					_mockDataProvider.addItem({});
 				}
 			}
 
-			public function showPreview():void
-			{
-				if (movableContainer.x != -this.width)
-				{
+			public function showPreview():void {
+				if (movableContainer.x != -this.width) {
 					lstPreview.dataProvider=model.captureSlides;
 
 					if (hidePreviewEffect.isPlaying)
 						hidePreviewEffect.stop();
 					if (!showPreviewEffect.isPlaying)
 						showPreviewEffect.play();
+
+					addRepProbItem();
 				}
 			}
 
-			public function hidePreview():void
-			{
-				if (movableContainer.x != 0)
-				{
+			public function hidePreview():void {
+				if (movableContainer.x != 0) {
 					if (showPreviewEffect.isPlaying)
 						showPreviewEffect.stop();
 					if (!hidePreviewEffect.isPlaying)
@@ -129,41 +152,66 @@
 			}
 
 			[Mediate(event="CaptureImporterEvent.IMPORT_SELECTION_CHANGED")]
-			public function onImportSelectionChanged(cie:CaptureImporterEvent):void
-			{
+			public function onImportSelectionChanged(cie:CaptureImporterEvent):void {
 				var scVO:SlideCaptureVO=cie.additionalData as SlideCaptureVO;
 				var selectedArray:Vector.<Object>=lstPreview.selectedItems;
-				if (selectedArray.indexOf(scVO) > -1)
-				{
-					if (selectedArray.length > 1)
-					{
-						for each (var s:SlideCaptureVO in selectedArray)
-						{
+				if (selectedArray.indexOf(scVO) > -1) {
+					if (selectedArray.length > 1) {
+						for each (var s:SlideCaptureVO in selectedArray) {
 							s.selected=scVO.selected;
 						}
 					}
 				}
 			}
+			
+			[Mediate(event="NewCaptureEvent.CAPTURE_COMPLETED")]
+			public function onCaptureCompleted():void {
+				dgCaptureList.ensureCellIsVisible(0);
+			}
 
-			private function onCaptureListSelectionChange():void
-			{
-				if (model)
-				{
-					model.selectedCapture=dgCaptureList.selectedItem as CaptureVO;
-					enablePreview=dgCaptureList.selectedItem != null;
-
+			private function onCaptureListSelectionChange():void {
+				if (model) {
+					var sCapture:CaptureVO=dgCaptureList.selectedItem as CaptureVO;
+					model.selectedCapture=sCapture;
+					enablePreview=sCapture != null;
 					model.allSlidesSelected=EnumSelection.SELECTED;
+					if (sCapture) {
+						if (sCapture && sCapture.source) {
+							_reportProblemContMenuItem.caption=REP_PROB_LABEL + sCapture.id;
+							issueReporter.captureId=sCapture.id;
+							addRepProbItem();
+						} else {
+							removeRepProbItem();
+						}
+					} else {
+						removeRepProbItem();
+					}
 				}
 			}
 
-			private function onDataGridDoubleClick(e:GridEvent):void
-			{
-				if (dgCaptureList.selectedItem)
-				{
+			private function addRepProbItem():void {
+				var index:int=appContextMenu.customItems.indexOf(_reportProblemContMenuItem);
+				if (index < 0)
+					appContextMenu.customItems.push(_reportProblemContMenuItem);
+			}
+
+			private function removeRepProbItem():void {
+				var index:int=appContextMenu.customItems.indexOf(_reportProblemContMenuItem);
+				if (index > -1)
+					appContextMenu.customItems.splice(index, 1);
+			}
+
+			private function onDataGridDoubleClick(e:Event):void {
+				var capture:CaptureVO
+				if (e is CaptureListItemRendererEvent) {
+					capture = (e as CaptureListItemRendererEvent).capture;
+					dgCaptureList.selectedItem = capture;
+				} else {
+					capture = dgCaptureList.selectedItem as CaptureVO;;
+				}
+				if (dgCaptureList.selectedItem) {
 					onCaptureListSelectionChange();
-					var capture:CaptureVO=e.item as CaptureVO;
-					if (capture.timeStamp && capture.source)
-					{
+					if (capture.timeStamp && capture.source) {
 						if (runPreviewHandler != null)
 							runPreviewHandler();
 						showPreview();
@@ -171,37 +219,68 @@
 				}
 			}
 
-			private function onRefereshClick():void
-			{
-				deselect();
+			private function onRefereshClick():void {
+				//deselect();
 				model.loadCaptures();
 			}
 
-			private function onListDoubleClick(e:Event=null):void
-			{
+			private function onListDoubleClick(e:Event=null):void {
 				if (hidePreviewHandler != null)
 					hidePreviewHandler();
 				hidePreview();
 			}
 
-			private function onAssociatedChange():void
-			{
-				model.setOnlyAssociated(cbxAssociated.selected);
-			}
-
-			private function onInitialize():void
-			{
+			private function onInitialize():void {
 				lstPreview.addEventListener(CaptureSlideRenderer.ITEM_DOUBLE_CLICKED, onListDoubleClick);
+				newCaptureGroup.addEventListener(NewCaptureEvent.REPORT_ISSUE, onReportIssueEvent);
+				dgCaptureList.addEventListener(CaptureListItemRendererEvent.DOUBLE_CLICKED, onDataGridDoubleClick);
+				buildRepProbMenuItem();
 			}
 
-			private function onDataGridSelectionChanging(e:GridSelectionEvent):void
-			{
-				if (e.selectionChange.rowIndex > -1 && e.selectionChange.rowIndex < model.captures.length)
-				{
+			private function buildRepProbMenuItem():void {
+				_reportProblemContMenuItem=new ContextMenuItem("");
+				_reportProblemContMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, reportCaptureProblem);
+			}
+
+			private function onReportIssueEvent(e:NewCaptureEvent):void {
+				issueReporter.captureId=e.captureId;
+				reportCaptureProblem();
+			}
+
+			private function reportCaptureProblem(e:Event=null):void {
+				PopUpManager.centerPopUp(issueReporter);
+				issueReporter.visible=true;
+			}
+
+			private function cancelIssueReportHandler():void {
+				issueReporter.visible=false;
+			}
+
+			private function sendIssueReportHandler():void {
+				model.sendCaptureIssueReport(issueReporter.captureId, issueReporter.report);
+				cancelIssueReportHandler();
+			}
+
+			private function onDataGridSelectionChanging(e:GridSelectionEvent):void {
+				if (e.selectionChange.rowIndex > -1 && e.selectionChange.rowIndex < model.captures.length) {
 					var item:CaptureVO=model.captures.getItemAt(e.selectionChange.rowIndex) as CaptureVO;
 					if (!(item.timeStamp && item.source))
 						e.preventDefault();
 				}
+			}
+
+			private function onGridRollOver(event:GridEvent):void {
+				var dp:IList=dgCaptureList.dataProvider;
+				var show:Boolean=!(event.rowIndex > -1 && event.rowIndex < dp.length && (dp.getItemAt(event.rowIndex) as CaptureVO).source);
+				if (show) {
+					event.grid.hoverIndicator=null;
+				} else {
+					event.grid.hoverIndicator=new ClassFactory(HoverIndicator);
+				}
+			}
+			
+			private function onCaptureProcessStart():void {
+				deselect();
 			}
 		]]>
 	</fx:Script>
@@ -210,10 +289,13 @@
 			  gap="0">
 		<s:VGroup width="{this.width}"
 				  height="100%">
-			<imp:NewCaptureGroup id="newCaptureGroup"/>
+			<imp:NewCaptureGroup id="newCaptureGroup" processStartedHandler="{onCaptureProcessStart}"/>
 			<s:DataGrid id="dgCaptureList"
 						width="100%"
 						height="100%"
+						enabled="{!issueReporter.visible}"
+						gridRollOver="onGridRollOver(event)"
+						hoverIndicator="{new ClassFactory(HoverIndicator)}"
 						selectionChanging="onDataGridSelectionChanging(event)"
 						selectionChange="onCaptureListSelectionChange()"
 						doubleClickEnabled="true"
@@ -221,27 +303,37 @@
 						requestedRowCount="10">
 				<s:columns>
 					<mx:ArrayList>
+						<s:GridColumn headerText="Course Name"
+									  dataField="courseName"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
+									  width="{dgCaptureList.width * .3}"/>
 						<s:GridColumn headerText="Lesson Name"
 									  dataField="lessonName"
 									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
-									  width="{dgCaptureList.width * .5}"/>
+									  width="{dgCaptureList.width * .3}"/>
 						<s:GridColumn headerText="Capture Id"
+									  width="80"
 									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
 									  dataField="id"/>
 						<s:GridColumn headerText="Timestamp"
 									  dataField="timeStamp"
-									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"
-									  width="{dgCaptureList.width * .25}"/>
+									  width="140"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"/>
+						<s:GridColumn headerText="User"
+									  dataField="userName"
+									  itemRenderer="{new ClassFactory(CaptureListItemRenderer)}"/>
 					</mx:ArrayList>
 				</s:columns>
 			</s:DataGrid>
 			<s:HGroup width="100%"
 					  verticalAlign="middle">
-				<s:CheckBox id="cbxAssociated"
-							label="Only show Screen Captures associated with this Lesson"
-							enabled="{!model.loadingCaptureList}"
-							selected="{model.onlyAssociatedCaptures}"
-							change="onAssociatedChange()"/>
+				<s:Label text="Show:"/>
+				<s:DropDownList id="ddlFilter"
+								requireSelection="true"
+								width="170"
+								labelField="name"
+								change="setCurrentFilter(ddlFilter.selectedItem as EnumCaptureFilterOption)"
+								dataProvider="{CaptureFilterHelper.getCaptureFilterOptions()}"/>
 				<s:Spacer width="100%"/>
 				<mx:LinkButton icon="{Embeded.REFRESH_ICON}"
 							   label="Refresh"

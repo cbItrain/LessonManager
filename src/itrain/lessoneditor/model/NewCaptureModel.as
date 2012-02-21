@@ -7,6 +7,7 @@ package itrain.lessoneditor.model
 	
 	import itrain.common.events.CaptureLoaderEvent;
 	import itrain.common.utils.Messages;
+	import itrain.lessoneditor.events.NewCaptureEvent;
 	import itrain.lessoneditor.utils.CaptureToolUtils;
 	
 	import mx.controls.Alert;
@@ -41,28 +42,37 @@ package itrain.lessoneditor.model
 
 		[Bindable]
 		public var highlightNewButton:Boolean=false;
-		
+
 		[Bindable]
 		public var message:String;
-		
+
 		[Bindable]
 		public var description:String;
-		
+
 		[Bindable]
-		public var freezed:Boolean = false;
+		public var freezed:Boolean=false;
+
+		[Bindable]
+		public var ctAvailable:Boolean=true;
 
 		private var _captureToolStatus:EnumCaptureToolStatus=null;
 		private var _captureToolRunFunctionName:String=null;
 		private var _captureToolPauseResumeFunctionName:String=null;
 		private var _captureToolStopFunctionName:String=null;
 		private var _captureToolCancelFucntionName:String=null;
-		private var _lessonName:String="No name";
-
-		private var _companyId:int=0;
+		private var _retryCaptureToolFucntionName:String=null;
 
 		private var _currentCapture:CaptureVO=null;
 		private var _capturingStarted:Boolean=false;
-		private var _captureUploaded:Boolean = false;
+		private var _captureUploaded:Boolean=false;
+
+		private var _lessonId:int;
+		private var _userId:String;
+		private var _userName:String;
+		private var _courseId:String;
+		private var _courseName:String
+		private var _comId:String;
+		private var _lessonName:String="No name";
 
 		public function NewCaptureModel()
 		{
@@ -88,14 +98,18 @@ package itrain.lessoneditor.model
 			{
 				_captureToolCancelFucntionName=flashVars.captureToolCancelFunctionName;
 			}
-			if (flashVars.companyId)
+			if (flashVars.retryCaptureToolFunctionName)
 			{
-				_companyId=flashVars.companyId;
+				_retryCaptureToolFucntionName=flashVars.retryCaptureToolFunctionName;
 			}
-			if (flashVars.lessonName)
-			{
-				_lessonName=flashVars.lessonName;
-			}
+			_comId=flashVars.companyId;
+			_lessonName=flashVars.lessonName;
+			_lessonId=Number(flashVars.lessonId);
+			_userId=flashVars.currentUserId;
+			_courseId=flashVars.courseId;
+			_comId=flashVars.companyId;
+			_userName=flashVars.userName;
+			_courseName=flashVars.courseName;
 		}
 
 		public function newCaptrue():void
@@ -133,11 +147,25 @@ package itrain.lessoneditor.model
 			}
 		}
 
+		public function retryCaptureTool():void
+		{
+			if (ExternalInterface.available && _retryCaptureToolFucntionName)
+			{
+				ExternalInterface.call(_retryCaptureToolFucntionName);
+			}
+		}
+
 		private function addNewCapture(captureId:int):void
 		{
 			removeCapture();
 			_currentCapture=new CaptureVO();
 			_currentCapture.id=captureId;
+			_currentCapture.comId=_comId;
+			_currentCapture.userId=_userId;
+			_currentCapture.userName=_userName;
+			_currentCapture.lessonId=_lessonId;
+			_currentCapture.courseId=_courseId;
+			_currentCapture.courseName=_courseName;
 			_currentCapture.lessonName=_lessonName;
 
 			importModel.addCaptures([_currentCapture], false);
@@ -149,15 +177,21 @@ package itrain.lessoneditor.model
 				importModel.removeCapture(_currentCapture);
 		}
 		
-		private function captureCancelled():void {
+		public function getCurrentCaptureId():int {
+			if (_currentCapture)
+				return _currentCapture.id;
+			return 0;
+		}
+
+		private function captureCancelled():void
+		{
 			currentState=STATE_DEFAULT;
 			if (_currentCapture)
 			{
-				if (uploadProgress != 100)
-					removeCapture();
+				removeCapture();
 			}
 			uploadProgress=0;
-			_captureUploaded = false;
+			_captureUploaded=false;
 			_capturingStarted=false;
 		}
 
@@ -168,8 +202,8 @@ package itrain.lessoneditor.model
 			{
 				if (_captureToolStatus)
 				{
-					freezed = false;
-					message = description = "";
+					freezed=false;
+					message=description="";
 					switch (_captureToolStatus.ordinal)
 					{
 						case EnumCaptureToolStatus.STARTING_APPLICATION.ordinal:
@@ -199,6 +233,7 @@ package itrain.lessoneditor.model
 							currentState=STATE_SAVED;
 							setTimeout(function():void
 							{
+								dispatcher.dispatchEvent(new NewCaptureEvent(NewCaptureEvent.CAPTURE_COMPLETED));
 								currentState=STATE_DEFAULT;
 								highlightNewButton=false;
 								uploadProgress=0;
@@ -206,8 +241,8 @@ package itrain.lessoneditor.model
 								{
 									_currentCapture.timeStamp=new Date();
 									//_currentCapture.source="assets/capture1.xml";
-									_currentCapture.source=CaptureUtils.constructCaptureURL(_currentCapture.id, _companyId);
-									_currentCapture = null;
+									_currentCapture.source=CaptureUtils.constructCaptureURL(_currentCapture.id, _comId);
+									_currentCapture=null;
 								}
 								_capturingStarted=false;
 							}, STATE_DELAY);
@@ -216,12 +251,15 @@ package itrain.lessoneditor.model
 						case EnumCaptureToolStatus.LAUNCH_ERROR.ordinal:
 							_capturingStarted=false;
 							currentState=STATE_ERROR;
-							if (_captureToolStatus.equals(EnumCaptureToolStatus.LAUNCH_ERROR)) {
-								message = Messages.CT_LAUNCHING_ERROR;
-								description = (data != null && data != "") ? data as String : Messages.CT_LAUNCHING_ERROR_INFO;
-							} else {
-								message = Messages.CT_CRASHED;
-								description = (data != null && data != "") ? data as String : Messages.CT_CRASHED_INFO;
+							if (_captureToolStatus.equals(EnumCaptureToolStatus.LAUNCH_ERROR))
+							{
+								message=Messages.CT_LAUNCHING_ERROR;
+								description=(data != null && data != "") ? data as String : Messages.CT_LAUNCHING_ERROR_INFO;
+							}
+							else
+							{
+								message=Messages.CT_CRASHED;
+								description=(data != null && data != "") ? data as String : Messages.CT_CRASHED_INFO;
 							}
 							setTimeout(function():void
 							{
@@ -229,14 +267,22 @@ package itrain.lessoneditor.model
 							}, STATE_DELAY * 3);
 							break;
 						case EnumCaptureToolStatus.WAIT_USER_DECISION.ordinal:
-							freezed = true;
+							freezed=true;
 							break;
 					}
 				}
-			} else if (_captureToolStatus.equals(EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE)) {
-				message = Messages.CT_CAPTURE_TOOL_UNV;
-				description = Messages.CT_LAUNCHING_ERROR_INFO;
+			}
+			else if (_captureToolStatus.equals(EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE))
+			{
+				message=Messages.CT_CAPTURE_TOOL_UNV;
+				description=Messages.CT_LAUNCHING_ERROR_INFO;
 				currentState=STATE_ERROR;
+				ctAvailable=false;
+			}
+			else if (_captureToolStatus.equals(EnumCaptureToolStatus.CAPTURE_TOOL_AVAILABLE))
+			{
+				currentState=STATE_DEFAULT;
+				ctAvailable=true;
 			}
 		}
 	}

@@ -75,8 +75,8 @@
 
 			private function onPreinitialize():void {
 				//this.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true);
-				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded);
-				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageNotLoaded);
+				image.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated, false, 0, true);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageNotLoaded, false, 0, true);
 			}
 
 			private function onSlideSelectionChange(o:Object=null):void {
@@ -99,11 +99,9 @@
 				notAvailableContainer.visible=false;
 			}
 
-			private function onImageLoaded(e:ImageRepositoryEvent=null):void {
-				if (e && model.currentlySelected && e.url == model.currentlySelected.source) {
-					hideBrokenImage();
-					updateSource(e.bitmapData);
-				}
+			private function onImageUpdated(e:ImageRepositoryEvent=null):void {
+				hideBrokenImage();
+				updateSource((image.source as Bitmap).bitmapData);
 			}
 
 			private function loadCurrentImage():void {
@@ -131,9 +129,9 @@
 
 			private function onHideEnd():void {
 				if (model.currentlySelected) {
-					var bitmapData:BitmapData=repository.imageData(model.currentlySelected.source);
+					var bitmapData:BitmapData=repository.imageData(model.currentlySelected.source, false, image);
 					if (bitmapData) {
-						if (ImageRepository.isBitmapAvailable(bitmapData)) {
+						if (repository.isBitmapDataAvailable(bitmapData)) {
 							hideBrokenImage();
 							updateSource(bitmapData);
 						} else {
@@ -190,8 +188,8 @@
 				if (scale != 1.0 && _bitmapData) {
 					_resizeImageTimeout=setTimeout(function():void {
 						var bd:BitmapData=ImageUtils.resizeImage(_bitmapData, _bitmapData.width * scale, _bitmapData.height * scale);
-						imgScaled.source=new Bitmap(bd);
 						imageContainer.visible=false;
+						imgScaled.source = new Bitmap(bd);
 						imgScaled.visible=imgScaled.includeInLayout=true;
 					}, 30);
 				}

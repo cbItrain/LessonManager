@@ -15,8 +15,8 @@ package itrain.common.control {
 		private var _slides:Array;
 
 		public function ImageLoadingPolicy() {
-			repository.addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded);
-			repository.addEventListener(ImageRepositoryEvent.CACHE_CLEARED, onCacheRepositoryCleared);
+			repository.addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded, false, 0, true);
+			repository.addEventListener(ImageRepositoryEvent.CACHE_CLEARED, onCacheRepositoryCleared, false, 0, true);
 		}
 
 		public function onImageLoaded(e:ImageRepositoryEvent=null):void {
@@ -44,7 +44,7 @@ package itrain.common.control {
 		}
 
 		private function onCacheRepositoryCleared(ire:ImageRepositoryEvent):void {
-			var toRemove:Array=ire.data as Array;
+			var toRemove:Vector.<String>=ire.data as Vector.<String>;
 			var index:int;
 			for each (var s:String in toRemove) {
 				index=_loaded.indexOf(s);

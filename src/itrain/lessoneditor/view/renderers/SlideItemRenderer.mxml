@@ -5,7 +5,7 @@
 				autoDrawBackground="false"
 				xmlns:components="itrain.lessoneditor.view.components.*"
 				width="230"
-				height="200"				
+				height="200"
 				rollOver="{_mouseOver = true}"
 				rollOut="{_mouseOver = false}"
 				initialize="onInitailize()"
@@ -28,10 +28,15 @@
 			import itrain.common.view.stageobjects.StageTextArea;
 			import itrain.lessoneditor.events.EditorEvent;
 			import itrain.lessoneditor.events.SlideListEvent;
+			import itrain.lessoneditor.events.SlideRendererEvent;
 			import itrain.lessoneditor.model.EditorModel;
-
+			
 			import mx.controls.SWFLoader;
+			import mx.core.FlexGlobals;
 			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			import spark.components.List;
 
 			[Bindable]
 			public static var padding:int=10;
@@ -40,15 +45,15 @@
 
 			[Bindable]
 			private var _mouseOver:Boolean=false;
-			private var _modelToViewMap:Dictionary=new Dictionary();
-
 			[Bindable]
 			private var _currentBitmapData:BitmapData;
-
 			[Bindable]
 			private var _scale:Number=1.0;
+			[Bindable]
+			private var _ownerList:List;
 
 			private var _loaderGraphic:SWFLoader=getLoader();
+			private var _modelToViewMap:Dictionary=new Dictionary();
 
 			private function getLoader():SWFLoader {
 				var loaderGraphic:SWFLoader=new SWFLoader();
@@ -58,9 +63,15 @@
 				return loaderGraphic;
 			}
 
+			override public function set owner(value:DisplayObjectContainer):void {
+				super.owner=value;
+				if (value is List)
+					_ownerList=value as List;
+			}
+
 			private function onInitailize():void {
-				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated);
-				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated, false, 0, true);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated, false, 0, true);
 			}
 
 			private function onCreationComplete():void {
@@ -88,9 +99,7 @@
 						var bitmapData:BitmapData=imageRepository.imageData(slide.source, true, imgSlide);
 						showLoader();
 						if (bitmapData) {
-							if (ImageRepository.isBitmapAvailable(bitmapData))
-								updateSource(bitmapData);
-							else
+							if (!updateSource(bitmapData))
 								onImageNotUpdated();
 						}
 						onSlideChange(slide);
@@ -103,10 +112,14 @@
 			}
 
 			private function afterImageUpdate():void {
-				_scale=Math.min(container.height / _currentBitmapData.height, container.width / _currentBitmapData.width);
-				holderWrapper.width=_scale * _currentBitmapData.width;
-				holderWrapper.height=_scale * _currentBitmapData.height;
-				hideLoader();
+				try {
+					_scale=Math.min(container.height / _currentBitmapData.height, container.width / _currentBitmapData.width);
+					holderWrapper.width=_scale * _currentBitmapData.width;
+					holderWrapper.height=_scale * _currentBitmapData.height;
+					hideLoader();
+				} catch (e:Error) {
+
+				}
 				//trace(itemIndex + " slide: " + holderWrapper.width + " " + holderWrapper.height + " scale: " + _scale);
 			}
 
@@ -152,11 +165,17 @@
 				}
 			}
 
-			private function updateSource(bd:BitmapData):void {
-				_currentBitmapData=bd;
-				imgSlide.source=new Bitmap(bd);
-				loaderContainer.visible=false;
-				afterImageUpdate();
+			private function updateSource(bd:BitmapData):Boolean {
+				if (imageRepository.isBitmapDataAvailable(bd)) {
+					_currentBitmapData=bd;
+					imgSlide.source=new Bitmap(bd);
+					loaderContainer.visible=false;
+					afterImageUpdate();
+					return true;
+				} else {
+					_currentBitmapData = null;
+					return false;
+				}
 			}
 
 			private function addTextField(item:TextFieldVO, index:int=NaN, array:Array=null):void {
@@ -193,20 +212,10 @@
 				}
 			}
 
-			private function onRemoveClick(e:MouseEvent):void {
+			private function onButtonClick(e:MouseEvent, type:String):void {
 				e.stopImmediatePropagation();
 				e.preventDefault();
-				var ev:SlideListEvent=new SlideListEvent(SlideListEvent.REMOVE_SLIDE, true);
-				ev.slide=data as SlideVO;
-				dispatchEvent(ev);
-			}
-
-			private function onCopyClick(e:MouseEvent):void {
-				e.stopImmediatePropagation();
-				e.preventDefault();
-				var ev:SlideListEvent=new SlideListEvent(SlideListEvent.COPY_SLIDE, true);
-				ev.slide=data as SlideVO;
-				dispatchEvent(ev);
+				dispatchEvent(new SlideRendererEvent(type, true));
 			}
 
 			private function onImageNotUpdated(e:Event=null):void {
@@ -344,9 +353,11 @@
 					  paddingRight="10"
 					  gap="10">
 				<components:SlideListButton icon="{Embeded.COPY_SLIDE_ICON}"
-											mouseDown="onCopyClick(event)"/>
+											includeInLayout="{_ownerList.selectedIndices.length == 1}"
+											visible="{_ownerList.selectedIndices.length == 1}"
+											mouseDown="onButtonClick(event, SlideRendererEvent.COPY)"/>
 				<components:SlideListButton icon="{Embeded.DELETE_SLIDE_ICON}"
-											mouseDown="onRemoveClick(event)"/>
+											mouseDown="onButtonClick(event, SlideRendererEvent.DELETE)"/>
 			</s:HGroup>
 		</s:Group>
 	</s:Group>

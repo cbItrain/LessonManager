@@ -13,6 +13,11 @@ package itrain.lessoneditor.model
 		public var lessonId:int = 0;
 		public var source:String;
 		public var timeStamp:Date;
+		public var userId:String;
+		public var userName:String;
+		public var courseId:String;
+		public var courseName:String;
+		public var comId:String;
 		
 		public function CaptureVO()
 		{
@@ -27,6 +32,11 @@ package itrain.lessoneditor.model
 				result.lessonId = 0;
 			result.source = o.source;
 			result.timeStamp = new Date(o.timeStamp);
+			result.userId = o.userId;
+			result.userName = o.userDisplayName;
+			result.courseId = o.courseId;
+			result.courseName = o.courseName;
+			result.comId = o.comId;
 			return result;
 		}
 		

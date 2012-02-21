@@ -37,7 +37,7 @@ package itrain.lessoneditor.model {
 		private var _timerUniqueIdMap:Dictionary=new Dictionary(); //Timer->getObjectPropertyId
 
 		private var _lastEvent:Event;
-		private var _slideReplaceMCI:ModelChangeItem;
+		private var _slideReplaceMCI:Vector.<ModelChangeItem> = new Vector.<ModelChangeItem>();
 		private var _propertyChangeTrackingEnabled:Boolean=true;
 		private var _lastSaveIndex:int = -2;
 
@@ -122,27 +122,31 @@ package itrain.lessoneditor.model {
 				} else if (mci.type == ModelChangeItem.PROPERTY_CHANGE || mci.type == ModelChangeItem.POSITION_CHANGE || mci.type == ModelChangeItem.DIMENSION_CHANGE) {
 					restoreValue(mci, "oldValue");
 				} else { // slides actions
-					var e:Event;
-					if (mci.type == ModelChangeItem.SLIDE_SELECTION_CHANGE) {
-						//_lastEvent=e=buildSeletionChangeEvent(mci.oldValue as int);
-					} else {
 						var ee:EditorEvent;
 						if (mci.type == ModelChangeItem.SLIDE_REORDERED) {
-							ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
-							ee.model=mci.reference as ChangeAwareModel;
-							ee.additionalData=mci.oldValue;
+							if (mci.bulkMCIs) {
+								for each (var m:ModelChangeItem in mci.bulkMCIs) {
+									ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
+									ee.model=m.reference as ChangeAwareModel;
+									ee.additionalData=m.oldValue;
+									dispatcher.dispatchEvent(ee);
+								}
+							} else {
+								ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
+								ee.model=mci.reference as ChangeAwareModel;
+								ee.additionalData=mci.oldValue;
+								dispatcher.dispatchEvent(ee);
+							}
 						} else if (mci.type == ModelChangeItem.SLIDES_ADDED) {// selection crashes
 							ee=new EditorEvent(EditorEvent.REMOVE_SLIDES_SILENTLY, true)
 							ee.additionalData=mci.reference; // array of slideindex
-							
 							_updateSelectionAfterSilent = true;
+							dispatcher.dispatchEvent(ee);
 						} else if (mci.type == ModelChangeItem.SLIDES_REMOVED) {
 							ee=new EditorEvent(EditorEvent.ADD_SLIDES_SILENTLY, true);
 							ee.additionalData=mci.reference;
+							dispatcher.dispatchEvent(ee);
 						}
-						e=ee;
-					}
-					dispatcher.dispatchEvent(e);
 				}
 				updateUndoRedoAvailability();
 				updateSaveRequired();
@@ -197,27 +201,32 @@ package itrain.lessoneditor.model {
 				} else if (mci.type == ModelChangeItem.PROPERTY_CHANGE || mci.type == ModelChangeItem.POSITION_CHANGE || mci.type == ModelChangeItem.DIMENSION_CHANGE) {
 					restoreValue(mci, "newValue");
 				} else { // slides actions
-					var e:Event;
-					if (mci.type == ModelChangeItem.SLIDE_SELECTION_CHANGE) {
-						//_lastEvent=e=buildSeletionChangeEvent(mci.newValue as int);
-					} else {
 						var ee:EditorEvent;
 						if (mci.type == ModelChangeItem.SLIDE_REORDERED) {
-							ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
-							ee.model=mci.reference as ChangeAwareModel;
-							ee.additionalData=mci.newValue;
+							if (mci.bulkMCIs) {
+								for each (var m:ModelChangeItem in mci.bulkMCIs.concat().reverse()) {
+									ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
+									ee.model=m.reference as ChangeAwareModel;
+									ee.additionalData=m.newValue;
+									dispatcher.dispatchEvent(ee);
+								}
+							} else {
+								ee=new EditorEvent(EditorEvent.REORDER_SLIDE_SILENTLY, true);
+								ee.model=mci.reference as ChangeAwareModel;
+								ee.additionalData=mci.newValue;
+								dispatcher.dispatchEvent(ee);
+							}
 						} else if (mci.type == ModelChangeItem.SLIDES_ADDED) {
 							ee=new EditorEvent(EditorEvent.ADD_SLIDES_SILENTLY, true)
 							ee.additionalData=mci.reference; // array of slideindex		
-							
 							_updateSelectionAfterSilent = true;
+							dispatcher.dispatchEvent(ee);
 						} else if (mci.type == ModelChangeItem.SLIDES_REMOVED) {
 							ee=new EditorEvent(EditorEvent.REMOVE_SLIDES_SILENTLY, true);
 							ee.additionalData=mci.reference;
+							dispatcher.dispatchEvent(ee);
 						}
-						e=ee;
-					}
-					dispatcher.dispatchEvent(e);
+					
 				}
 				updateUndoRedoAvailability();
 				updateSaveRequired();
@@ -245,16 +254,12 @@ package itrain.lessoneditor.model {
 		[Mediate(event="EditorEvent.REMOVE_OBJECT")]
 		public function onRemoveObject(e:EditorEvent):void {
 			if (e != _lastEvent) {
-
 				var mci:ModelChangeItem=new ModelChangeItem();
 				mci.type=ModelChangeItem.ITEM_REMOVED;
 				mci.reference=e.model;
 				mci.parent=e.additionalData;
-
 				addToActions(mci);
 				trace("Removed: " + mci.reference);
-
-
 			} else {
 				_lastEvent=null;
 			}
@@ -299,27 +304,39 @@ package itrain.lessoneditor.model {
 			var type:String=getChangeType(e);
 			var mci:ModelChangeItem;
 			if (type == ModelChangeItem.SLIDE_REORDERED) {
-				if (_slideReplaceMCI) {
-					_slideReplaceMCI.newValue=e.location;
-					if (_slideReplaceMCI.oldValue != _slideReplaceMCI.newValue) {
-						var replaceTimer:Timer = new Timer(PROPERTY_CHANGE_DELAY, 1);
+				var replaceTimer:Timer;
+				var refObject:Object = e.items.shift();
+				mci = findByReference(refObject, _slideReplaceMCI);
+				if (mci) {
+					mci.newValue=e.location;
+					if (mci.oldValue != mci.newValue && !_uniqueIdTimerMap[ModelChangeItem.SLIDE_REORDERED]) {
+						replaceTimer = new Timer(PROPERTY_CHANGE_DELAY, 1);
 						_uniqueIdTimerMap[ModelChangeItem.SLIDE_REORDERED] = replaceTimer;
-						var replaceMCI:ModelChangeItem = _slideReplaceMCI;
+						var replaceMCI:Vector.<ModelChangeItem> = _slideReplaceMCI;
 						var onReplaceTimerComplete:Function = function (e:TimerEvent):void {
 							_uniqueIdTimerMap[ModelChangeItem.SLIDE_REORDERED] = null;
-							addToActions(replaceMCI);
-							trace("Slide reordered: " + replaceMCI.oldValue + " " + replaceMCI.newValue);
+							var newMCI:ModelChangeItem = new ModelChangeItem();
+							newMCI.type = ModelChangeItem.SLIDE_REORDERED;
+							newMCI.bulkMCIs = replaceMCI.concat();
+							addToActions(newMCI);
+							replaceMCI.splice(0,replaceMCI.length);
 						}
 						replaceTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onReplaceTimerComplete);
 						replaceTimer.start();
 					}
-
-					_slideReplaceMCI=null;
 				} else {
-					_slideReplaceMCI=new ModelChangeItem();
-					_slideReplaceMCI.type=type;
-					_slideReplaceMCI.oldValue=e.location;
-					_slideReplaceMCI.reference=e.items.shift();
+					replaceTimer = _uniqueIdTimerMap[ModelChangeItem.SLIDE_REORDERED] as Timer;
+					if (replaceTimer && replaceTimer.running)
+						replaceTimer.start();
+					mci=new ModelChangeItem();
+					mci.type=ModelChangeItem.SLIDE_REORDERED;
+					mci.oldValue=e.location;
+					mci.reference=refObject;
+					_slideReplaceMCI.unshift(mci);
+					if (replaceTimer) {
+						replaceTimer.reset();
+						replaceTimer.start();
+					}
 				}
 			} else if (type == ModelChangeItem.SLIDES_ADDED || type == ModelChangeItem.SLIDES_REMOVED) {
 				mci=_uniqueIdItemMap[type];
@@ -348,6 +365,14 @@ package itrain.lessoneditor.model {
 			}
 		}
 
+		private function findByReference(o:Object, collection:Vector.<ModelChangeItem>):ModelChangeItem {
+			for each (var mci:ModelChangeItem in collection) {
+				if (mci.reference == o)
+					return mci;
+			}
+			return null;
+		}
+		
 		private function addSlideIndecies(targetArray:Array, sourceArray:Array, index:int=0):void {
 			for (var i:int=0; i < sourceArray.length; i++) {
 				targetArray.push(new SlideIndex(index + i, sourceArray[i] as SlideVO));
@@ -389,7 +414,7 @@ package itrain.lessoneditor.model {
 				var ce:CollectionEvent=e as CollectionEvent;
 				if (ce.kind == CollectionEventKind.ADD) {
 					if (DragManager.isDragging) {
-						if (_slideReplaceMCI != null) {
+						if (_slideReplaceMCI.length) {
 							return ModelChangeItem.SLIDE_REORDERED;
 						} else {
 							return ModelChangeItem.SLIDES_ADDED;

@@ -29,7 +29,7 @@ package itrain.common.view.stageobjects
 			
 			doubleClickEnabled = true;
 			
-			_scoreWatcher = ChangeWatcher.watch(model, "score", onScoreChange);
+			_scoreWatcher = ChangeWatcher.watch(model, "score", onScoreChange, false, true);
 			updateVisibility(visible);
 		}
 		

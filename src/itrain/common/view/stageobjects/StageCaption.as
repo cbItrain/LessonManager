@@ -105,8 +105,8 @@ package itrain.common.view.stageobjects {
 			if (editable) {
 				ViewModelUtils.bindViewModel(this, model);
 				bindOtherProperties();
-				this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+				this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver, false, 0, true);
+				this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut, false, 0, true);
 			} else {
 				this.x=model.x;
 				this.y=model.y;
@@ -118,8 +118,8 @@ package itrain.common.view.stageobjects {
 			this.filters=[Common.dropShadow];
 
 			_pointPositionWatcher=ChangeWatcher.watch(model, "pointPosition", onPointPositionChange);
-			this.addEventListener(MouseEvent.CLICK, onMouseClick);
-			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, false, 0, true);
 		}
 
 		private function onMouseOver(me:MouseEvent):void {
@@ -133,9 +133,9 @@ package itrain.common.view.stageobjects {
 		}
 
 		private function bindOtherProperties():void {
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "movable");
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "hidable");
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "showContinue");
+			BindingUtils.bindSetter(onInteractionOptionsChange, model, "movable", false, true);
+			BindingUtils.bindSetter(onInteractionOptionsChange, model, "hidable", false, true);
+			BindingUtils.bindSetter(onInteractionOptionsChange, model, "showContinue", false, true);
 		}
 
 		private function onInteractionOptionsChange(o:Object=null):void {
@@ -166,8 +166,8 @@ package itrain.common.view.stageobjects {
 				if (captionVO.movable) {
 					captionMenuLayer.continueHandler=continueClicked;
 					if (!_editable) {
-						this.addEventListener(MouseEvent.MOUSE_OUT, onDragMouseOut);
-						this.addEventListener(MouseEvent.MOUSE_OVER, onDragMouseOver);
+						this.addEventListener(MouseEvent.MOUSE_OUT, onDragMouseOut, false, 0, true);
+						this.addEventListener(MouseEvent.MOUSE_OVER, onDragMouseOver, false, 0, true);
 					}
 				}
 				if (captionVO.showContinue) {
@@ -192,9 +192,9 @@ package itrain.common.view.stageobjects {
 				onModelTextChange((model as CaptionVO).text);
 
 				if (_editable) {
-					textEditor.addEventListener(InPlaceTextEditorEvent.DELETE_CLICKED, onDeleteItem);
-					textEditor.addEventListener(InPlaceTextEditorEvent.TEXT_CHANGES, onTextChange);
-					this.addEventListener(KeyboardEvent.KEY_DOWN, onTextEditorKeyDown, true);
+					textEditor.addEventListener(InPlaceTextEditorEvent.DELETE_CLICKED, onDeleteItem, false, 0, true);
+					textEditor.addEventListener(InPlaceTextEditorEvent.TEXT_CHANGES, onTextChange, false, 0, true);
+					this.addEventListener(KeyboardEvent.KEY_DOWN, onTextEditorKeyDown, true, 0, true);
 				}
 			}
 			if (!_dottedFrame) {
@@ -322,8 +322,8 @@ package itrain.common.view.stageobjects {
 				if (me.target == _pointerHandle) {
 					_dragPositionHolder=captionVO.pointPosition;
 					captionVO.unlistenForChange();
-					this.parentApplication.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true);
-					this.parentApplication.addEventListener(MouseEvent.MOUSE_UP, onMouseEventUp, true);
+					this.parentApplication.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true, 0, true);
+					this.parentApplication.addEventListener(MouseEvent.MOUSE_UP, onMouseEventUp, true, 0, true);
 				}
 			} else if (captionVO.movable) {
 				this.addEventListener(MouseEvent.MOUSE_UP, onDragMouseUp);
@@ -339,8 +339,8 @@ package itrain.common.view.stageobjects {
 		}
 
 		private function onMouseEventUp(me:MouseEvent):void {
-			this.parentApplication.removeEventListener(MouseEvent.MOUSE_UP, onMouseEventUp, true);
-			this.parentApplication.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true);
+			this.parentApplication.removeEventListener(MouseEvent.MOUSE_UP, onMouseEventUp, true, 0, true);
+			this.parentApplication.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true, 0, true);
 			if (_dragPositionHolder) {
 				captionVO.listenForChange();
 				if (!_dragPositionHolder.equals(captionVO.pointPosition)) { //not same position

@@ -43,14 +43,14 @@ package itrain.common.view.stageobjects
 			
 			createEffect();
 			
-			BindingUtils.bindSetter(onChange, model, "borderColor");
-			BindingUtils.bindSetter(onChange, model, "borderAlpha");
-			BindingUtils.bindSetter(onChange, model, "borderWidth");
-			BindingUtils.bindSetter(onChange, model, "fillColor");
-			BindingUtils.bindSetter(onChange, model, "fillAlpha");
-			BindingUtils.bindSetter(onChange, model, "cornerRadius");
+			BindingUtils.bindSetter(onChange, model, "borderColor", false, true);
+			BindingUtils.bindSetter(onChange, model, "borderAlpha", false, true);
+			BindingUtils.bindSetter(onChange, model, "borderWidth", false, true);
+			BindingUtils.bindSetter(onChange, model, "fillColor", false, true);
+			BindingUtils.bindSetter(onChange, model, "fillAlpha", false, true);
+			BindingUtils.bindSetter(onChange, model, "cornerRadius", false, true);
 			if (editable)
-				BindingUtils.bindSetter(onAnimationSpeedChange, model, "animationSpeed");
+				BindingUtils.bindSetter(onAnimationSpeedChange, model, "animationSpeed", false, true);
 		}
 		
 		private function createEffect():void {

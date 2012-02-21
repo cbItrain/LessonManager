@@ -8,18 +8,18 @@ package itrain.common.utils
 	public class ViewModelUtils
 	{
 		public static function bindViewModel(viewObject:UIComponent, model:SlideObjectVO):void {
-			BindingUtils.bindProperty(viewObject, "x", model, "x");
-			BindingUtils.bindProperty(viewObject, "y", model, "y");
-			BindingUtils.bindProperty(viewObject, "width", model, "width");
-			BindingUtils.bindProperty(viewObject, "height", model, "height");
-			BindingUtils.bindProperty(viewObject, "rotation", model, "rotation");
+			BindingUtils.bindProperty(viewObject, "x", model, "x", false, true);
+			BindingUtils.bindProperty(viewObject, "y", model, "y", false, true);
+			BindingUtils.bindProperty(viewObject, "width", model, "width", false, true);
+			BindingUtils.bindProperty(viewObject, "height", model, "height", false, true);
+			BindingUtils.bindProperty(viewObject, "rotation", model, "rotation", false, true);
 			
 			
-			BindingUtils.bindProperty(model, "x", viewObject, "x");
-			BindingUtils.bindProperty(model, "y", viewObject, "y");
-			BindingUtils.bindProperty(model, "width", viewObject, "width");
-			BindingUtils.bindProperty(model, "height", viewObject, "height");
-			BindingUtils.bindProperty(model, "rotation", viewObject, "rotation");
+			BindingUtils.bindProperty(model, "x", viewObject, "x", false, true);
+			BindingUtils.bindProperty(model, "y", viewObject, "y", false, true);
+			BindingUtils.bindProperty(model, "width", viewObject, "width", false, true);
+			BindingUtils.bindProperty(model, "height", viewObject, "height", false, true);
+			BindingUtils.bindProperty(model, "rotation", viewObject, "rotation", false, true);
 		}
 	}
 }

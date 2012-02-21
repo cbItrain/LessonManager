@@ -11,7 +11,8 @@ package itrain.lessoneditor.events
 		public static const COPY_SLIDE:String = "SlideListEventCopySlide";
 		public static const SLIDE_COPIED:String = "SlideListEventSlideCopied";
 		
-		public var slide:SlideVO;
+		public var slides:Vector.<Object>;
+		public var additionalData:Object;
 		
 		public function SlideListEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{

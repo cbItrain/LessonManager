@@ -167,16 +167,16 @@ package itrain.common.utils
 		[Bindable] [Embed(source="assets/icons/cross-circle.png")]
 		public static var ERROR:Class;
 		
-		[Bindable] [Embed(source="assets/icons/control-pause-record.png")]
+		[Bindable] [Embed(source="assets/icons/glyphons/glyphicons_174_pause.png")]
 		public static var PAUSE_RECORD:Class;
 		
-		[Bindable] [Embed(source="assets/icons/control-record.png")]
+		[Bindable] [Embed(source="assets/icons/glyphons/glyphicons_173_play.png")]
 		public static var RECORD:Class;
 		
-		[Bindable] [Embed(source="assets/icons/control-stop-square.png")]
+		[Bindable] [Embed(source="assets/icons/glyphons/glyphicons_175_stop.png")]
 		public static var STOP_RECORD:Class;
 		
-		[Bindable] [Embed(source="assets/icons/cross-script.png")]
+		[Bindable] [Embed(source="assets/icons/glyphons/glyphicons_207_remove_2.png")]
 		public static var CANCEL_RECORD:Class;
 		
 	}

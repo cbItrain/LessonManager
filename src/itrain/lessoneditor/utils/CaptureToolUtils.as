@@ -20,6 +20,7 @@ package itrain.lessoneditor.utils
 					case "WAIT_USER_DECISION": return EnumCaptureToolStatus.WAIT_USER_DECISION;
 					case "CAPTURE_TOOL_UNAVAILABLE": return EnumCaptureToolStatus.CAPTURE_TOOL_UNAVAILABLE;
 					case "CRASHED": return EnumCaptureToolStatus.CRASHED;
+					case "CAPTURE_TOOL_AVAILABLE": return EnumCaptureToolStatus.CAPTURE_TOOL_AVAILABLE;
 				}
 			} 
 			return null;

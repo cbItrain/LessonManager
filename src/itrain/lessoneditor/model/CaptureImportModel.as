@@ -1,19 +1,20 @@
 package itrain.lessoneditor.model
 {
 	import flash.events.IEventDispatcher;
-
+	import flash.utils.flash_proxy;
+	
 	import itrain.common.events.CaptureImporterEvent;
 	import itrain.common.events.CaptureLoaderEvent;
 	import itrain.common.model.ImageRepository;
 	import itrain.lessoneditor.events.EditorEvent;
 	import itrain.lessoneditor.view.renderers.CaptureSlideRenderer;
-
+	
 	import mx.collections.ArrayCollection;
 	import mx.core.FlexGlobals;
 	import mx.events.CollectionEvent;
 	import mx.events.CollectionEventKind;
 	import mx.utils.ObjectUtil;
-
+	
 	import spark.collections.Sort;
 	import spark.collections.SortField;
 
@@ -22,8 +23,13 @@ package itrain.lessoneditor.model
 		private var _captures:ArrayCollection;
 		private var _captureSlides:ArrayCollection;
 		private var _captureSort:Sort;
+		private var _captureListFilter:EnumCaptureFilterOption=EnumCaptureFilterOption.LESSON;
+		private var _slidesLoadingCaptureId:int = -1;
 
 		private var _lessonId:int;
+		private var _userId:String;
+		private var _courseId:String;
+		private var _comId:String;
 
 		[Bindable]
 		public var selectedCapture:CaptureVO;
@@ -49,7 +55,12 @@ package itrain.lessoneditor.model
 		public function CaptureImportModel()
 		{
 			imageImportOnly=false;
-			_lessonId=Number(FlexGlobals.topLevelApplication.parameters.lessonId);
+
+			var p:Object=FlexGlobals.topLevelApplication.parameters;
+			_lessonId=Number(p.lessonId);
+			_userId=p.currentUserId;
+			_courseId=p.courseId;
+			_comId=p.companyId;
 
 			_captureSort=new Sort();
 			_captureSort.fields=[new SortField(null, true)];
@@ -80,8 +91,9 @@ package itrain.lessoneditor.model
 				unlistenForCaptureSlideChange();
 				_captureSlides=selectedCapture.slides;
 				listenForCaptureSlideChange();
-				if (selectedCapture.slides.length == 0)
+				if (selectedCapture.slides.length == 0 && _slidesLoadingCaptureId != selectedCapture.id)
 				{ //request capture slides
+					_slidesLoadingCaptureId = selectedCapture.id;
 					var ce:CaptureLoaderEvent=new CaptureLoaderEvent(CaptureLoaderEvent.LOAD_CAPTURE);
 					ce.url=selectedCapture.source;
 					dispatcher.dispatchEvent(ce);
@@ -112,11 +124,13 @@ package itrain.lessoneditor.model
 				{
 					if (c.source == ce.url)
 					{
+						c.slides.removeAll();
 						c.slides.addAll(new ArrayCollection(ce.captures));
 						break;
 					}
 				}
 			}
+			_slidesLoadingCaptureId = -1;
 			selectedSlidesCount=ce.captures.length;
 		}
 
@@ -137,6 +151,7 @@ package itrain.lessoneditor.model
 			{
 				_captures.removeItemAt(index);
 				_captures.sort=_captureSort;
+				_captures.filterFunction=capturesFilterFunction;
 				_captures.refresh();
 			}
 		}
@@ -159,6 +174,7 @@ package itrain.lessoneditor.model
 			}
 			_captures.addAll(new ArrayCollection(newCaptures));
 			_captures.sort=_captureSort;
+			_captures.filterFunction=capturesFilterFunction;
 			_captures.refresh();
 		}
 
@@ -288,13 +304,43 @@ package itrain.lessoneditor.model
 			imageImportOnly=newValue;
 			CaptureSlideRenderer.showObjects=!imageImportOnly;
 		}
+		
+		public function sendCaptureIssueReport(captureId:int, report:String):void {
+			var cle:CaptureLoaderEvent = new CaptureLoaderEvent(CaptureLoaderEvent.SEND_REPORT, true);
+			cle.additionalData = report;
+			cle.id = captureId;
+			dispatcher.dispatchEvent(cle);
+		}
 
-		public function setOnlyAssociated(value:Boolean):void
+		public function setCaptureListFilter(value:EnumCaptureFilterOption):void
 		{
-			onlyAssociatedCaptures=value;
-			loadCaptures();
-			captures.filterFunction=(onlyAssociatedCaptures) ? onlyAssociatedCapturesFilter : null;
-			captures.refresh();
+			if (!value.equals(_captureListFilter))
+			{
+				_captureListFilter=value;
+				_captures.refresh();
+			}
+		}
+
+		private function capturesFilterFunction(item:CaptureVO):Boolean
+		{
+			if (item.source)
+			{
+				switch (_captureListFilter.ordinal)
+				{
+					case EnumCaptureFilterOption.COURSE.ordinal:
+						return item.courseId == _courseId;
+					case EnumCaptureFilterOption.LESSON.ordinal:
+						return item.lessonId == _lessonId;
+					case EnumCaptureFilterOption.MY.ordinal:
+						return item.userId == _userId;
+					default:
+						return true;
+				}
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		private function onlyAssociatedCapturesFilter(item:CaptureVO):Boolean

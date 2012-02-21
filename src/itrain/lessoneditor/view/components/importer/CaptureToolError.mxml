@@ -4,20 +4,25 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  width="100%"
 		  horizontalAlign="center"
-		  gap="10">
+		  gap="0">
 	<fx:Script>
 		<![CDATA[
 			import itrain.common.utils.Embeded;
 			import itrain.common.utils.Messages;
-			
+
 			[Bindable]
 			public var message:String;
-			
+
 			[Bindable]
 			public var description:String;
+
+			[Bindable]
+			public var retryHandler:Function;
+			
 		]]>
 	</fx:Script>
-	<s:HGroup verticalAlign="middle" paddingTop="10">
+	<s:HGroup verticalAlign="middle"
+			  paddingTop="10">
 		<s:BitmapImage source="{Embeded.ERROR}"/>
 		<s:Label id="lblCapStatus"
 				 text="{message}"
@@ -25,10 +30,16 @@
 				 paddingTop="5"
 				 color="0x000000"/>
 	</s:HGroup>
+	<s:Spacer height="10"/>
 	<s:Label id="lblMessage"
 			 maxDisplayedLines="2"
 			 textAlign="center"
 			 color="0x777777"
 			 text="{description}"
 			 width="100%"/>
+	<s:Spacer height="8"/>
+	<s:Button label="Retry"
+			  visible="{retryHandler != null}"
+			  includeInLayout="{retryHandler != null}"
+			  click="{retryHandler();}"/>
 </s:VGroup>
