@@ -43,6 +43,38 @@ package itrain.common.model.vo {
 			listenForChange();
 		}
 		
+		public function convertToXMLString():String {
+			var slideTag:String = "<slide>";
+			slideTag += "<start>" + start + "</start>";
+			slideTag += "<end>" + end + "</end>";
+			slideTag += "<source>" + source + "</source>";
+			slideTag += "<interText><![CDATA[" + (interText ? interText : "") + "]]></interText>";
+			if (instructionTopPos)
+				slideTag += "<instructionTopPos>" + instructionTopPos + "</instructionTopPos>";
+			slideTag += "<captions>";
+			for each (var c:CaptionVO in captions) {
+				slideTag += c.convertToXMLString();
+			}
+			slideTag += "</captions>";
+			slideTag += "<hotspots>";
+			for each (var ho:HotspotVO in hotspots) {
+				slideTag += ho.convertToXMLString();
+			}
+			slideTag += "</hotspots>";
+			slideTag += "<textfields>";
+			for each (var t:TextFieldVO in textfields) {
+				slideTag += t.convertToXMLString();
+			}
+			slideTag += "</textfields>";
+			slideTag += "<highlights>";
+			for each (var hi:HighlightVO in highlights) {
+				slideTag += hi.convertToXML();
+			}
+			slideTag += "</highlights>";
+			slideTag += "</slide>";
+			return slideTag;
+		}
+		
 		public function convertToXML():XML {
 			var slideTag:XML = <slide></slide>;
 			

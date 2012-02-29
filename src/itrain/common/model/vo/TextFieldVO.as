@@ -1,9 +1,9 @@
 package itrain.common.model.vo
 {
 	import flashx.textLayout.tlf_internal;
-
+	
 	import itrain.common.utils.DataUtils;
-
+	
 	import mx.utils.ObjectProxy;
 
 	[RemoteClass]
@@ -59,6 +59,26 @@ package itrain.common.model.vo
 			if (validateOnEnter)
 				textfieldTag.appendChild(XMLList("<validateOnEnter>" + validateOnEnter + "</validateOnEnter>"));
 
+			return textfieldTag;
+		}
+		
+		override public function convertToXMLString():String {
+			var textfieldTag:String = "<textfield>";
+			
+			textfieldTag += super.convertToXMLString();
+			if (caseSensitive)
+				textfieldTag += "<caseSensitive>" + caseSensitive + "</caseSensitive>";
+			if (password)
+				textfieldTag += "<password>" + password + "</password>";
+			textfieldTag += "<startText><![CDATA[" + startText + "]]></startText>";
+			textfieldTag += "<targetText><![CDATA[" + targetText + "]]></targetText>";
+			textfieldTag += "<backgroundAlpha>" + backgroundAlpha + "</backgroundAlpha>";
+			textfieldTag += "<backgroundColor>" + backgroundColor + "</backgroundColor>";
+			if (validateOnHotspot)
+				textfieldTag += "<validateOnHotspot>" + validateOnHotspot + "</validateOnHotspot>";
+			if (validateOnEnter)
+				textfieldTag += "<validateOnEnter>" + validateOnEnter + "</validateOnEnter>";
+			textfieldTag += "</textfield>";
 			return textfieldTag;
 		}
 

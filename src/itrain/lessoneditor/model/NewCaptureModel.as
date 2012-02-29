@@ -264,7 +264,7 @@ package itrain.lessoneditor.model
 							setTimeout(function():void
 							{
 								captureCancelled();
-							}, STATE_DELAY * 3);
+							}, STATE_DELAY * 4);
 							break;
 						case EnumCaptureToolStatus.WAIT_USER_DECISION.ordinal:
 							freezed=true;

@@ -5,7 +5,7 @@ package itrain.common.model.vo
 	import itrain.common.utils.DataUtils;
 	import itrain.common.utils.PositionUtils;
 	import itrain.lessoneditor.utils.CaptionUtils;
-
+	
 	import mx.utils.ObjectProxy;
 
 	[RemoteClass]
@@ -68,6 +68,27 @@ package itrain.common.model.vo
 			resultVO.listenForChange();
 
 			return resultVO;
+		}
+		
+		override public function convertToXMLString():String {
+			var captionTag:String="<caption>";
+			
+			captionTag += super.convertToXMLString();
+			captionTag += "<cornerSize>" + cornerSize + "</cornerSize>";
+			captionTag += "<display>" + display.ordinal + "</display>";
+			captionTag += "<pointLength>" + pointLength + "</pointLength>";
+			captionTag += "<pointPosition>" + pointPosition.ordinal + "</pointPosition>";
+			captionTag += "<text><![CDATA[" + text + "]]></text>";
+			
+			if (hidable)
+				captionTag += "<hidable>" + hidable + "</hidable>";
+			if (movable)
+				captionTag += "<movable>" + movable + "</movable>";
+			if (showContinue)
+				captionTag += "<showContinue>" + showContinue + "</showContinue>";
+			
+			captionTag += "</caption>";
+			return captionTag;
 		}
 
 		public function convertToXML():XML

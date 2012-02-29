@@ -22,6 +22,7 @@
 			import itrain.common.model.vo.TextFieldVO;
 			import itrain.common.utils.Common;
 			import itrain.common.utils.Embeded;
+			import itrain.common.view.stageobjects.IStageObject;
 			import itrain.common.view.stageobjects.StageCaption;
 			import itrain.common.view.stageobjects.StageHighlight;
 			import itrain.common.view.stageobjects.StageHotspot;
@@ -53,7 +54,7 @@
 			private var _ownerList:List;
 
 			private var _loaderGraphic:SWFLoader=getLoader();
-			private var _modelToViewMap:Dictionary=new Dictionary();
+			private var _modelToViewMap:Dictionary=new Dictionary(true);
 
 			private function getLoader():SWFLoader {
 				var loaderGraphic:SWFLoader=new SWFLoader();
@@ -203,13 +204,23 @@
 			}
 
 			private function onSlideChange(slide:SlideVO):void {
-				holder.removeAllElements();
+				removeSlideItems();
 				if (slide) {
 					slide.highlights.forEach(addHighlight);
 					slide.hotspots.forEach(addHotspot);
 					slide.textfields.forEach(addTextField);
 					slide.captions.forEach(addCaption);
 				}
+			}
+			
+			private function removeSlideItems():void {
+				var iso:IStageObject;
+				while (holder.numChildren) {
+					iso = holder.getElementAt(0) as IStageObject;
+					_modelToViewMap[iso.model] = null;
+					holder.removeElementAt(0);
+				}
+				_modelToViewMap = new Dictionary(true);
 			}
 
 			private function onButtonClick(e:MouseEvent, type:String):void {

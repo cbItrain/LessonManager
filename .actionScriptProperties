@@ -70,9 +70,14 @@
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
         </excludedEntries>
       </libraryPathEntry>
-      <libraryPathEntry kind="1" linkType="1" path="libs"/>
-      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="/InPlaceTextEditor/bin/InPlaceTextEditor.swc" rslUrl="InPlaceTextEditor.swf" useDefaultLinkType="true"/>
       <libraryPathEntry kind="3" linkType="1" path="/ObjectHandles/bin/ObjectHandles.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="/InPlaceTextEditor/bin/InPlaceTextEditor.swc" rslUrl="InPlaceTextEditor.swf" useDefaultLinkType="true"/>
+      <libraryPathEntry kind="3" linkType="1" path="libs/swiz-framework-v1.2.0.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="libs/AdobeSpellingEngine.swc" rslUrl="AdobeSpellingEngine.swf" useDefaultLinkType="true"/>
+      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="libs/AdobeSpellingUIEx.swc" rslUrl="AdobeSpellingUIEx.swf" useDefaultLinkType="true"/>
+      <libraryPathEntry autoExtract="true" kind="3" linkType="3" path="libs/AdobeSpellingUITLF.swc" rslUrl="AdobeSpellingUITLF.swf" useDefaultLinkType="true"/>
+      <libraryPathEntry kind="3" linkType="1" path="libs/CheckBoxExtended.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="libs/flexlib.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

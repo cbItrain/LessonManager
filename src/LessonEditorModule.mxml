@@ -189,7 +189,7 @@
 
             private function onCopyXML(e:ContextMenuEvent):void {
                 if (model.lesson)
-                    System.setClipboard(lessonConverter.getLessonXML(model.lesson).toXMLString());
+                    System.setClipboard(lessonConverter.getLessonXMLString(model.lesson));
                 else
                     System.setClipboard("There is no Lesson in the Editor.");
                 Alert.show("Lesson XML copied to the system clipboard.", "Lesson copied");

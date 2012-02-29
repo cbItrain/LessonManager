@@ -46,6 +46,16 @@ package itrain.common.model.vo {
 			
 			return resultVO;
 		}
+		
+		public function convertToXMLString():String {
+			var result:String = "";
+			result += "<width>" + width + "</width>";
+			result += "<height>" + height + "</height>";
+			result += "<rotation>" + rotation + "</rotation>";
+			result += "<x>" + x + "</x>";
+			result += "<y>" + y + "</y>";
+			return result;
+		}
 
 		protected function appendToXML(xml:XML):void {
 			if (xml) {

@@ -1,5 +1,6 @@
 package itrain.common.view.stageobjects
 {
+	import flash.events.Event;
 	import flash.geom.Point;
 	
 	import itrain.common.model.vo.HighlightVO;
@@ -8,6 +9,7 @@ package itrain.common.view.stageobjects
 	import itrain.common.utils.ViewModelUtils;
 	
 	import mx.binding.utils.BindingUtils;
+	import mx.binding.utils.ChangeWatcher;
 	import mx.core.UIComponent;
 	import mx.effects.Sequence;
 	import mx.states.OverrideBase;
@@ -26,13 +28,15 @@ package itrain.common.view.stageobjects
 		private var _flashingEffect:Sequence;
 		private var _fadeIn:Fade;
 		private var _fadeOut:Fade;
+		private var _watchers:Vector.<ChangeWatcher>;
 		
 		public function StageHighlight(model:SlideObjectVO, editable:Boolean=true)
 		{
 			this.model = model;
 			_editable = editable;
+			_watchers = new Vector.<ChangeWatcher>();
 			if (editable) {
-				ViewModelUtils.bindViewModel(this, model);
+				ViewModelUtils.bindViewModel(this, model, _watchers);
 			} else {
 				this.x = model.x;
 				this.y = model.y;
@@ -43,14 +47,31 @@ package itrain.common.view.stageobjects
 			
 			createEffect();
 			
-			BindingUtils.bindSetter(onChange, model, "borderColor", false, true);
-			BindingUtils.bindSetter(onChange, model, "borderAlpha", false, true);
-			BindingUtils.bindSetter(onChange, model, "borderWidth", false, true);
-			BindingUtils.bindSetter(onChange, model, "fillColor", false, true);
-			BindingUtils.bindSetter(onChange, model, "fillAlpha", false, true);
-			BindingUtils.bindSetter(onChange, model, "cornerRadius", false, true);
-			if (editable)
-				BindingUtils.bindSetter(onAnimationSpeedChange, model, "animationSpeed", false, true);
+			bindOtherProperties(_watchers);
+			
+			this.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+		}
+		
+		private function bindOtherProperties(watchers:Vector.<ChangeWatcher>):void {
+			watchers.push(BindingUtils.bindSetter(onChange, model, "borderColor"));
+			watchers.push(BindingUtils.bindSetter(onChange, model, "borderAlpha"));
+			watchers.push(BindingUtils.bindSetter(onChange, model, "borderWidth"));
+			watchers.push(BindingUtils.bindSetter(onChange, model, "fillColor"));
+			watchers.push(BindingUtils.bindSetter(onChange, model, "fillAlpha"));
+			watchers.push(BindingUtils.bindSetter(onChange, model, "cornerRadius"));
+			if (_editable)
+				watchers.push(BindingUtils.bindSetter(onAnimationSpeedChange, model, "animationSpeed"));
+		}
+		
+		private function onRemovedFromStage(e:Event):void {
+			ViewModelUtils.unbind(_watchers);
+			
+			_flashingEffect = null;
+			_fadeIn = null;
+			_fadeOut = null;
+			model = null;
+			
+			this.removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage)
 		}
 		
 		private function createEffect():void {

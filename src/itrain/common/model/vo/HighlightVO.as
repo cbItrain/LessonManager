@@ -5,7 +5,7 @@ package itrain.common.model.vo
 	import itrain.common.utils.ActionUtils;
 	import itrain.common.utils.CursorUtils;
 	import itrain.common.utils.DataUtils;
-
+	
 	import mx.utils.ObjectProxy;
 
 	[RemoteClass]
@@ -112,6 +112,27 @@ package itrain.common.model.vo
 			hotspotTag.appendChild(XMLList("<fillAlpha>" + fillAlpha + "</fillAlpha>"));
 			hotspotTag.appendChild(XMLList("<animationSpeed>" + animationSpeed + "</animationSpeed>"));
 
+			return hotspotTag;
+		}
+		
+		override public function convertToXMLString():String {
+			var hotspotTag:String = "<highlight>";
+			
+			hotspotTag += super.convertToXMLString();
+			if (tryItVisible)
+				hotspotTag += "<tryItVisible>" + tryItVisible + "</tryItVisible>";
+			if (watchItVisible)
+				hotspotTag += "<watchItVisible>" + watchItVisible + "</watchItVisible>";
+			hotspotTag += "<cornerRadius>" + cornerRadius + "</cornerRadius>";
+			hotspotTag += "<borderColor>" + borderColor + "</borderColor>";
+			hotspotTag += "<borderWidth>" + borderWidth + "</borderWidth>";
+			hotspotTag += "<borderAlpha>" + borderAlpha + "</borderAlpha>";
+			hotspotTag += "<fillColor>" + fillColor + "</fillColor>";
+			hotspotTag += "<fillAlpha>" + fillAlpha + "</fillAlpha>";
+			hotspotTag += "<animationSpeed>" + animationSpeed + "</animationSpeed>";
+			
+			hotspotTag += "</highlight>";
+			
 			return hotspotTag;
 		}
 

@@ -21,6 +21,7 @@ package itrain.common.view.stageobjects
 	import itrain.common.utils.ViewModelUtils;
 	
 	import mx.binding.utils.BindingUtils;
+	import mx.binding.utils.ChangeWatcher;
 	import mx.controls.Text;
 	import mx.utils.StringUtil;
 	
@@ -39,6 +40,7 @@ package itrain.common.view.stageobjects
 		private var _endHandler:Function;
 		private var _editable:Boolean;
 		private var _showMarker:Boolean = true;
+		private var _watchers:Vector.<ChangeWatcher>;
 		
 		private static function getMarkerBitmapData():BitmapData {
 			return ((new (Embeded.TEXT_AREA_STRIPE_BACKGROUND)()) as Bitmap).bitmapData;
@@ -54,7 +56,9 @@ package itrain.common.view.stageobjects
 		{
 			super();
 			this.model = model;
-			ViewModelUtils.bindViewModel(this, model);
+			
+			_watchers = new Vector.<ChangeWatcher>();
+			ViewModelUtils.bindViewModel(this, model, _watchers);
 			
 			this.setStyle("	focusSkin", null);
 			this.setStyle("focusThickness", 0);
@@ -62,20 +66,32 @@ package itrain.common.view.stageobjects
 			
 			_editable = editable;
 			
-			this.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
-			this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, false, 0, true);
+			bindProperty(_watchers);
 			
-			bindProperty();
+			this.addEventListener(MouseEvent.CLICK, onMouseClick);
+			this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			this.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
 		}
 		
-		private function bindProperty():void {
-			BindingUtils.bindSetter(onStartTextChange, model, "startText");
+		private function onRemovedFromStage(e:Event):void {
+			this.removeEventListener(MouseEvent.CLICK, onMouseClick);
+			this.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			this.removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+			
+			ViewModelUtils.unbind(_watchers);
+			
+			model = null;
+			_timer = null;
+		}
+		
+		private function bindProperty(watchers:Vector.<ChangeWatcher>):void {
+			watchers.push(BindingUtils.bindSetter(onStartTextChange, model, "startText"));
 			if (!_editable) {
-				BindingUtils.bindSetter(onStartTextChange, model, "targetText");
+				watchers.push(BindingUtils.bindSetter(onStartTextChange, model, "targetText"));
 			}
-			BindingUtils.bindSetter(onPasswordChange, model, "password");
-			BindingUtils.bindSetter(onBackgroundAlphaChange, model, "backgroundAlpha");
-			BindingUtils.bindSetter(onBackgroundColorChange, model, "backgroundColor");
+			watchers.push(BindingUtils.bindSetter(onPasswordChange, model, "password"));
+			watchers.push(BindingUtils.bindSetter(onBackgroundAlphaChange, model, "backgroundAlpha"));
+			watchers.push(BindingUtils.bindSetter(onBackgroundColorChange, model, "backgroundColor"));
 		}
 		
 		public function get showMarker():Boolean {

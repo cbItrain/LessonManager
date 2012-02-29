@@ -19,18 +19,26 @@ package itrain.common.view.stageobjects
 		[Bindable]
 		public var model:SlideObjectVO;
 		
-		private var _scoreWatcher:ChangeWatcher;
+		private var _watchers:Vector.<ChangeWatcher>;
 		
 		public function StageHotspot(model:SlideObjectVO, visible:Boolean = true)
 		{
 			super();
 			this.model = model;
-			ViewModelUtils.bindViewModel(this, model);
+			
+			_watchers = new Vector.<ChangeWatcher>();
+			ViewModelUtils.bindViewModel(this, model, _watchers);
+			_watchers.push(ChangeWatcher.watch(model, "score", onScoreChange));
 			
 			doubleClickEnabled = true;
-			
-			_scoreWatcher = ChangeWatcher.watch(model, "score", onScoreChange, false, true);
 			updateVisibility(visible);
+			
+			this.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+		}
+		
+		private function onRemovedFromStage(e:Event):void {
+			ViewModelUtils.unbind(_watchers);
+			model = null;
 		}
 		
 		private function onScoreChange(o:Object = null):void {

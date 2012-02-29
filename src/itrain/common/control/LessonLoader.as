@@ -78,7 +78,7 @@ package itrain.common.control {
 
 		[Mediate(event="LessonLoaderEvent.SAVE_LESSON")]
 		public function onSaveLesson(e:LessonLoaderEvent):void {
-			var sendString:String=lessonConverter.getLessonXML(e.lesson).toXMLString();
+			var sendString:String=lessonConverter.getLessonXMLString(e.lesson);
 			var arrayOfStrings:Array=sendString.split(null, CHUNK_SIZE);
 			arrayOfStrings.push("");
 			_saveParameters.data=arrayOfStrings;
