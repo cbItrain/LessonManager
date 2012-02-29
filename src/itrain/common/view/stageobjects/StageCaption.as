@@ -1,9 +1,8 @@
 package itrain.common.view.stageobjects {
 	import com.adobe.linguistics.spelling.SpellUI;
 	import com.adobe.linguistics.spelling.SpellUIForTLF;
-	
+
 	import flash.display.GradientType;
-	import flash.events.ContextMenuEvent;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
@@ -14,11 +13,10 @@ package itrain.common.view.stageobjects {
 	import flash.text.TextFormat;
 	import flash.ui.Keyboard;
 	import flash.utils.setTimeout;
-	
+
 	import flashx.textLayout.conversion.ConversionType;
 	import flashx.textLayout.conversion.TextConverter;
-	import flashx.textLayout.events.UpdateCompleteEvent;
-	
+
 	import itrain.co.uk.components.InPlaceTextEditor;
 	import itrain.co.uk.events.InPlaceTextEditorEvent;
 	import itrain.common.events.CaptionEvent;
@@ -32,17 +30,16 @@ package itrain.common.view.stageobjects {
 	import itrain.common.view.DotedFrame;
 	import itrain.lessoneditor.other.PointerHandle;
 	import itrain.lessoneditor.utils.CaptionUtils;
-	
+
 	import mx.binding.utils.BindingUtils;
 	import mx.binding.utils.ChangeWatcher;
 	import mx.core.Container;
 	import mx.core.UIComponent;
 	import mx.core.mx_internal;
 	import mx.events.FlexEvent;
-	import mx.events.MenuEvent;
 	import mx.managers.CursorManager;
 	import mx.managers.CursorManagerPriority;
-	
+
 	import spark.components.Group;
 	import spark.components.RichEditableText;
 	import spark.components.RichText;
@@ -53,6 +50,9 @@ package itrain.common.view.stageobjects {
 	public class StageCaption extends Group implements IStageObject {
 		[Bindable]
 		public var model:SlideObjectVO;
+		
+		private var _dragCursor:Class=Embeded.CURSOR_MOVE;
+		private var _editorCursor:Class=Embeded.TEXT_CURSOR;
 
 		public var textEditor:InPlaceTextEditor;
 		public var textEditorContainer:Group;
@@ -70,11 +70,42 @@ package itrain.common.view.stageobjects {
 		private var _pointerHandle:PointerHandle;
 		private var _dragPositionHolder:EnumPosition;
 		private var _dragCursorId:int;
-		private var _dragCursor:Class=Embeded.CURSOR_MOVE;
-		private var _editorCursor:Class=Embeded.TEXT_CURSOR;
 		private var _editorCursorId:int=-1;
-		
-		private var _spellCheckEnabled:Boolean = false;
+		private var _watchers:Vector.<ChangeWatcher>;
+
+		private var _spellCheckEnabled:Boolean=false;
+
+		public function StageCaption(model:SlideObjectVO, editable:Boolean=true, oldStyle:Boolean=false) {
+			super();
+			this.model=model;
+
+			_oldStyle=oldStyle;
+			_editable=editable;
+
+			lastX=model.x;
+			lastY=model.y;
+
+			_watchers=new Vector.<ChangeWatcher>();
+			if (editable) {
+				ViewModelUtils.bindViewModel(this, model, _watchers);
+				bindOtherProperties(_watchers);
+				this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+				this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			} else {
+				this.x=model.x;
+				this.y=model.y;
+				this.width=model.width;
+				this.height=model.height;
+				this.rotation=model.rotation;
+			}
+
+			this.filters=[Common.dropShadow];
+
+			_pointPositionWatcher=ChangeWatcher.watch(model, "pointPosition", onPointPositionChange);
+			this.addEventListener(MouseEvent.CLICK, onMouseClick);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+		}
 
 		public function get isEditable():Boolean {
 			return _editable;
@@ -95,34 +126,32 @@ package itrain.common.view.stageobjects {
 			invalidateDisplayList();
 		}
 
-		public function StageCaption(model:SlideObjectVO, editable:Boolean=true, oldStyle:Boolean=false) {
-			super();
-			this.model=model;
+		private function onRemovedFromStage(e:Event):void {
+			this.removeEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+			this.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+			this.removeEventListener(MouseEvent.CLICK, onMouseClick);
+			this.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			this.removeEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
+			this.removeEventListener(MouseEvent.MOUSE_OUT, onDragMouseOut);
+			this.removeEventListener(MouseEvent.MOUSE_OVER, onDragMouseOver);
 
-			_oldStyle=oldStyle;
-			_editable=editable;
+			_watchers.push(_pointPositionWatcher);
+			_watchers.push(_textModelWatcher);
 
-			lastX=model.x;
-			lastY=model.y;
+			ViewModelUtils.unbind(_watchers);
 
-			if (editable) {
-				ViewModelUtils.bindViewModel(this, model);
-				bindOtherProperties();
-				this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-				this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-			} else {
-				this.x=model.x;
-				this.y=model.y;
-				this.width=model.width;
-				this.height=model.height;
-				this.rotation=model.rotation;
-			}
-
-			this.filters=[Common.dropShadow];
-
-			_pointPositionWatcher=ChangeWatcher.watch(model, "pointPosition", onPointPositionChange);
-			this.addEventListener(MouseEvent.CLICK, onMouseClick);
-			this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+			_pointPositionWatcher=null;
+			_textModelWatcher=null;
+			model=null;
+			textEditor=null;
+			textEditorContainer=null;
+			captionMenuLayer=null;
+			_dottedFrame=null;
+			_pointerHandle=null;
+			_dragPositionHolder=null;
+			_dragCursor=null;
+			_editorCursor=null;
+			this.removeAllElements();
 		}
 
 		private function onMouseOver(me:MouseEvent):void {
@@ -135,10 +164,10 @@ package itrain.common.view.stageobjects {
 				CursorManager.removeCursor(_editorCursorId);
 		}
 
-		private function bindOtherProperties():void {
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "movable");
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "hidable");
-			BindingUtils.bindSetter(onInteractionOptionsChange, model, "showContinue");
+		private function bindOtherProperties(watchers:Vector.<ChangeWatcher>):void {
+			watchers.push(BindingUtils.bindSetter(onInteractionOptionsChange, model, "movable"));
+			watchers.push(BindingUtils.bindSetter(onInteractionOptionsChange, model, "hidable"));
+			watchers.push(BindingUtils.bindSetter(onInteractionOptionsChange, model, "showContinue"));
 		}
 
 		private function onInteractionOptionsChange(o:Object=null):void {
@@ -185,8 +214,8 @@ package itrain.common.view.stageobjects {
 				this.addElement(textEditorContainer);
 			}
 			if (!textEditor) {
-				textEditor=new InPlaceTextEditor(true, this);
-				
+				textEditor=new InPlaceTextEditor(_editable, this);
+
 				textEditor.percentWidth=100;
 				textEditorContainer.addElement(textEditor);
 
@@ -197,19 +226,20 @@ package itrain.common.view.stageobjects {
 				if (_editable) {
 					textEditor.addEventListener(InPlaceTextEditorEvent.DELETE_CLICKED, onDeleteItem);
 					textEditor.addEventListener(InPlaceTextEditorEvent.TEXT_CHANGES, onTextChange);
-					textEditor.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 					this.addEventListener(KeyboardEvent.KEY_DOWN, onTextEditorKeyDown, true);
 				}
 			}
-			if (!_dottedFrame) {
-				_dottedFrame=new DotedFrame();
-				_dottedFrame.visible=false;
-				this.addElement(_dottedFrame);
-			}
-			if (!_pointerHandle) {
-				_pointerHandle=new PointerHandle();
-				_pointerHandle.visible=false;
-				this.addElement(_pointerHandle);
+			if (_editable) {
+				if (!_dottedFrame) {
+					_dottedFrame=new DotedFrame();
+					_dottedFrame.visible=false;
+					this.addElement(_dottedFrame);
+				}
+				if (!_pointerHandle) {
+					_pointerHandle=new PointerHandle();
+					_pointerHandle.visible=false;
+					this.addElement(_pointerHandle);
+				}
 			}
 		}
 
@@ -254,7 +284,7 @@ package itrain.common.view.stageobjects {
 			try {
 				if (textEditor.textFlow && _spellCheckEnabled) {
 					SpellUI.disableSpelling(textEditor);
-					_spellCheckEnabled = false;
+					_spellCheckEnabled=false;
 				}
 			} catch (e:Error) {
 				trace(e);
@@ -264,32 +294,25 @@ package itrain.common.view.stageobjects {
 		public function enableSpelling():void {
 			try {
 				if (textEditor.textFlow && !_spellCheckEnabled) {
-					textEditor.selectable = textEditor.editable = textEditor.focusEnabled = false;
+					textEditor.selectable=textEditor.editable=textEditor.focusEnabled=false;
 					SpellUI.enableSpelling(textEditor, "en_US");
-					_spellCheckEnabled = true;
-					textEditor.selectable = textEditor.editable = textEditor.focusEnabled = true;
+					_spellCheckEnabled=true;
+					textEditor.selectable=textEditor.editable=textEditor.focusEnabled=true;
 				}
 			} catch (e:Error) {
 				trace(e);
 			}
 		}
-		
-		private function onTextLayoutUpdate(e:Event):void {
-			onTextChange();
-		}
 
 		private function onModelTextChange(o:Object):void {
-			textEditor.removeEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 			textEditor.textFlow=TextConverter.importToFlow((model as CaptionVO).text, TextConverter.TEXT_FIELD_HTML_FORMAT);
-			if (_editable)
-				textEditor.addEventListener(UpdateCompleteEvent.UPDATE_COMPLETE,onTextLayoutUpdate);
 		}
 
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 
 			CaptionUtils.positionChildren(this);
-			var point:Point=CaptionUtils.drawSpeachBubble(this, unscaledWidth, unscaledHeight, model as CaptionVO, _oldStyle, _pointerHandle.visible).point as Point;
+			var point:Point=CaptionUtils.drawSpeachBubble(this, unscaledWidth, unscaledHeight, model as CaptionVO, _oldStyle, _pointerHandle == null ? false : _pointerHandle.visible).point as Point;
 
 			if (_editable) {
 				if (captionVO.pointPosition.equals(EnumPosition.NONE))
@@ -302,9 +325,10 @@ package itrain.common.view.stageobjects {
 				captionVO.adjustable=false;
 				captionVO.adjustSize(CaptionUtils.getCaptionAdjustWidth(this), CaptionUtils.getCaptionAdjustHeight(this));
 			}
-
-			_dottedFrame.width=unscaledWidth;
-			_dottedFrame.height=unscaledHeight;
+			if (_dottedFrame) {
+				_dottedFrame.width=unscaledWidth;
+				_dottedFrame.height=unscaledHeight;
+			}
 			//trace("Stage Caption Update");
 			//trace("Caption width/height: " + textEditor.width + " " + textEditor.height + " measured width/height: " + textEditor.measuredWidth + " " + textEditor.measuredHeight);
 		}
@@ -330,6 +354,10 @@ package itrain.common.view.stageobjects {
 
 		private function onMouseDown(me:MouseEvent):void {
 			if (_editable) {
+				if (_dottedFrame.visible && textEditor.isFocused()) {
+					me.preventDefault();
+					me.stopImmediatePropagation();
+				}
 				if (me.target == _pointerHandle) {
 					_dragPositionHolder=captionVO.pointPosition;
 					captionVO.unlistenForChange();
@@ -350,8 +378,8 @@ package itrain.common.view.stageobjects {
 		}
 
 		private function onMouseEventUp(me:MouseEvent):void {
-			this.parentApplication.removeEventListener(MouseEvent.MOUSE_UP, onMouseEventUp, true);
-			this.parentApplication.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove, true);
+			this.parentApplication.removeEventListener(MouseEvent.MOUSE_UP, onMouseEventUp);
+			this.parentApplication.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			if (_dragPositionHolder) {
 				captionVO.listenForChange();
 				if (!_dragPositionHolder.equals(captionVO.pointPosition)) { //not same position

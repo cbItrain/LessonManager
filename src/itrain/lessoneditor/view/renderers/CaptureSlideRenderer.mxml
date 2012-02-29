@@ -57,7 +57,7 @@
 						notAvailableContainer.visible=false;
 						updateHolder(slide);
 						if (bitmapData) {
-							if (ImageRepository.isBitmapAvailable(bitmapData)) {
+							if (imageRepository.isBitmapDataAvailable(bitmapData)) {
 								updateSource(bitmapData);
 								hideLoader();
 							} else {
@@ -106,8 +106,8 @@
 			}
 
 			private function onInitailize():void {
-				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated);
-				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_UPDATED, onImageUpdated, false, 0, true);
+				imgSlide.addEventListener(ImageRepositoryEvent.IMAGE_NOT_UPDATED, onImageNotUpdated, false, 0, true);
 			}
 
 			private function onImageNotUpdated(e:Event=null):void {

@@ -14,22 +14,24 @@
     </fx:Declarations>
     <fx:Script>
         <![CDATA[
-            import itrain.common.events.ModelEvent;
-            import itrain.common.model.vo.SlideVO;
-            import itrain.common.utils.Common;
-            import itrain.common.utils.Embeded;
-            import itrain.lessoneditor.events.EditorEvent;
-            import itrain.lessoneditor.model.EditorModel;
-            import itrain.lessoneditor.model.SlideListModel;
-            import itrain.lessoneditor.view.renderers.SlideItemRenderer;
-
-            import mx.collections.ArrayCollection;
-            import mx.events.DragEvent;
-            import mx.events.FlexEvent;
-            import mx.managers.DragManager;
-
-            import spark.components.supportClasses.ItemRenderer;
-            import spark.filters.DropShadowFilter;
+			import itrain.common.events.ModelEvent;
+			import itrain.common.model.vo.SlideVO;
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.events.SlideListEvent;
+			import itrain.lessoneditor.events.SlideRendererEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.model.SlideListModel;
+			import itrain.lessoneditor.view.renderers.SlideItemRenderer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.DragManager;
+			
+			import spark.components.supportClasses.ItemRenderer;
+			import spark.filters.DropShadowFilter;
 
             [Inject]
             [Bindable]
@@ -47,6 +49,8 @@
                 collapseRight=false;
                 parentApplication.addEventListener(MouseEvent.MOUSE_WHEEL, onApplicationMouseWheel);
                 parentApplication.addEventListener(FlexEvent.APPLICATION_COMPLETE, onApplicationComplete);
+				lstSlides.addEventListener(SlideRendererEvent.DELETE, onRendererEvent);
+				lstSlides.addEventListener(SlideRendererEvent.COPY, onRendererEvent);
             }
 
             private function onApplicationComplete(fe:FlexEvent):void {
@@ -85,7 +89,8 @@
 
                 if (model.currentlySelectedIndex > -1) {
                     callLater(function():void {
-                        lstSlides.ensureIndexIsVisible(model.currentlySelectedIndex);
+						if (lstSlides.selectedIndex > -1)
+                        	lstSlides.ensureIndexIsVisible(model.currentlySelectedIndex);
                     });
                 }
                 callLater(function():void {
@@ -128,12 +133,21 @@
             protected function onListMouseWheel(event:MouseEvent):void {
                 event.stopImmediatePropagation();
             }
+			
+			private function onRendererEvent(e:Event):void {
+				var type:String = (e.type == SlideRendererEvent.COPY) ? SlideListEvent.COPY_SLIDE : SlideListEvent.REMOVE_SLIDE;
+				var ev:SlideListEvent=new SlideListEvent(type, true);
+				ev.slides=lstSlides.selectedItems;
+				ev.additionalData = lstSlides.selectedIndices;
+				dispatchEvent(ev);
+			}
         ]]>
     </fx:Script>
     <s:Group width="100%"
              height="100%">
         <s:List id="lstSlides"
                 dataProvider="{model.slides}"
+				allowMultipleSelection="true"
                 change="{onListSelectionChange()}"
                 selectedItem="{model.currentlySelected}"
                 keyDown="onKeyDown(event)"

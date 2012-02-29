@@ -47,35 +47,36 @@
     </fx:Declarations>
     <fx:Script>
         <![CDATA[
-            import com.adobe.linguistics.spelling.SpellUI;
-            import com.adobe.linguistics.spelling.SpellUIForTLF;
-            import com.adobe.linguistics.spelling.framework.ResourceTable;
-            import com.adobe.linguistics.spelling.framework.SpellingConfiguration;
-
-            import itrain.IRightClickAware;
-            import itrain.common.control.LessonConverter;
-            import itrain.common.events.LessonLoaderEvent;
-            import itrain.common.utils.Embeded;
-            import itrain.lessoneditor.events.EditorEvent;
-            import itrain.lessoneditor.events.MessageEvent;
-            import itrain.lessoneditor.model.EditorModel;
-            import itrain.lessoneditor.model.EnumMessageSeverity;
-            import itrain.lessoneditor.model.EnumPreviewOption;
-
-            import mx.controls.Alert;
-            import mx.core.FlexGlobals;
-            import mx.events.BrowserChangeEvent;
-            import mx.events.ResizeEvent;
-            import mx.graphics.BitmapFillMode;
-            import mx.managers.BrowserManager;
-            import mx.managers.IBrowserManager;
-            import mx.managers.PopUpManager;
-
-            import org.osmf.layout.ScaleMode;
-            import org.swizframework.core.SwizManager;
-
-            import spark.primitives.BitmapImage;
-            import spark.primitives.supportClasses.FilledElement;
+			import com.adobe.linguistics.spelling.SpellUI;
+			import com.adobe.linguistics.spelling.SpellUIForTLF;
+			import com.adobe.linguistics.spelling.framework.ResourceTable;
+			import com.adobe.linguistics.spelling.framework.SpellingConfiguration;
+			
+			import itrain.IRightClickAware;
+			import itrain.common.control.LessonConverter;
+			import itrain.common.events.LessonLoaderEvent;
+			import itrain.common.events.LessonModuleEvent;
+			import itrain.common.utils.Embeded;
+			import itrain.lessoneditor.events.EditorEvent;
+			import itrain.lessoneditor.events.MessageEvent;
+			import itrain.lessoneditor.model.EditorModel;
+			import itrain.lessoneditor.model.EnumMessageSeverity;
+			import itrain.lessoneditor.model.EnumPreviewOption;
+			
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.BrowserChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.graphics.BitmapFillMode;
+			import mx.managers.BrowserManager;
+			import mx.managers.IBrowserManager;
+			import mx.managers.PopUpManager;
+			
+			import org.osmf.layout.ScaleMode;
+			import org.swizframework.core.SwizManager;
+			
+			import spark.primitives.supportClasses.FilledElement;
 
             [Bindable]
             [Inject]
@@ -85,12 +86,18 @@
             public var lessonConverter:LessonConverter;
 
             private static var bm:IBrowserManager=BrowserManager.getInstance();
+			
+			[Bindable]
+			private var _contextMenu:ContextMenu;
 
             private function onPreinitialize():void {
                 configureSpellChecking();
             }
 
             private function onCreationComplete():void {
+				var ev:LessonModuleEvent=new LessonModuleEvent(LessonModuleEvent.MODULE_CREATION_COMPLETE, true);
+				dispatchEvent(ev);
+				
                 this.dispatchEvent(new LessonLoaderEvent(LessonLoaderEvent.LOAD_LESSON, true));
 
                 middleContainer.x=lstSlides.x + lstSlides.width;
@@ -175,14 +182,14 @@
                 var rcMenuItem:ContextMenuItem=new ContextMenuItem("Copy Lesson XML");
                 rcMenuItem.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onCopyXML);
 
-                var customContextMenu:ContextMenu=new ContextMenu();
-                customContextMenu.customItems.push(rcMenuItem);
-                this.contextMenu=customContextMenu;
+				_contextMenu=new ContextMenu();
+				_contextMenu.customItems.push(rcMenuItem);
+                this.contextMenu=_contextMenu;
             }
 
             private function onCopyXML(e:ContextMenuEvent):void {
                 if (model.lesson)
-                    System.setClipboard(lessonConverter.getLessonXML(model.lesson).toXMLString());
+                    System.setClipboard(lessonConverter.getLessonXMLString(model.lesson));
                 else
                     System.setClipboard("There is no Lesson in the Editor.");
                 Alert.show("Lesson XML copied to the system clipboard.", "Lesson copied");
@@ -249,6 +256,7 @@
         <view:Importer id="captureImporterPane"
                             width="100%"
                             height="100%"
+							appContextMenu="{_contextMenu}"
 							depth="3"/>
 		<c:Messager id="messager" depth="3" top="{mainMenu.height + 20}"/>
     </s:Group>

@@ -11,6 +11,8 @@ package itrain.common.model {
     import itrain.common.events.ImageRepositoryEvent;
     import itrain.common.model.loader.ImageLoader;
     
+    import mx.core.FlexGlobals;
+    
     import spark.components.Image;
 
     public class ImageRepository extends EventDispatcher {
@@ -18,11 +20,7 @@ package itrain.common.model {
         [Embed(source="assets/basicBlackPreloader.swf")]
         public static var loaderSpinner:Class;
 
-        public static var CACHE_SIZE:int=30;
-
-        private static var _repository:Dictionary=new Dictionary();
         private static var _loadQueue:Vector.<String>=new Vector.<String>();
-        private static var _loadHistory:Vector.<String>=new Vector.<String>();
 
         private static var _imageRIList:Vector.<ImageRepositoryItem>=new Vector.<ImageRepositoryItem>();
 
@@ -30,55 +28,42 @@ package itrain.common.model {
         private var _loader:ImageLoader;
 
         private static var _instance:ImageRepository;
+		private static var _cacheHelper:CacheHelper;
 
         public function ImageRepository() {
             _loader=new ImageLoader();
-            _loader.addEventListener(Event.COMPLETE, onLoadComplete);
-            _loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
-            _loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError);
+            _loader.addEventListener(Event.COMPLETE, onLoadComplete, false, 0, true);
+            _loader.addEventListener(IOErrorEvent.IO_ERROR, onError, false, 0, true);
+            _loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onError, false, 0, true);
+			
+			_cacheHelper = new CacheHelper();
+			
+			setCacheSize(FlexGlobals.topLevelApplication.parameters.maxImages);
         }
 
-        public function clearCache(listOfURLs:Array, destroy:Boolean=false):void {
-            for each (var s:String in listOfURLs) {
+        public function clearCache(listOfURLs:Array):void {
+			var index:int;
+			for each (var s:String in listOfURLs) {
                 if (s) {
-                    if (destroy) {
-                        var bd:BitmapData=_repository[s];
-                        if (bd)
-                            bd.dispose();
-                    }
-                    _repository[s]=null;
+					_cacheHelper.setBitmapData(s, null);
                 }
-                var index:int=_loadHistory.indexOf(s);
-                if (index > -1)
-                    _loadHistory.splice(index, 1);
             }
             var ire:ImageRepositoryEvent=new ImageRepositoryEvent(ImageRepositoryEvent.CACHE_CLEARED);
             ire.data=listOfURLs;
             dispatchEvent(ire);
         }
 
-        public function clearAllCache(destroy:Boolean=false):void {
-			var array:Array = [];
-            for each (var s:String in _loadHistory) {
-                if (s) {
-                    if (destroy) {
-                        var bd:BitmapData=_repository[s];
-                        if (bd)
-                            bd.dispose();
-                    }
-                    _repository[s]=null;
-					array.push(s);
-                }
-            }
-			_loadHistory = new Vector.<String>();
+        public function clearAllCache():void {
+			var vector:Vector.<String> = _cacheHelper.currentURLs.concat();
+			_cacheHelper.removeAllURLs();
             var ire:ImageRepositoryEvent=new ImageRepositoryEvent(ImageRepositoryEvent.CACHE_CLEARED);
-            ire.data=array;
+            ire.data=vector;
 			ire.url="stopLoading"
             dispatchEvent(ire);
         }
 
         public function cacheLimitReached():Boolean {
-            return CACHE_SIZE <= _loadHistory.length;
+            return _cacheHelper.cacheSizeReached();
         }
 
         public static function getInstance():ImageRepository {
@@ -87,22 +72,24 @@ package itrain.common.model {
             return _instance;
         }
 
-        private function updateCache(url:String):void {
-            _loadHistory.push(url);
-            //Clear cache if necessary
-            if (_loadHistory.length > CACHE_SIZE) { //clear cache
-                var removed:String=_loadHistory.shift();
-                var bd:BitmapData=_repository[removed] as BitmapData;
-                if (bd) {
-                    _repository[removed]=null;
-                }
-            }
-        }
+//        private function updateCache(url:String):void {
+//            _cacheHelper.addToCurrentURLs(url);
+//            //Clear cache if necessary
+//            if (_cacheHelper.currentURLsSize > _cacheHelper.cacheSize) { //clear cache
+//                var removed:String=_cacheHelper.shiftCurrentURL();
+//                var bd:BitmapData=_cacheHelper.getBitmapData(removed);
+//                if (bd) {
+//					_cacheHelper.setBitmapData(removed, null);
+//                }
+//            }
+//        }
 
         public function imageData(url:String, important:Boolean=true, image:Image=null):BitmapData {
-            var result:BitmapData=_repository[url] as BitmapData;
-            if (image)
+            var result:BitmapData=_cacheHelper.getBitmapData(url);
+            if (image) {
                 cleanImageList(image, important);
+				_cacheHelper.addImage(image);
+			}
             if (!result) {
                 updateLists(url, image);
                 if (_current != url) {
@@ -180,27 +167,34 @@ package itrain.common.model {
         }
 
         private function onLoadComplete(e:Event):void {
+			var currentURL:String = _current;
+			//updateCache(currentURL);
             var bitmapData:BitmapData=new BitmapData(_loader.contentWidth, _loader.contentHeight, true, 0x00ffffff);
             bitmapData.draw(_loader.content);
-            _repository[_current]=bitmapData;
-            updateCache(_current);
+			_cacheHelper.setBitmapData(currentURL, bitmapData);
             var ire:ImageRepositoryEvent=new ImageRepositoryEvent(ImageRepositoryEvent.IMAGE_LOADED, bitmapData, _current, true);
-            updateImages(_current, bitmapData);
+            var imageUpdated:Boolean = updateImages(currentURL, bitmapData);
             _current=null;
             loadQueue();
-            dispatcheNotificationEvent(ire);
+			if (imageUpdated)
+            	dispatcheNotificationEvent(ire);
+			else if (_cacheHelper.cacheSizeReached()) {
+				_cacheHelper.setBitmapData(currentURL, null);
+			}
         }
 
         private function dispatcheNotificationEvent(e:Event):void {
             dispatchEvent(e);
         }
 
-        private function updateImages(url:String, bitmapData:BitmapData, loaded:Boolean=true):void {
+        private function updateImages(url:String, bitmapData:BitmapData, loaded:Boolean=true):Boolean {
             var iri:ImageRepositoryItem;
             var ire:ImageRepositoryEvent;
+			var result:Boolean = false;
             for (var i:int=0; i < _imageRIList.length; i++) {
                 iri=_imageRIList[i];
                 if (iri.url == url) {
+					result = true;
                     if (loaded) {
                         iri.image.source=new Bitmap(bitmapData);
                         ire=new ImageRepositoryEvent(ImageRepositoryEvent.IMAGE_UPDATED);
@@ -212,6 +206,7 @@ package itrain.common.model {
                     _imageRIList.splice(i, 1);
                 }
             }
+			return result;
         }
 
         public function isLoading():Boolean {
@@ -221,19 +216,19 @@ package itrain.common.model {
         private function onError(e:Event):void {
             var ire:ImageRepositoryEvent=new ImageRepositoryEvent(ImageRepositoryEvent.IMAGE_NOT_LOADED, null, _current, true);
             updateImages(_current, null, false);
-            _repository[_current]=new BitmapData(1, 1);
+			_cacheHelper.setBitmapData(_current, new BitmapData(1,1));
             _current=null;
             loadQueue();
             dispatcheNotificationEvent(ire);
         }
 
-        public static function isBitmapAvailable(bitmap:BitmapData):Boolean {
-            return bitmap.width > 1 && bitmap.height > 1;
-        }
+        public function isBitmapDataAvailable(bd:BitmapData):Boolean {
+			return _cacheHelper.isBitmapAvailable(bd);
+		}
 
-        public static function setCacheSize(count:Number):void {
+        private function setCacheSize(count:Number):void {
             if (count && !isNaN(count)) {
-                CACHE_SIZE=count;
+                _cacheHelper.cacheSize=count;
             }
         }
     }

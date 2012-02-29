@@ -4,11 +4,14 @@ package itrain.common.model {
 	import flash.external.ExternalInterface;
 	import flash.ui.ContextMenu;
 	
+	import itrain.common.events.LessonModuleEvent;
+	
 	import mx.controls.Alert;
 	import mx.events.FlexEvent;
 	import mx.events.ModuleEvent;
 	
 	import spark.components.Application;
+	import spark.modules.ModuleLoader;
 
 	public class RightClickAwareApplication extends Application {
 
@@ -32,7 +35,6 @@ package itrain.common.model {
 				MacMouseWheelHandler.init(stage);
 			}
 		}
-
 
 		protected function onRightClick():void {
 			//to be implemented when inherited
@@ -60,6 +62,9 @@ package itrain.common.model {
 		
 		private function onInitialize(e:Event):void {
 			_moduleLoadInformer = parameters.moduleLoadInformer;
+			moduleLoader.addEventListener(LessonModuleEvent.MODULE_CREATION_COMPLETE, onModuleCreationComplete);
+			if (parameters.fontsURL)
+				styleManager.loadStyleDeclarations(parameters.fontsURL);
 		}
 		
 		protected function informMLI(message:String):void {
@@ -79,6 +84,14 @@ package itrain.common.model {
 		
 		protected function onReady(me:ModuleEvent):void {
 			informMLI("end");
+		}
+		
+		protected function onModuleCreationComplete(e:Event):void {
+			informMLI("complete");
+		}
+		
+		protected function get moduleLoader():ModuleLoader {
+			return null;
 		}
 	}
 }

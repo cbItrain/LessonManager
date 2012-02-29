@@ -66,6 +66,16 @@ package itrain.common.model.vo
 			return hotspotTag;
 		}
 		
+		override public function convertToXMLString():String {
+			var hotspotTag:String = "<hotspot>";
+			hotspotTag += super.convertToXMLString();
+			hotspotTag += "<action>" + action.ordinal + "</action>";
+			hotspotTag += "<score>" + score + "</score>";
+			hotspotTag += "<cursor>" + cursor.ordinal + "</cursor>"
+			hotspotTag += "</hotspot>";
+			return hotspotTag;
+		}
+		
 		public static function newInstanceFromProxy(op:ObjectProxy):HotspotVO {
 			var result:HotspotVO = new HotspotVO();
 			result.parseObjectProxy(op);

@@ -47,30 +47,48 @@ package itrain.lessoneditor.model
 		
 		[Mediate(event="SlideListEvent.REMOVE_SLIDE")]
 		public function onRemoveSlide(ev:SlideListEvent):void {
-			var toRemove:SlideVO = ev.slide;
-			if (toRemove == currentlySelected) {
-				if (currentlySelectedIndex > 0)
-					setSelectedAt(currentlySelectedIndex - 1);
-				else if (currentlySelectedIndex < slides.length - 1)
-					setSelectedAt(currentlySelectedIndex + 1);
-				else
-					setSelectedAt(-1);
+			var toRemove:Vector.<Object> = ev.slides;
+			var toRemoveIndicies:Vector.<int> = ev.additionalData as Vector.<int>;
+			toRemoveIndicies.sort(indexCompareFunctionDesc);
+			if (toRemove.indexOf(currentlySelected) > -1) {
+				setSelectedAt(findFirstAvailableIndex(toRemoveIndicies));
 			}
-			var removeIndex:int = slides.getItemIndex(toRemove);
-			if (removeIndex > -1) {
-				slides.removeItemAt(removeIndex);
-				if (removeIndex <= currentlySelectedIndex)
+			for each (var i:int in toRemoveIndicies) {
+				slides.removeItemAt(i);
+				if (i <= currentlySelectedIndex)
 					currentlySelectedIndex--;
 			}
 			
 			var sle:SlideListEvent = new SlideListEvent(SlideListEvent.SLIDE_REMOVED, true);
-			sle.slide = toRemove;
+			sle.slides = toRemove;
 			dispatcher.dispatchEvent(sle);
+		}
+		
+		private function indexCompareFunctionDesc(a:int, b:int):int {
+			if (a == b)
+				return 0;
+			else if (a < b)
+				return 1;
+			else 
+				return -1;
+		}
+		
+		private function findFirstAvailableIndex(excludedIndicies:Vector.<int>):int {
+			var startingIndex:int = excludedIndicies.concat().pop();
+			for (var i:int=startingIndex+1; i < slides.length; i++) {
+				if (excludedIndicies.indexOf(i) < 0)
+					return i;
+			}
+			for (i = startingIndex - 1; i >= 0 ; i--) {
+				if (excludedIndicies.indexOf(i) < 0)
+					return i;
+			}
+			return -1;
 		}
 		
 		[Mediate(event="SlideListEvent.COPY_SLIDE")]
 		public function onCopySlide(ev:SlideListEvent):void {
-			var toCopy:SlideVO = ev.slide;
+			var toCopy:SlideVO = ev.slides.concat().shift();
 			var copy:SlideVO = toCopy.clone();
 			var index:int = slides.getItemIndex(toCopy);
 			if (index > -1) {
@@ -79,7 +97,7 @@ package itrain.lessoneditor.model
 				setSelectedAt(index);
 			}
 			var sle:SlideListEvent = new SlideListEvent(SlideListEvent.SLIDE_COPIED, true);
-			sle.slide = toCopy;
+			sle.slides = ev.slides;
 			dispatcher.dispatchEvent(sle);
 		}
 		

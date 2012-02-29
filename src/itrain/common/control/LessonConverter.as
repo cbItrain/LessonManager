@@ -60,6 +60,10 @@ package itrain.common.control
 			return lesson.convertToXML();
 		}
 		
+		public function getLessonXMLString(lesson:LessonVO):String {
+			return lesson.convertToXMLString();
+		}
+		
 		private function onlySelectedFilterFunction(item:Object, index:int, array:Array):Boolean {
 			return item.selected;
 		}

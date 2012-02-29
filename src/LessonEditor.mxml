@@ -40,6 +40,11 @@
 				if (o)
 					lessonEditor.rightClick(o);
 			}
+			
+			override protected function get moduleLoader():ModuleLoader {
+				return editorModule;
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Style>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%"
+		 xmlns:spinner="itrain.common.view.spinner.*">
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.clearTimeout;
+			import flash.utils.setTimeout;
+			
+			import itrain.common.model.ImageRepository;
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.Messages;
+			import itrain.common.view.skins.IconButtonSkin;
+			import itrain.lessoneditor.events.NewCaptureEvent;
+			import itrain.lessoneditor.model.NewCaptureModel;
+			import itrain.lessoneditor.view.skins.NewCaptureProgressBarSkin;
+			
+			import mx.binding.utils.BindingUtils;
+
+			private static const SPINNER_DELAY:int=2000;
+
+			[Bindable]
+			public var model:NewCaptureModel;
+
+			[PostConstruct]
+			public function onPostConstruct():void
+			{
+				BindingUtils.bindSetter(onUploadProgressChange, model, "uploadProgress");
+			}
+
+			private function onStop():void
+			{
+				model.stopRecording();
+			}
+
+			private function onPause():void
+			{
+				model.pauseResumeRecording();
+			}
+
+			private function onCancel():void
+			{
+				model.cancelRecording();
+			}
+
+			private function onUploadProgressChange(value:int):void
+			{
+				if (pbUpload)
+					pbUpload.setProgress(value, 100);
+			}
+
+			private var _spinnerDelay:int;
+
+			private function onSpinnerAdded():void
+			{
+				spinnerLoader.visible=false;
+				_spinnerDelay=setTimeout(function():void
+				{
+					spinnerLoader.visible=true;
+				}, SPINNER_DELAY);
+			}
+
+			private function onSpinnerRemoved():void
+			{
+				spinnerLoader.visible=false;
+				clearTimeout(_spinnerDelay);
+			}
+			
+			private function onReportIssueClick():void {
+				var nce:NewCaptureEvent = new NewCaptureEvent(NewCaptureEvent.REPORT_ISSUE, true);
+				nce.captureId = model.getCurrentCaptureId();
+				if (nce.captureId)
+					dispatchEvent(nce);
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="default"/>
+		<s:State name="launching"/>
+		<s:State name="ready"/>
+		<s:State name="recording"/>
+		<s:State name="uploading"
+				 stateGroups="progressVisible"/>
+		<s:State name="uploaded"
+				 stateGroups="progressVisible"/>
+		<s:State name="saved"
+				 stateGroups="progressVisible"/>
+		<s:State name="error"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="*"
+					  toState="*"
+					  excludeFrom="default, error">
+			<s:Sequence>
+				<s:Fade alphaFrom="1.0"
+						alphaTo="0.0"
+						duration="180"
+						targets="{[topPart, lblCapStatus]}"
+						excludeFrom="uploaded, saved, default, error"/>
+				<s:SetAction property="text"
+							 targets="{[lblCapStatus, lblMessage]}"/>
+				<s:SetAction property="color"
+							 targets="{[lblCapStatus]}"/>
+				<s:SetAction property="label"
+							 targets="{[pbUpload]}"/>
+				<s:RemoveAction targets="{[pbUpload, lSR, lPR, lCR, hContainer, rDot]}"/>
+				<s:AddAction targets="{[pbUpload, lSR, lPR, lCR, hContainer, rDot]}"/>
+				<s:Fade alphaFrom="0.0"
+						alphaTo="1.0"
+						duration="180"
+						targets="{[topPart, lblCapStatus]}"
+						excludeFrom="uploaded, saved,default, error"/>
+			</s:Sequence>
+		</s:Transition>
+	</s:transitions>
+	<s:Group id="topPart"
+			 width="100%">
+		<s:HGroup verticalAlign="middle"
+				  top="10"
+				  horizontalCenter="0"
+				  id="hContainer"
+				  includeIn="recording, launching, ready">
+			<s:Group width="20"
+					 height="20"
+					 includeIn="launching, recording">
+				<spinner:Spinner id="spinnerLoader"
+								 width="40"
+								 height="40"
+								 verticalCenter="5"
+								 horizontalCenter="-8"
+								 tickWidth="3"
+								 speed="800"
+								 fadeSpeed="600"
+								 added="onSpinnerAdded()"
+								 removed="onSpinnerRemoved()"
+								 includeIn="launching"
+								 numTicks="20"
+								 tickColor="0x666666"/>
+				<s:Rect id="rDot"
+						width="20"
+						height="20"
+						radiusX="15"
+						radiusY="15"
+						includeIn="recording">
+					<s:fill>
+						<s:SolidColor color="0xFF0000"/>
+					</s:fill>
+				</s:Rect>
+			</s:Group>
+			<s:Label id="lblCapStatus"
+					 text.launching="{Messages.CT_LAUNCHING}"
+					 text.recording="{Messages.CT_RECORDING}"
+					 text.ready="{Messages.CT_READY}"
+					 fontSize="20"
+					 paddingTop="5"
+					 color="0x000000"
+					 color.recording="0xFF0000"/>
+		</s:HGroup>
+		<s:VGroup horizontalAlign="center"
+				  includeIn="progressVisible"
+				  top="10"
+				  horizontalCenter="0">
+			<s:Group height="15">
+				<s:Label verticalCenter="0"
+						 includeIn="uploaded, saved"
+						 text.uploaded="Uploading Complete - Exiting Capture Tool"
+						 text.saved="Uploading Complete - Capture Tool closed"/>
+				<s:HGroup verticalCenter="0"
+						  includeIn="uploading"
+						  gap="5"
+						  verticalAlign="middle">
+					<s:Label text.uploading="Uploading Capture -"/>
+					<s:Label text.uploading="{pbUpload.percentComplete}%"
+							 fontWeight="bold"
+							 fontSize="14"/>
+					<s:Label text.uploading="complete"/>
+				</s:HGroup>
+			</s:Group>
+			<mx:ProgressBar id="pbUpload"
+							width="270"
+							height="15"
+							label=""
+							labelPlacement="center"
+							barSkin="{NewCaptureProgressBarSkin}"
+							indeterminate="false"
+							mode="manual"/>
+		</s:VGroup>
+	</s:Group>
+	<s:Label id="lblMessage"
+			 verticalCenter="7"
+			 horizontalCenter="0"
+			 maxDisplayedLines="1"
+			 textAlign="center"
+			 color="0x777777"
+			 excludeFrom="saved, default"
+			 text="{Messages.CT_DO_NOT_CLOSE} running."
+			 text.launching="{Messages.CT_DO_NOT_CLOSE} launching."
+			 width="100%"/>
+	<s:HGroup width="100%"
+			  horizontalAlign="center"
+			  enabled="{!model.freezed}"
+			  bottom="8"
+			  horizontalCenter="0">
+		<s:Button id="lSR"
+				  label="Stop Recording"
+				  click="onStop()"
+				  icon="{Embeded.STOP_RECORD}"
+				  includeIn="recording"
+				  skinClass="itrain.common.view.skins.IconButtonSkin"
+				  fontWeight="bold"
+				  cornerRadius="5"/>
+		<s:Button id="lPR"
+				  label="Pause Recording"
+				  includeInLayout="false"
+				  visible="false"
+				  icon="{Embeded.PAUSE_RECORD}"
+				  click="onPause()"
+				  includeIn="recording"
+				  fontWeight="bold"
+				  skinClass="itrain.common.view.skins.IconButtonSkin"
+				  cornerRadius="5"/>
+		<s:Button id="lCR"
+				  label="Cancel Recording"
+				  icon="{Embeded.CANCEL_RECORD}"
+				  click="onCancel()"
+				  excludeFrom="uploaded, saved, default"
+				  skinClass="itrain.common.view.skins.IconButtonSkin"
+				  fontWeight="bold"
+				  cornerRadius="5"/>
+	</s:HGroup>
+	<s:Button id="btnReportIssue"
+			  label="Report Issue"
+			  click="onReportIssueClick()"
+			  right="5"
+			  top="5"
+			  includeIn="uploading, uploaded, saved"
+			  skinClass="itrain.common.view.skins.IconButtonSkin"
+			  fontWeight="bold"
+			  cornerRadius="5"/>
+</s:Group>

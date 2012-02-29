@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="100%"
+		  height="100%"
+		  gap="15"
+		  paddingBottom="10"
+		  paddingLeft="10"
+		  paddingRight="10"
+		  paddingTop="10"
+		  horizontalAlign="right">
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Common;
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.Messages;
+			import itrain.lessoneditor.model.NewCaptureModel;
+			import itrain.lessoneditor.view.skins.NewCaptureButtonSkin;
+			
+			[Bindable]
+			public var model:NewCaptureModel;
+			
+			private var _highlightNewCaptureBtn:Boolean;
+			
+			private function onNewCaptureClick():void
+			{
+				model.newCaptrue();
+			}
+			
+			[Bindable]
+			public function get highlightNewCaptureBtn():Boolean {
+				return _highlightNewCaptureBtn;
+			}
+			
+			public function set highlightNewCaptureBtn(value:Boolean):void {
+				_highlightNewCaptureBtn = value;
+				updateButtonStyles();
+			}
+			
+			private function updateButtonStyles():void {
+				if (_highlightNewCaptureBtn) {
+					btnNewCapture.styleName = "highlightedButton";
+					(btnNewCapture.labelDisplay as Label).filters = [Common.shadowedText];
+				} else {
+					btnNewCapture.styleName = null;
+					(btnNewCapture.labelDisplay as Label).filters = [];
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%"
+			  horizontalAlign="center"
+			  paddingBottom="10"
+			  paddingTop="10">
+		<s:Button id="btnNewCapture" label="New Capture"
+				  icon="{Embeded.NEW_CAPTURE_ICON}"
+				  height="35"
+				  skinClass="itrain.lessoneditor.view.skins.NewCaptureButtonSkin"
+				  click="onNewCaptureClick()"
+				  cornerRadius="5"/>
+	</s:HGroup>
+	<s:Label maxDisplayedLines="1"
+			 textAlign="center"
+			 color="0x777777"
+			 text="{Messages.CT_REQUIREMENTS}"
+			 width="100%"/>
+</s:VGroup>

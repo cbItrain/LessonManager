@@ -6,7 +6,6 @@ package itrain.common.control {
 	import flash.net.URLVariables;
 	
 	import itrain.common.events.LessonLoaderEvent;
-	import itrain.common.model.ImageRepository;
 	import itrain.common.model.vo.CaptionVO;
 	import itrain.common.model.vo.HotspotVO;
 	import itrain.common.model.vo.LessonVO;
@@ -58,8 +57,6 @@ package itrain.common.control {
 
 			_lessonLoadService.url=params.getLessonURL;
 			_lessonSaveService.url=params.saveLessonURL;
-			
-			ImageRepository.setCacheSize(params.maxImages);
 		}
 
 		[Mediate(event="LessonLoaderEvent.LOAD_LESSON")]
@@ -81,7 +78,7 @@ package itrain.common.control {
 
 		[Mediate(event="LessonLoaderEvent.SAVE_LESSON")]
 		public function onSaveLesson(e:LessonLoaderEvent):void {
-			var sendString:String=lessonConverter.getLessonXML(e.lesson).toXMLString();
+			var sendString:String=lessonConverter.getLessonXMLString(e.lesson);
 			var arrayOfStrings:Array=sendString.split(null, CHUNK_SIZE);
 			arrayOfStrings.push("");
 			_saveParameters.data=arrayOfStrings;

@@ -3,9 +3,9 @@ package itrain.common.model.enum
 
 	public class EnumDisplay extends EnumClass
 	{
-		public static var BEFORE:EnumDisplay = new EnumDisplay(0);
-		public static var AFTER:EnumDisplay = new EnumDisplay(1);
-		public static var ALWAYS:EnumDisplay = new EnumDisplay(2);
+		public static const BEFORE:EnumDisplay = new EnumDisplay(0);
+		public static const AFTER:EnumDisplay = new EnumDisplay(1);
+		public static const ALWAYS:EnumDisplay = new EnumDisplay(2);
 		
 		public function EnumDisplay(ordinal:int)
 		{

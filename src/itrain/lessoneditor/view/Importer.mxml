@@ -1,290 +1,311 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
-         xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:importer="itrain.lessoneditor.view.components.importer.*"
-         xmlns:se="http://www.sephiroth.it/2006/mxml"
-         xmlns:view="itrain.common.view.*"
-         xmlns:c="itrain.lessoneditor.view.components.*"
-		 visible="false">
-    <fx:Declarations>
-        <s:Fade id="effectIn"
-                alphaFrom="0.0"
-                alphaTo="1.0"
-                duration="400"
-                target="{window}"/>
-        <s:Fade id="effectOut"
-                alphaFrom="1.0"
-                alphaTo="0.0"
-                duration="400"
-                target="{window}"
-                effectEnd="outEffectEnd()"/>
-    </fx:Declarations>
-    <fx:Script>
-        <![CDATA[
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:se="http://www.sephiroth.it/2006/mxml"
+		 xmlns:view="itrain.common.view.*"
+		 xmlns:c="itrain.lessoneditor.view.components.*"
+		 visible="false" xmlns:importer="itrain.lessoneditor.view.components.importer.*">
+	<fx:Declarations>
+		<s:Fade id="effectIn"
+				alphaFrom="0.0"
+				alphaTo="1.0"
+				duration="400"
+				target="{window}"/>
+		<s:Fade id="effectOut"
+				alphaFrom="1.0"
+				alphaTo="0.0"
+				duration="400"
+				target="{window}"
+				effectEnd="outEffectEnd()"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
 			import itrain.common.utils.Common;
 			import itrain.lessoneditor.model.CaptureImportModel;
 			import itrain.lessoneditor.model.EditorModel;
 			import itrain.lessoneditor.model.EnumSelection;
 			import itrain.lessoneditor.model.IImportModel;
 			import itrain.lessoneditor.model.ISlidePreviewer;
+			import itrain.lessoneditor.model.NewCaptureModel;
 			import itrain.lessoneditor.view.skins.BlockedTitleWindowSkin;
 			import itrain.lessoneditor.view.skins.ImporterTitleWindowSkin;
-			
+
 			import mx.binding.utils.ChangeWatcher;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 
-            [Bindable]
-            [Inject]
-            public var model:CaptureImportModel;
+			[Bindable]
+			[Inject]
+			public var model:CaptureImportModel;
 
-            [Bindable]
-            [Inject]
-            public var editorModel:EditorModel;
-            private var _watcher:ChangeWatcher;
+			[Bindable]
+			[Inject]
+			public var newCaptureModel:NewCaptureModel;
 
-            [PostConstruct]
-            public function onPostConstruct():void {
-                if (_watcher)
-                    _watcher.unwatch();
-                _watcher=ChangeWatcher.watch(model, "allSlidesSelected", onAllSelectionModelChange);
-            }
+			[Bindable]
+			[Inject]
+			public var editorModel:EditorModel;
 
-            public function show(showClose:Boolean=true):void {
-                if (!visible) {
-					visible = true;
+			[Bindable]
+			public var appContextMenu:ContextMenu;
+
+
+			private var _watcher:ChangeWatcher;
+
+			[Bindable]
+			private var _notEmptyLesson:Boolean;
+
+			[PostConstruct]
+			public function onPostConstruct():void {
+				if (_watcher)
+					_watcher.unwatch();
+				_watcher=ChangeWatcher.watch(model, "allSlidesSelected", onAllSelectionModelChange);
+			}
+
+			public function show(showClose:Boolean=true):void {
+				if (!visible) {
+					visible=true;
 					captures.capturesShown();
-					
-                    effectOut.pause();
-                    effectIn.play();
-					window.closeButton.visible=showClose;
+
+					effectOut.pause();
+					effectIn.play();
+					_notEmptyLesson=window.closeButton.visible=showClose;
+					newCaptureModel.highlightNewButton=!showClose;
 
 					window.backToCourseButton.removeEventListener(MouseEvent.CLICK, onBackToCourseClick);
 					window.backToCourseButton.addEventListener(MouseEvent.CLICK, onBackToCourseClick);
-                }
-            }
+				}
+			}
 
-            private function onBackToCourseClick(me:MouseEvent):void {
-                editorModel.close();
-            }
+			private function onBackToCourseClick(me:MouseEvent):void {
+				editorModel.close();
+			}
 
-            private function onClose():void {
-                hide();
-                model.onCloseWindow();
-            }
+			private function onClose():void {
+				hide();
+				model.onCloseWindow();
+			}
 
-            private function outEffectEnd():void {
+			private function outEffectEnd():void {
 
-                selectedView.hidePreview();
-                selectedView.deselect();
+				selectedView.hidePreview();
+				selectedView.deselect();
 
-                btnPreview.selected=false;
+				btnPreview.selected=false;
 
-                visible=false;
-            }
+				visible=false;
+			}
 
-            public function hide():void {
-                if (visible) {
-                    effectIn.pause();
-                    effectOut.play();
-                }
-            }
+			public function hide():void {
+				if (visible) {
+					effectIn.pause();
+					effectOut.play();
+				}
+			}
 
-            [Bindable(event="SelectedViewChanges")]
-            private function get selectedView():ISlidePreviewer {
-                switch (vstNavigation.selectedIndex) {
-                    case 0:
-                        return captures;
-                    default:
-                        return null;
-                }
-            }
+			[Bindable(event="SelectedViewChanges")]
+			private function get selectedView():ISlidePreviewer {
+				switch (vstNavigation.selectedIndex) {
+					case 0:
+						return captures;
+					default:
+						return null;
+				}
+			}
 
-            private function onAllSelectionChange():void {
-                if (cbxAllSelection.middle) {
-                    cbxAllSelection.middle=false;
-                }
-                model.setAllSlideSelection(cbxAllSelection.selected);
-            }
+			private function onAllSelectionChange():void {
+				if (cbxAllSelection.middle) {
+					cbxAllSelection.middle=false;
+				}
+				model.setAllSlideSelection(cbxAllSelection.selected);
+			}
 
-            private function onAllSelectionModelChange(o:Object):void {
-                if (model.allSlidesSelected.equals(EnumSelection.MIDDLE)) {
-                    cbxAllSelection.selected=false;
-                    cbxAllSelection.middle=true;
-                } else {
-                    cbxAllSelection.middle=false;
-                    cbxAllSelection.selected=model.allSlidesSelected.equals(EnumSelection.SELECTED);
-                }
-                btnImport.enabled=(model.selectedCapture && (cbxAllSelection.middle || cbxAllSelection.selected));
-            }
+			private function onAllSelectionModelChange(o:Object):void {
+				if (model.allSlidesSelected.equals(EnumSelection.MIDDLE)) {
+					cbxAllSelection.selected=false;
+					cbxAllSelection.middle=true;
+				} else {
+					cbxAllSelection.middle=false;
+					cbxAllSelection.selected=model.allSlidesSelected.equals(EnumSelection.SELECTED);
+				}
+				btnImport.enabled=(newCaptureModel.currentState == NewCaptureModel.STATE_DEFAULT && model.selectedCapture && (cbxAllSelection.middle || cbxAllSelection.selected));
+			}
 
-            private function onImportClick():void {
-                model.importSelection(btnPreview.selected);
-                onClose();
-            }
+			private function onImportClick():void {
+				model.importSelection(btnPreview.selected);
+				onClose();
+			}
 
-            private function runPreveiwHandler():void {
-                btnPreview.selected=true;
-            }
+			private function runPreveiwHandler():void {
+				btnPreview.selected=true;
+			}
 
-            private function hidePreviewHandler():void {
-                btnPreview.selected=false;
-            }
+			private function hidePreviewHandler():void {
+				btnPreview.selected=false;
+			}
 
-            private function getSelectionLabelText(newCount:Number):String {
-                var result:String=newCount ? newCount.toString() : "0";
-                result+=" of ";
-                if (model && model.captureSlides) {
-                    result+=model.captureSlides.length;
-                } else {
-                    result+="0";
-                }
-                return result;
-            }
-        ]]>
-    </fx:Script>
-    <s:Group width="100%"
-             height="100%">
-		<s:Rect width="100%" height="100%">
+			private function getSelectionLabelText(newCount:Number):String {
+				var result:String=newCount ? newCount.toString() : "0";
+				result+=" of ";
+				if (model && model.captureSlides) {
+					result+=model.captureSlides.length;
+				} else {
+					result+="0";
+				}
+				return result;
+			}
+		]]>
+	</fx:Script>
+	<s:Group width="100%"
+			 height="100%">
+		<s:Rect width="100%"
+				height="100%">
 			<s:fill>
-				<s:SolidColor color="0" alpha=".7"/>
+				<s:SolidColor color="0"
+							  alpha=".7"/>
 			</s:fill>
 		</s:Rect>
-        <c:ImporterTitleWindow id="window" close="onClose()"
-                       title="Import Slides"
-                       alpha="0.0"
-                       width="800"
-                       height="80%"
-					   verticalCenter="0"
-					   horizontalCenter="0">
-            <s:VGroup width="100%"
-                      height="100%"
-                      paddingBottom="5"
-                      paddingLeft="5"
-                      paddingRight="5"
-                      paddingTop="5">
-                <s:HGroup width="100%"
-                          verticalAlign="middle">
-                    <!--s:TabBar id="tbNavigation"
-                              dataProvider="{vstNavigation}"
-                              change="{dispatchEvent(new Event('SelectedViewChanges'))}"/-->
-                    <s:Label text="From Captures"
-                             fontWeight="bold"
-                             paddingLeft="10"/>
-                    <s:Spacer width="100%"/>
-                    <s:HGroup verticalAlign="middle">
-                        <s:Group width="100">
-                            <se:CheckBoxExtended id="cbxAllSelection"
-                                                 label="{model.allSlidesSelected.equals(EnumSelection.UNSELECTED) ? 'Select All':'Deselect All'}"
-                                                 labelPlacement="right"
-                                                 visible="{btnPreview.selected}"
-                                                 click="onAllSelectionChange()"/>
-                        </s:Group>
-                        <s:Spacer width="10"/>
-                        <c:ScalableLabel id="slCount"
-                                                  visible="{btnPreview.selected}"
-                                                  width="60"
-                                                  height="100%"
-                                                  text="{getSelectionLabelText(model.selectedSlidesCount)}"/>
-                        <s:ToggleButton id="btnPreview"
-                                        label="{btnPreview.selected ? 'Go Back' : 'Preview'}"
-                                        selected="false"
-                                        cornerRadius="5"
-                                        enabled="{selectedView.enablePreview}"
-                                        change="{btnPreview.selected ? selectedView.showPreview() : selectedView.hidePreview()}"/>
-                    </s:HGroup>
-                </s:HGroup>
-                <mx:ViewStack id="vstNavigation"
-                              width="100%"
-                              height="100%"
-                              creationComplete="{dispatchEvent(new Event('SelectedViewChanges'))}">
-                    <s:NavigatorContent label="Captures"
-                                        width="100%"
-                                        height="100%">
-                        <importer:Captures id="captures"
-                                           width="100%"
-                                           height="100%"
-                                           hidePreviewHandler="hidePreviewHandler"
-                                           runPreviewHandler="{runPreveiwHandler}"/>
-                    </s:NavigatorContent>
-                    <!--s:NavigatorContent label="New Capture"
-                                        width="100%"
-                                        height="100%"
-                                        enabled="false">
+		<c:ImporterTitleWindow id="window"
+							   close="onClose()"
+							   title="Import Slides"
+							   alpha="0.0"
+							   width="80%"
+							   height="80%"
+							   verticalCenter="0"
+							   horizontalCenter="0"
+							   closeButtonEnabled="{newCaptureModel.currentState == NewCaptureModel.STATE_DEFAULT}">
+			<s:VGroup width="100%"
+					  height="100%"
+					  paddingBottom="5"
+					  paddingLeft="5"
+					  paddingRight="5"
+					  paddingTop="5">
+				<s:HGroup width="100%"
+						  verticalAlign="middle">
+					<!--s:TabBar id="tbNavigation"
+							  dataProvider="{vstNavigation}"
+							  change="{dispatchEvent(new Event('SelectedViewChanges'))}"/-->
+					<s:Label text="From Captures"
+							 fontWeight="bold"
+							 paddingLeft="10"/>
+					<s:Spacer width="100%"/>
+					<s:HGroup verticalAlign="middle">
+						<s:Group width="100">
+							<se:CheckBoxExtended id="cbxAllSelection"
+												 label="{model.allSlidesSelected.equals(EnumSelection.UNSELECTED) ? 'Select All':'Deselect All'}"
+												 labelPlacement="right"
+												 visible="{btnPreview.selected}"
+												 click="onAllSelectionChange()"/>
+						</s:Group>
+						<s:Spacer width="10"/>
+						<c:ScalableLabel id="slCount"
+										 visible="{btnPreview.selected}"
+										 width="60"
+										 height="100%"
+										 text="{getSelectionLabelText(model.selectedSlidesCount)}"/>
+						<s:ToggleButton id="btnPreview"
+										label="{btnPreview.selected ? 'Go Back' : 'Preview'}"
+										selected="false"
+										cornerRadius="5"
+										enabled="{selectedView.enablePreview}"
+										change="{btnPreview.selected ? selectedView.showPreview() : selectedView.hidePreview()}"/>
+					</s:HGroup>
+				</s:HGroup>
+				<mx:ViewStack id="vstNavigation"
+							  width="100%"
+							  height="100%"
+							  creationComplete="{dispatchEvent(new Event('SelectedViewChanges'))}">
+					<s:NavigatorContent label="Captures"
+										width="100%"
+										height="100%">
+						<importer:Captures id="captures"
+										   width="100%"
+										   height="100%"
+										   appContextMenu="{appContextMenu}"
+										   hidePreviewHandler="hidePreviewHandler"
+										   runPreviewHandler="{runPreveiwHandler}"/>
+					</s:NavigatorContent>
+					<!--s:NavigatorContent label="New Capture"
+										width="100%"
+										height="100%"
+										enabled="false">
 
-                    </s:NavigatorContent>
-                    <s:NavigatorContent label="Lesson"
-                                        width="100%"
-                                        height="100%"
-                                        enabled="false">
+					</s:NavigatorContent>
+					<s:NavigatorContent label="Lesson"
+										width="100%"
+										height="100%"
+										enabled="false">
 
-                    </s:NavigatorContent>
-                    <s:NavigatorContent label="XML"
-                                        width="100%"
-                                        height="100%"
-                                        enabled="false">
+					</s:NavigatorContent>
+					<s:NavigatorContent label="XML"
+										width="100%"
+										height="100%"
+										enabled="false">
 
-                    </s:NavigatorContent-->
-                </mx:ViewStack>
-                <s:HGroup width="100%"
-                          verticalAlign="middle"
-                          paddingBottom="10"
-                          paddingLeft="10"
-                          paddingRight="10"
-                          paddingTop="10">
-                    <s:HGroup verticalAlign="middle"
-                              horizontalAlign="center"
-                              gap="10">
-                        <s:Label text="Add Slides: "
-                                 paddingTop="3"
-                                 fontWeight="bold"/>
-                        <s:HGroup verticalAlign="middle"
-                                  click="{editorModel.addAtTheEnd = true}"
-                                  height="100%"
-                                  gap="3"
-                                  toolTip="Select this option to add imported slides at the end of your slide list">
-                            <s:RadioButton id="rbEnd"
-                                           selected="{editorModel.addAtTheEnd}"/>
-                            <s:Label paddingTop="3"
-                                     text="At the end"/>
-                        </s:HGroup>
-                        <s:HGroup verticalAlign="middle"
-                                  click="{editorModel.addAtTheEnd = false}"
-                                  height="100%"
-                                  gap="3"
-                                  toolTip="Select after which slide in your lesson imported slides should be added">
-                            <s:RadioButton id="rbAfter"
-                                           selected="{!editorModel.addAtTheEnd}"/>
-                            <s:Label paddingTop="3"
-                                     text="After slide"/>
-                            <s:NumericStepper id="stpIndex"
-                                              value="{editorModel.insertionIndex > -1 ? editorModel.insertionIndex : 1}"
-                                              change="{editorModel.insertionIndex = stpIndex.value}"
-                                              minimum="1"
-                                              maximum="{editorModel.lesson.slides.length}"/>
-                        </s:HGroup>
-                        <s:Spacer width="30"/>
-                        <s:HGroup verticalAlign="middle"
-                                  height="100%"
-                                  toolTip="Select this option to import images only - without any detected objects (like actions, textfields and captions)">
-                            <s:Label paddingTop="3"
-                                     text="Images import only: "/>
-                            <view:SwitchButton id="sbActions"
-                                               selected="{model.imageImportOnly}"
-                                               change="{model.onObjectVisibilityChange(sbActions.selected)}"/>
-                        </s:HGroup>
-                    </s:HGroup>
-                    <s:Spacer width="100%"/>
-                    <s:HGroup verticalAlign="middle"
-                              horizontalAlign="center">
-                        <s:Button id="btnImport"
-                                  label="{btnPreview.selected ? 'Import Selected' : 'Import'}"
-                                  enabled="{btnPreview.selected ? (cbxAllSelection.middle || cbxAllSelection.selected) : model.selectedCapture != null}"
-                                  click="onImportClick()"/>
-                    </s:HGroup>
-                </s:HGroup>
-            </s:VGroup>
-        </c:ImporterTitleWindow>
-    </s:Group>
+					</s:NavigatorContent-->
+				</mx:ViewStack>
+				<s:HGroup width="100%"
+						  verticalAlign="middle"
+						  paddingBottom="10"
+						  paddingLeft="10"
+						  paddingRight="10"
+						  paddingTop="10">
+					<s:HGroup verticalAlign="middle"
+							  horizontalAlign="center"
+							  gap="10">
+						<s:Label text="Add Slides: "
+								 paddingTop="3"
+								 fontWeight="bold"/>
+						<s:HGroup verticalAlign="middle"
+								  click="{editorModel.addAtTheEnd = true}"
+								  height="100%"
+								  gap="3"
+								  toolTip="Select this option to add imported slides at the end of your slide list">
+							<s:RadioButton id="rbEnd"
+										   enabled="{_notEmptyLesson}"
+										   selected="{editorModel.addAtTheEnd}"/>
+							<s:Label paddingTop="3"
+									 text="At the end"/>
+						</s:HGroup>
+						<s:HGroup verticalAlign="middle"
+								  click="{editorModel.addAtTheEnd = false}"
+								  height="100%"
+								  gap="3"
+								  toolTip="Select after which slide in your lesson imported slides should be added">
+							<s:RadioButton id="rbAfter"
+										   enabled="{_notEmptyLesson}"
+										   selected="{!editorModel.addAtTheEnd}"/>
+							<s:Label paddingTop="3"
+									 text="After slide"/>
+							<s:NumericStepper id="stpIndex"
+											  value="{editorModel.insertionIndex > -1 ? editorModel.insertionIndex : 1}"
+											  change="{editorModel.insertionIndex = stpIndex.value}"
+											  minimum="1"
+											  enabled="{_notEmptyLesson}"
+											  maximum="{editorModel.lesson.slides.length}"/>
+						</s:HGroup>
+						<s:Spacer width="30"/>
+						<s:HGroup verticalAlign="middle"
+								  height="100%"
+								  toolTip="Select this option to import images only - without any detected objects (like actions, textfields and captions)">
+							<s:Label paddingTop="3"
+									 text="Images import only: "/>
+							<view:SwitchButton id="sbActions"
+											   selected="{model.imageImportOnly}"
+											   change="{model.onObjectVisibilityChange(sbActions.selected)}"/>
+						</s:HGroup>
+					</s:HGroup>
+					<s:Spacer width="100%"/>
+					<s:HGroup verticalAlign="middle"
+							  horizontalAlign="center">
+						<s:Button id="btnImport"
+								  label="{btnPreview.selected ? 'Import Selected' : 'Import'}"
+								  enabled="{newCaptureModel.currentState == NewCaptureModel.STATE_DEFAULT &amp;&amp; (btnPreview.selected ? (cbxAllSelection.middle || cbxAllSelection.selected) : model.selectedCapture != null)}"
+								  click="onImportClick()"/>
+					</s:HGroup>
+				</s:HGroup>
+			</s:VGroup>
+		</c:ImporterTitleWindow>
+	</s:Group>
 </s:Group>

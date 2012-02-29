@@ -4,8 +4,7 @@
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   xmlns:model="itrain.common.model.*"
 			   xmlns:local="*"
-			   implements="itrain.lessonplayer.model.IStandAlonePlayer"
-			   preinitialize="onPreinitialize()">
+			   implements="itrain.lessonplayer.model.IStandAlonePlayer">
 	<fx:Script>
 		<![CDATA[
 			import itrain.common.events.LessonModuleEvent;
@@ -17,14 +16,13 @@
 			import mx.core.FlexGlobals;
 			import mx.rpc.http.HTTPService;
 			
+			import spark.modules.ModuleLoader;
+			
 			private var arrayCollection:ArrayCollection;
 			private var httpService:HTTPService;
 			
-			private function onPreinitialize():void {
-				this.addEventListener(LessonModuleEvent.MODULE_CREATION_COMPLETE, onModuleCreationComplete);
-			}
-			
-			private function onModuleCreationComplete(e:LessonModuleEvent):void {
+			override protected function onModuleCreationComplete(e:Event):void {
+				super.onModuleCreationComplete(e);
 				lessonPlayerModule.loadLesson(DataUtils.parseBoolean(parameters.interactive));
 			}
 			
@@ -38,9 +36,13 @@
 				if (o)
 					lessonPlayerModule.rightClick(getRightClickTarget());
 			}
+			
+			override protected function get moduleLoader():ModuleLoader {
+				return playerModule;
+			}
 		]]>
 	</fx:Script>
-	<mx:ModuleLoader id="playerModule"
+	<s:ModuleLoader id="playerModule"
 					 url="{parameters.playerModuleURL}"
 					 loading="onLoading(event)"
 					 ready="onReady(event)"

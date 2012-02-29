@@ -1,6 +1,7 @@
 package itrain.common.utils
 {
 	
+	import spark.filters.BevelFilter;
 	import spark.filters.BlurFilter;
 	import spark.filters.ConvolutionFilter;
 	import spark.filters.DropShadowFilter;
@@ -11,6 +12,7 @@ package itrain.common.utils
 		public static const smallDropShadow:DropShadowFilter = new DropShadowFilter(3.0, 45, 0x444444, 0.7);
 		public static const blurFilter:BlurFilter = new BlurFilter(8.0,8.0);
 		public static const embossed:ConvolutionFilter = getEmbossedFilter();
+		public static const shadowedText:DropShadowFilter = new DropShadowFilter(1.0, 45, 0x444444, 0.7);
 		
 		public static const IDLE_WINDOW_SHOW_INTERVAL:Number = 3000.0;
 		

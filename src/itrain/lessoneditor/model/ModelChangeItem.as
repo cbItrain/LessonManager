@@ -20,6 +20,7 @@ package itrain.lessoneditor.model
 		public var newValue:Object;
 		public var oldValue:Object;
 		public var type:String;
+		public var bulkMCIs:Vector.<ModelChangeItem>;
 		
 		public function ModelChangeItem()
 		{

@@ -61,11 +61,11 @@
 			public var externalBean:ExternalInterfaceBean;
 
 			private function onCreationComplete():void {
-				ChangeWatcher.watch(model, "currentlySelected", onCurrentlySelectedChange);
-
 				var ev:LessonModuleEvent=new LessonModuleEvent(LessonModuleEvent.MODULE_CREATION_COMPLETE, true);
 				dispatchEvent(ev);
 
+				ChangeWatcher.watch(model, "currentlySelected", onCurrentlySelectedChange);
+				
 				notifyExternalBean(ExternalInterfaceBean.PLAYER_READY);
 			}
 

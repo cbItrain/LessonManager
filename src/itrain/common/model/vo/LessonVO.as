@@ -87,6 +87,25 @@ package itrain.common.model.vo {
 
 			return lessonTag;
 		}
+		
+		public function convertToXMLString():String {
+			var lessonTag:String='<lesson version="1">';
+			lessonTag += "<properties>";
+			lessonTag += "<oldCaptions>" + oldCaptionStyle + "</oldCaptions>";
+			lessonTag += "<actionIndicator>" + showActionIndicator + "</actionIndicator>";
+			lessonTag += "<mouseSpeed>" + mouseSpeed + "</mouseSpeed>";
+			lessonTag += "<themeColor>" + themeColor + "</themeColor>";
+			lessonTag += "<controlsPosition>" + controlsPosition + "</controlsPosition>";
+			lessonTag += "<notes>" + notes + "</notes>";
+			lessonTag += "</properties>"
+			lessonTag += "<slides>";
+			for each (var s:SlideVO in slides) {
+				lessonTag += s.convertToXMLString();
+			}
+			lessonTag += "</slides>";
+			lessonTag += "</lesson>";
+			return lessonTag;
+		}
 	}
 }
 

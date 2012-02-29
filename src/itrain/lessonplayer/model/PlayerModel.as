@@ -131,7 +131,7 @@ package itrain.lessonplayer.model {
 				var previousImageUrl:String=(lesson.slides.getItemAt(_currentSlideIndex - 1) as SlideVO).source;
 				var currentImageUrl:String=(lesson.slides.getItemAt(_currentSlideIndex) as SlideVO).source;
 				if (previousImageUrl != currentImageUrl)
-					imageRepository.clearCache([previousImageUrl], true);
+					imageRepository.clearCache([previousImageUrl]);
 			}
 		}
 		

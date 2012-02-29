@@ -29,8 +29,8 @@
 			public var dispatcher:IEventDispatcher;
 
 			private function onPreInitialize():void {
-				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded);
-				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageLoaded);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_LOADED, onImageLoaded, false, 0, true);
+				ImageRepository.getInstance().addEventListener(ImageRepositoryEvent.IMAGE_NOT_LOADED, onImageLoaded, false, 0, true);
 			}
 
 			public function get bitmapData():BitmapData {
@@ -103,7 +103,7 @@
 			private function updateSource(bd:BitmapData):void {
 				model.loadingImage=false;
 				var me:ModelEvent;
-				if (bd && ImageRepository.isBitmapAvailable(bd)) {				
+				if (bd && repository.isBitmapDataAvailable(bd)) {				
 					bitmapData = bd;
 					image.source=new Bitmap(bd);
 					model.imageWidth=image.width=bd.width;

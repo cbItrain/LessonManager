@@ -25,4 +25,5 @@
 	<model:EditPanelModel id="editPanelModel"/>
 	<model:SlidePropertiesModel id="slidePropertiesModel"/>
 	<model:MessageBean id="messageBean"/>
+	<model:NewCaptureModel id="newCaptureModel"/>
 </swiz:BeanProvider>

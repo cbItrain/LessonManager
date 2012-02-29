@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 currentState="{model.currentState}"
+		 width="100%"
+		 height="100"
+		 xmlns:importer="itrain.lessoneditor.view.components.importer.*">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import itrain.common.utils.Embeded;
+			import itrain.common.utils.Messages;
+			import itrain.lessoneditor.model.NewCaptureModel;
+
+			[Inject]
+			[Bindable]
+			public var model:NewCaptureModel;
+			
+			public var processStartedHandler:Function;
+			
+			private function onLaunchingEnterState():void {
+				if (processStartedHandler != null)
+					processStartedHandler();
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="default"/>
+		<s:State name="launching" enterState="onLaunchingEnterState()"/>
+		<s:State name="ready"/>
+		<s:State name="recording"/>
+		<s:State name="uploading"
+				 stateGroups="progressVisible"/>
+		<s:State name="uploaded"
+				 stateGroups="progressVisible"/>
+		<s:State name="saved"
+				 stateGroups="progressVisible"/>
+		<s:State name="error"/>
+	</s:states>
+	<s:Rect width="100%"
+			height="100%">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:entries>
+					<s:GradientEntry alpha=".9"
+									 color="#E7E7E7"/>
+					<s:GradientEntry alpha="1.0"
+									 color="#E7E7E7"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="1"
+								color="#777777"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Group width="100%"
+			 height="100%">
+
+		<importer:CaptureToolProcess currentState="{currentState}"
+									 excludeFrom="default, error"
+									 model="{model}"/>
+		<importer:CaptureToolDefault model="{model}"
+									 includeIn="default"
+									 highlightNewCaptureBtn="{model.highlightNewButton}"/>
+		<importer:CaptureToolError includeIn="error"
+								   message="{model.message}"
+								   retryHandler="{model.ctAvailable ? null : model.retryCaptureTool}"
+								   description="{model.description}"/>
+	</s:Group>
+</s:Group>
